@@ -1,1 +1,154 @@
+{% extends 'base.html' %}
 
+{% block title %}Dashboard | NEET Platform{% endblock %}
+{% block page_title %}Welcome back{% endblock %}
+{% block page_subtitle %}Run your institute with modern workflows, clean insights, and exam-ready content.{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-label">Students</div>
+      <div class="stat-value">{{ dashboard_stats.students }}</div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-label">Teachers</div>
+      <div class="stat-value">{{ dashboard_stats.teachers }}</div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-label">Tests</div>
+      <div class="stat-value">{{ dashboard_stats.tests }}</div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-label">Questions</div>
+      <div class="stat-value">{{ dashboard_stats.questions }}</div>
+    </div>
+  </div>
+</div>
+
+{% if current_user.role in ['institute_admin', 'teacher', 'super_admin'] %}
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <a href="{{ url_for('admin.questions') }}" class="quick-action d-block">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h3 class="h5 mb-2">Question Bank</h3>
+          <p class="text-muted mb-0">Create, edit, and organize your NEET questions.</p>
+        </div>
+        <i class="bi bi-patch-question fs-3 text-primary"></i>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('admin.batches') }}" class="quick-action d-block">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h3 class="h5 mb-2">Batches</h3>
+          <p class="text-muted mb-0">Manage student groups, academic years, and access.</p>
+        </div>
+        <i class="bi bi-people fs-3 text-success"></i>
+      </div>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('admin.tests') }}" class="quick-action d-block">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h3 class="h5 mb-2">Tests</h3>
+          <p class="text-muted mb-0">Track drafts and upcoming online examinations.</p>
+        </div>
+        <i class="bi bi-journal-check fs-3 text-warning"></i>
+      </div>
+    </a>
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card-modern">
+      <div class="panel-header d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="h5 mb-1">Recent questions</h2>
+          <p class="text-muted mb-0">Latest additions to your institute question bank.</p>
+        </div>
+        {% if current_user.role in ['institute_admin', 'teacher', 'super_admin'] %}
+        <a class="btn btn-primary" href="{{ url_for('admin.questions') }}">Open Question Bank</a>
+        {% endif %}
+      </div>
+      <div class="panel-body">
+        {% if recent_questions %}
+        <div class="table-responsive">
+          <table class="table table-modern">
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Subject</th>
+                <th>Chapter</th>
+                <th>Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for question in recent_questions %}
+              <tr>
+                <td class="question-preview">{{ question.stem[:90] }}{% if question.stem|length > 90 %}...{% endif %}</td>
+                <td>{{ question.subject.name }}</td>
+                <td>{{ question.chapter.name }}</td>
+                <td>
+                  <span class="badge-soft badge-{{ question.difficulty_level }}">{{ question.difficulty_level|title }}</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="mb-3 fs-1">🧠</div>
+          <h3 class="h5">No questions added yet</h3>
+          <p class="mb-0">Start by creating your first chapter-wise NEET question.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card-modern">
+      <div class="panel-header">
+        <h2 class="h5 mb-1">Recent tests</h2>
+        <p class="text-muted mb-0">Quick snapshot of institute activity.</p>
+      </div>
+      <div class="panel-body">
+        {% if recent_tests %}
+          <div class="d-grid gap-3">
+            {% for test in recent_tests %}
+            <div class="card-soft p-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="fw-semibold">{{ test.title }}</div>
+                <span class="badge-soft">{{ test.status|title }}</span>
+              </div>
+              <div class="question-meta">
+                {{ test.test_type|replace('_', ' ')|title }} • {{ test.duration_minutes }} mins • {{ test.total_marks }} marks
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="mb-3 fs-1">📝</div>
+          <h3 class="h5">No tests yet</h3>
+          <p class="mb-0">After adding questions, the next step will be test creation.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
