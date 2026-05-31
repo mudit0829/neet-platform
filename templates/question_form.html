@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} | NEET Platform{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_subtitle %}Write clean, exam-grade questions with a consistent authoring experience.{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card-modern">
+      <div class="panel-body">
+        <form method="post" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Subject</label>
+            <select class="form-select" name="subject_id" id="subject_id" required>
+              <option value="">Select subject</option>
+              {% for subject in subjects %}
+              <option value="{{ subject.id }}" {% if question and question.subject_id == subject.id %}selected{% endif %}>
+                {{ subject.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Chapter</label>
+            <select class="form-select" name="chapter_id" id="chapter_id" required>
+              <option value="">Select chapter</option>
+              {% for chapter in chapters %}
+              <option
+                value="{{ chapter.id }}"
+                data-subject-id="{{ chapter.subject_id }}"
+                {% if question and question.chapter_id == chapter.id %}selected{% endif %}
+              >
+                {{ chapter.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Question statement</label>
+            <textarea class="form-control" name="stem" rows="5" required>{{ question.stem if question else '' }}</textarea>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Option A</label>
+            <input type="text" class="form-control" name="option_a" value="{{ question.option_a if question else '' }}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Option B</label>
+            <input type="text" class="form-control" name="option_b" value="{{ question.option_b if question else '' }}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Option C</label>
+            <input type="text" class="form-control" name="option_c" value="{{ question.option_c if question else '' }}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Option D</label>
+            <input type="text" class="form-control" name="option_d" value="{{ question.option_d if question else '' }}" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Correct option</label>
+            <select class="form-select" name="correct_option" required>
+              <option value="">Select correct option</option>
+              {% for option in ['A', 'B', 'C', 'D'] %}
+              <option value="{{ option }}" {% if question and question.correct_option == option %}selected{% endif %}>
+                {{ option }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Difficulty</label>
+            <select class="form-select" name="difficulty_level" required>
+              <option value="easy" {% if question and question.difficulty_level == 'easy' %}selected{% endif %}>Easy</option>
+              <option value="medium" {% if not question or question.difficulty_level == 'medium' %}selected{% endif %}>Medium</option>
+              <option value="hard" {% if question and question.difficulty_level == 'hard' %}selected{% endif %}>Hard</option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Explanation</label>
+            <textarea class="form-control" name="explanation" rows="5" placeholder="Write the detailed solution or concept explanation...">{{ question.explanation if question else '' }}</textarea>
+          </div>
+
+          <div class="col-12 d-flex gap-2">
+            <button class="btn btn-primary">{{ submit_label }}</button>
+            <a href="{{ url_for('admin.questions') }}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="form-side-note mb-4">
+      <h3 class="h6 fw-bold mb-3">Authoring tips</h3>
+      <ul class="mb-0 ps-3">
+        <li>Keep one concept per question.</li>
+        <li>Use chapters consistently for filtering later.</li>
+        <li>Write clear explanations for review mode.</li>
+        <li>Balance easy, medium, and hard levels.</li>
+      </ul>
+    </div>
+
+    <div class="card-modern">
+      <div class="panel-body">
+        <h3 class="h6 fw-bold mb-3">Why this matters</h3>
+        <p class="text-muted mb-0">
+          A strong question bank is the backbone of your test builder, analytics, remedial practice, and future adaptive learning flows.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function filterChapters() {
+    const subjectId = document.getElementById("subject_id").value;
+    const chapterSelect = document.getElementById("chapter_id");
+    const options = chapterSelect.querySelectorAll("option[data-subject-id]");
+
+    options.forEach(option => {
+      if (!subjectId || option.dataset.subjectId === subjectId) {
+        option.hidden = false;
+      } else {
+        option.hidden = true;
+      }
+    });
+
+    const selectedOption = chapterSelect.options[chapterSelect.selectedIndex];
+    if (selectedOption && selectedOption.hidden) {
+      chapterSelect.value = "";
+    }
+  }
+
+  document.getElementById("subject_id").addEventListener("change", filterChapters);
+  window.addEventListener("load", filterChapters);
+</script>
+{% endblock %}
