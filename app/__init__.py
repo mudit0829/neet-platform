@@ -3,27 +3,6 @@ from config import Config
 from .extensions import db, migrate, login_manager
 
 
-def seed_defaults():
-    from .models import Subject, Chapter
-
-    if Subject.query.count() == 0:
-        biology = Subject(name="Biology")
-        chemistry = Subject(name="Chemistry")
-        physics = Subject(name="Physics")
-        db.session.add_all([biology, chemistry, physics])
-        db.session.flush()
-
-        db.session.add_all([
-            Chapter(subject_id=biology.id, name="Cell: The Unit of Life"),
-            Chapter(subject_id=biology.id, name="Biomolecules"),
-            Chapter(subject_id=chemistry.id, name="Atomic Structure"),
-            Chapter(subject_id=chemistry.id, name="Chemical Bonding"),
-            Chapter(subject_id=physics.id, name="Units and Measurements"),
-            Chapter(subject_id=physics.id, name="Kinematics"),
-        ])
-        db.session.commit()
-
-
 def create_app():
     app = Flask(
         __name__,
@@ -45,8 +24,6 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
 
-    with app.app_context():
-        db.create_all()
-        seed_defaults()
+    print("STEP A: blueprints registered", flush=True)
 
     return app
