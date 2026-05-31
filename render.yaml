@@ -2,20 +2,11 @@ services:
   - type: web
     name: neet-platform
     env: python
-    plan: starter
+    plan: free
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn run:app"
+    startCommand: "gunicorn app:app"
     autoDeploy: true
+    healthCheckPath: /health
     envVars:
       - key: SECRET_KEY
         generateValue: true
-      - key: DATABASE_URL
-        fromDatabase:
-          name: neet-platform-db
-          property: connectionString
-      - key: FLASK_ENV
-        value: production
-
-databases:
-  - name: neet-platform-db
-    plan: starter
