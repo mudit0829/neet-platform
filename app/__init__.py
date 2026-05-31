@@ -3,6 +3,27 @@ from config import Config
 from .extensions import db, migrate, login_manager
 
 
+def seed_defaults():
+    from .models import Subject, Chapter
+
+    if Subject.query.count() == 0:
+        biology = Subject(name="Biology")
+        chemistry = Subject(name="Chemistry")
+        physics = Subject(name="Physics")
+        db.session.add_all([biology, chemistry, physics])
+        db.session.flush()
+
+        db.session.add_all([
+            Chapter(subject_id=biology.id, name="Cell: The Unit of Life"),
+            Chapter(subject_id=biology.id, name="Biomolecules"),
+            Chapter(subject_id=chemistry.id, name="Atomic Structure"),
+            Chapter(subject_id=chemistry.id, name="Chemical Bonding"),
+            Chapter(subject_id=physics.id, name="Units and Measurements"),
+            Chapter(subject_id=physics.id, name="Kinematics"),
+        ])
+        db.session.commit()
+
+
 def create_app():
     app = Flask(
         __name__,
@@ -24,59 +45,8 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
 
-    @app.cli.command("seed")
-    def seed():
-        from .models import Institute, User, Subject, Chapter
-
-        if not Institute.query.first():
-            institute = Institute(name="Demo NEET Institute", slug="demo-neet-institute")
-            db.session.add(institute)
-            db.session.flush()
-
-            admin = User(
-                institute_id=institute.id,
-                full_name="Admin User",
-                email="admin@example.com",
-                role="institute_admin",
-            )
-            admin.set_password("admin123")
-
-            teacher = User(
-                institute_id=institute.id,
-                full_name="Teacher User",
-                email="teacher@example.com",
-                role="teacher",
-            )
-            teacher.set_password("teacher123")
-
-            student = User(
-                institute_id=institute.id,
-                full_name="Student User",
-                email="student@example.com",
-                role="student",
-            )
-            student.set_password("student123")
-
-            db.session.add_all([admin, teacher, student])
-
-            biology = Subject(name="Biology")
-            chemistry = Subject(name="Chemistry")
-            physics = Subject(name="Physics")
-            db.session.add_all([biology, chemistry, physics])
-            db.session.flush()
-
-            db.session.add_all([
-                Chapter(subject_id=biology.id, name="Cell: The Unit of Life"),
-                Chapter(subject_id=biology.id, name="Biomolecules"),
-                Chapter(subject_id=chemistry.id, name="Atomic Structure"),
-                Chapter(subject_id=chemistry.id, name="Chemical Bonding"),
-                Chapter(subject_id=physics.id, name="Units and Measurements"),
-                Chapter(subject_id=physics.id, name="Kinematics"),
-            ])
-
-            db.session.commit()
-            print("Seed data added.")
-        else:
-            print("Seed skipped: data already exists.")
+    with app.app_context():
+        db.create_all()
+        seed_defaults()
 
     return app
