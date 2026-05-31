@@ -1,53 +1,68 @@
-from flask import Blueprint, render_template
-from flask_login import login_required, current_user
-from ..models import Test, Question, User, Batch
+import os
+from flask import Flask
 
-main_bp = Blueprint("main", __name__)
+app = Flask(__name__)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
 
 
-@main_bp.route("/")
+@app.route("/")
 def home():
-    stats = {
-        "students": User.query.filter_by(role="student").count(),
-        "tests": Test.query.count(),
-        "questions": Question.query.count(),
-        "batches": Batch.query.count(),
-    }
-    return render_template("home.html", stats=stats)
+    return """
+    <html>
+      <head>
+        <title>NEET Platform</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+          body {
+            margin: 0;
+            font-family: Inter, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+          }
+          .card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 720px;
+            width: calc(100% - 40px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+          }
+          h1 { margin: 0 0 12px; font-size: 2rem; }
+          p { margin: 0 0 12px; color: #dbeafe; line-height: 1.6; }
+          .ok {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: #16a34a;
+            color: white;
+            font-weight: 700;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h1>NEET Platform is live</h1>
+          <p>This is the clean Render boot stage.</p>
+          <p>Next step: attach PostgreSQL, authentication, question bank, and test engine.</p>
+          <div class="ok">Render deploy successful</div>
+        </div>
+      </body>
+    </html>
+    """
 
 
-@main_bp.route("/dashboard")
-@login_required
-def dashboard():
-    institute_id = current_user.institute_id
+@app.route("/health")
+def health():
+    return {"status": "ok"}, 200
 
-    dashboard_stats = {
-        "students": User.query.filter_by(institute_id=institute_id, role="student").count() if institute_id else 0,
-        "teachers": User.query.filter_by(institute_id=institute_id, role="teacher").count() if institute_id else 0,
-        "tests": Test.query.filter_by(institute_id=institute_id).count() if institute_id else 0,
-        "questions": Question.query.filter_by(institute_id=institute_id).count() if institute_id else 0,
-    }
 
-    recent_tests = (
-        Test.query.filter_by(institute_id=institute_id)
-        .order_by(Test.created_at.desc())
-        .limit(5)
-        .all()
-        if institute_id else []
-    )
-
-    recent_questions = (
-        Question.query.filter_by(institute_id=institute_id)
-        .order_by(Question.created_at.desc())
-        .limit(5)
-        .all()
-        if institute_id else []
-    )
-
-    return render_template(
-        "dashboard.html",
-        current_user=current_user,
-        dashboard_stats=dashboard_stats,
-        recent_tests=recent_tests,
-        recent_questions=recent_questions,
-    )
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
