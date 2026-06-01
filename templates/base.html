@@ -23,14 +23,14 @@
       </div>
 
       <nav class="sidebar-nav">
-        <a class="nav-item {% if request.path == '/admin/' %}active{% endif %}" href="{{ url_for('admin_bp.dashboard') }}">Dashboard</a>
-        <a class="nav-item {% if '/admin/questions' in request.path %}active{% endif %}" href="{{ url_for('admin_bp.questions_page') }}">Question Bank</a>
-        <a class="nav-item {% if '/admin/tests' in request.path %}active{% endif %}" href="{{ url_for('admin_bp.tests_page') }}">Tests</a>
-        <a class="nav-item {% if '/admin/students' in request.path %}active{% endif %}" href="{{ url_for('admin_bp.students_page') }}">Students</a>
+        <a class="nav-item {% if request.path == '/admin/' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a class="nav-item {% if '/admin/questions' in request.path %}active{% endif %}" href="{{ url_for('admin.questions_page') }}">Question Bank</a>
+        <a class="nav-item {% if '/admin/tests' in request.path %}active{% endif %}" href="{{ url_for('admin.tests_page') }}">Tests</a>
+        <a class="nav-item {% if '/admin/students' in request.path %}active{% endif %}" href="{{ url_for('admin.students_page') }}">Students</a>
       </nav>
 
       <div class="sidebar-footer">
-        <a class="btn btn-secondary btn-block" href="{{ url_for('auth_bp.logout') }}">Logout</a>
+        <a class="btn btn-secondary btn-block" href="{{ url_for('auth.logout') }}">Logout</a>
       </div>
     </aside>
     {% endif %}
