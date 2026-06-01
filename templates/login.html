@@ -1,67 +1,67 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | NEET Platform</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <section class="auth-shell">
+    <div class="auth-panel auth-brand">
+      <div class="brand-badge">NEET CBT Training Platform</div>
+      <h1>Train students like the real NEET online exam.</h1>
+      <p>
+        Manage batches, create online tests, evaluate performance, and give students a professional
+        dashboard to attempt exams and review results.
+      </p>
 
-{% block title %}Login • NEET Platform{% endblock %}
-{% block body_class %}auth-page{% endblock %}
-
-{% block body %}
-<div class="auth-shell">
-  <div class="auth-panel auth-brand">
-    <div class="brand-badge">NEET CBT Suite</div>
-    <h1>Professional test platform for coaching institutes</h1>
-    <p>
-      Manage students, conduct online tests, review performance, and build a
-      modern NEET preparation workflow from one dashboard.
-    </p>
-
-    <div class="feature-list">
-      <div class="feature-item">
-        <span class="feature-dot"></span>
-        Real exam-style mock test workflows
-      </div>
-      <div class="feature-item">
-        <span class="feature-dot"></span>
-        Admin, teacher, and student-ready structure
-      </div>
-      <div class="feature-item">
-        <span class="feature-dot"></span>
-        Analytics-first dashboard foundation
+      <div class="feature-list">
+        <div class="feature-item"><span class="feature-dot"></span> CBT-style test interface</div>
+        <div class="feature-item"><span class="feature-dot"></span> Admin, teacher, and student workflow</div>
+        <div class="feature-item"><span class="feature-dot"></span> Results, analytics, and answer review</div>
       </div>
     </div>
-  </div>
 
-  <div class="auth-panel auth-form-panel">
-    <div class="auth-card">
-      <div class="auth-heading">
-        <h2>Welcome back</h2>
-        <p>Sign in to continue to your institute workspace.</p>
-      </div>
-
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="flash flash-{{ category }}">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-
-      <form method="post" class="form-grid">
-        <div class="form-group">
-          <label>Email address</label>
-          <input type="email" name="email" placeholder="admin@institute.com" required>
+    <div class="auth-panel auth-form-panel">
+      <div class="auth-card">
+        <div class="auth-heading">
+          <h2>Welcome back</h2>
+          <p>Login to continue to your panel.</p>
         </div>
 
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" name="password" placeholder="Enter your password" required>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash flash-{{ 'danger' if category in ['error', 'danger'] else 'success' }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="form-grid">
+          <div class="form-group">
+            <label for="email">Email or username</label>
+            <input type="text" id="email" name="email" placeholder="Enter email or username" required>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+
+        <div class="auth-footer">
+          First time setup pending? <a href="{{ url_for('auth_bp.setup') }}">Create Admin</a>
         </div>
-
-        <button type="submit" class="btn btn-primary btn-block">Login</button>
-      </form>
-
-      <div class="auth-footer">
-        Need first account? <a href="{{ url_for('auth.setup') }}">Create admin</a>
       </div>
     </div>
-  </div>
-</div>
-{% endblock %}
+  </section>
+</body>
+</html>
