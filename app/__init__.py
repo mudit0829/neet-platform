@@ -28,8 +28,8 @@ def create_app():
     app = Flask(
         __name__,
         instance_relative_config=True,
-        template_folder="templates",
-        static_folder="static",
+        template_folder="../templates",
+        static_folder="../static",
     )
     app.config.from_object(Config)
 
