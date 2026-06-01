@@ -1,1 +1,68 @@
+{% extends "base.html" %}
 
+{% block title %}NEET Platform{% endblock %}
+
+{% block body %}
+<div class="landing-page">
+  <header class="landing-header">
+    <div class="logo-mark">NP</div>
+    <div class="landing-actions">
+      <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Login</a>
+      <a href="{{ url_for('auth.setup') }}" class="btn btn-primary">Create Admin</a>
+    </div>
+  </header>
+
+  <main class="landing-main">
+    <section class="hero-card">
+      <div class="hero-copy">
+        <div class="hero-badge">NEET Online Testing Platform</div>
+        <h1>Professional software for coaching institutes</h1>
+        <p>
+          Conduct CBT-style tests, manage question banks, onboard students,
+          track performance, and build a full digital assessment workflow.
+        </p>
+      </div>
+    </section>
+
+    {% if not db_ready %}
+    <section class="alert-box">
+      Database is not fully ready yet. Refresh after deployment completes.
+    </section>
+    {% endif %}
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Tests</div>
+        <div class="stat-value">{{ stats.tests }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Question Bank</div>
+        <div class="stat-value">{{ stats.questions }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Students</div>
+        <div class="stat-value">{{ stats.students }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Batches</div>
+        <div class="stat-value">{{ stats.batches }}</div>
+      </div>
+    </section>
+
+    <section class="feature-grid">
+      <div class="soft-card">
+        <h3>Student Portal</h3>
+        <p>Take tests, review attempts, see scores, and access solutions.</p>
+      </div>
+      <div class="soft-card">
+        <h3>Teacher Workspace</h3>
+        <p>Create exams, manage question quality, and assign tests by batch.</p>
+      </div>
+      <div class="soft-card">
+        <h3>Admin Control</h3>
+        <p>Manage users, institutes, batches, reports, and settings centrally.</p>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}
