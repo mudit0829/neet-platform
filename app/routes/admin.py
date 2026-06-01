@@ -198,9 +198,80 @@ def students_page():
     return render_template("admin_students.html", students=students)
 
 
-@admin_bp.route("/tests")
+@admin_bp.route("/tests", methods=["GET", "POST"])
 @login_required
 def tests_page():
     admin_required()
+
+    if request.method == "POST":
+        try:
+            title = (request.form.get("title") or "").strip()
+            test_type = (request.form.get("test_type") or "mock").strip().lower()
+            status = (request.form.get("status") or "draft").strip().lower()
+            description = (request.form.get("description") or "").strip()
+            duration_minutes = request.form.get("duration_minutes", type=int)
+            total_marks = request.form.get("total_marks", type=int)
+            negative_marks = request.form.get("negative_marks", type=float)
+            batch_id = request.form.get("batch_id", type=int)
+
+            if not title:
+                flash("Test name is required.", "danger")
+                return redirect(url_for("admin.tests_page"))
+
+            allowed_test_types = ["chapter", "subject", "monthly", "mock", "full_syllabus"]
+            if test_type not in allowed_test_types:
+                test_type = "mock"
+
+            allowed_statuses = ["draft", "published"]
+            if status not in allowed_statuses:
+                status = "draft"
+
+            if not duration_minutes or duration_minutes < 1:
+                flash("Duration must be at least 1 minute.", "danger")
+                return redirect(url_for("admin.tests_page"))
+
+            if not total_marks or total_marks < 1:
+                flash("Total marks must be at least 1.", "danger")
+                return redirect(url_for("admin.tests_page"))
+
+            if negative_marks is None or negative_marks < 0:
+                flash("Negative marks cannot be negative.", "danger")
+                return redirect(url_for("admin.tests_page"))
+
+            selected_batch = None
+            if batch_id:
+                selected_batch = Batch.query.get(batch_id)
+                if not selected_batch:
+                    flash("Selected batch does not exist.", "danger")
+                    return redirect(url_for("admin.tests_page"))
+
+            test = Test(
+                title=title,
+                test_type=test_type,
+                description=description if description else None,
+                duration_minutes=duration_minutes,
+                total_marks=total_marks,
+                negative_marks=negative_marks,
+                status=status,
+            )
+
+            if hasattr(Test, "batch_id"):
+                test.batch_id = batch_id if selected_batch else None
+
+            if hasattr(Test, "institute_id"):
+                test.institute_id = getattr(current_user, "institute_id", None)
+
+            db.session.add(test)
+            db.session.commit()
+            flash("Test created successfully.", "success")
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating test: {str(e)}", "danger")
+
+        return redirect(url_for("admin.tests_page"))
+
     tests = Test.query.order_by(Test.id.desc()).all()
-    return render_template("admin_tests.html", tests=tests)
+    batches = Batch.query.order_by(Batch.id.desc()).all()
+
+    return render_template("admin_tests.html", tests=tests, batches=batches)
