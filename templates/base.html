@@ -7,88 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-  {% if current_user.is_authenticated %}
-  <div class="app-shell d-lg-flex">
-    <aside class="sidebar">
-      <div class="d-flex align-items-center gap-3 mb-4">
-        <div class="brand-mark">N</div>
-        <div>
-          <div class="brand-title">NEET Platform</div>
-          <div class="brand-subtitle">Institute operating system</div>
-        </div>
-      </div>
-
-      <div class="nav-section-label">Main</div>
-      <a class="sidebar-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
-        <i class="bi bi-grid"></i> Dashboard
-      </a>
-
-      {% if current_user.role in ['institute_admin', 'teacher', 'super_admin'] %}
-      <div class="nav-section-label">Academic</div>
-      <a class="sidebar-link {% if request.endpoint == 'admin.questions' %}active{% endif %}" href="{{ url_for('admin.questions') }}">
-        <i class="bi bi-patch-question"></i> Question Bank
-      </a>
-      <a class="sidebar-link {% if request.endpoint == 'admin.batches' %}active{% endif %}" href="{{ url_for('admin.batches') }}">
-        <i class="bi bi-people"></i> Batches
-      </a>
-      <a class="sidebar-link {% if request.endpoint == 'admin.tests' %}active{% endif %}" href="{{ url_for('admin.tests') }}">
-        <i class="bi bi-journal-check"></i> Tests
-      </a>
-      {% endif %}
-
-      <div class="nav-section-label">Account</div>
-      <a class="sidebar-link" href="{{ url_for('auth.logout') }}">
-        <i class="bi bi-box-arrow-right"></i> Logout
-      </a>
-    </aside>
-
-    <main class="main-area">
-      <div class="topbar d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-          <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
-          <p class="page-subtitle">{% block page_subtitle %}Manage tests, content, and student performance.{% endblock %}</p>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-          <div class="text-end">
-            <div class="fw-semibold">{{ current_user.full_name }}</div>
-            <div class="text-muted small text-capitalize">{{ current_user.role.replace('_', ' ') }}</div>
-          </div>
-          <div class="brand-mark">{{ current_user.full_name[:1] }}</div>
-        </div>
-      </div>
-
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }} border-0 shadow-sm rounded-4">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-
-      {% block content %}{% endblock %}
-    </main>
-  </div>
-  {% else %}
-  <div class="auth-shell">
-    <div class="container py-5">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }} border-0 shadow-sm rounded-4">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-      {% block content %}{% endblock %}
-    </div>
-  </div>
-  {% endif %}
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  {% block scripts %}{% endblock %}
+<body class="{% block body_class %}{% endblock %}">
+  {% block body %}{% endblock %}
 </body>
 </html>
