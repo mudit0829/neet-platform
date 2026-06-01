@@ -42,17 +42,17 @@ from flask_login import login_required
 
 # keep your existing admin blueprint import/name unchanged
 
-@admin.route("/questions")
+@admin_bp.route("/questions")
 @login_required
 def questions_page():
     return render_template("admin_questions.html")
 
-@admin.route("/students")
+@admin_bp.route("/students")
 @login_required
 def students_page():
     return render_template("admin_students.html")
 
-@admin.route("/tests")
+@admin_bp.route("/tests")
 @login_required
 def tests_page():
     return render_template("admin_tests.html")
