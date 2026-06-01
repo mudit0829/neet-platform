@@ -248,12 +248,17 @@ def tests_page():
             test = Test(
                 title=title,
                 test_type=test_type,
-                description=description if description else None,
                 duration_minutes=duration_minutes,
                 total_marks=total_marks,
                 negative_marks=negative_marks,
                 status=status,
             )
+
+            if hasattr(Test, "description"):
+                test.description = description if description else None
+
+            if hasattr(Test, "instructions"):
+                test.instructions = description if description else None
 
             if hasattr(Test, "batch_id"):
                 test.batch_id = batch_id if selected_batch else None
