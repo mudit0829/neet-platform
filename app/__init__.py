@@ -51,8 +51,8 @@ def create_app():
         seed_defaults()
 
     import os
-print("APP ROOT:", app.root_path)
-print("STATIC FOLDER:", app.static_folder)
-print("APP.CSS EXISTS:", os.path.exists(os.path.join(app.static_folder, "css", "app.css")))
+    print("APP ROOT:", app.root_path)
+    print("STATIC FOLDER:", app.static_folder)
+    print("APP.CSS EXISTS:", os.path.exists(os.path.join(app.static_folder, "css", "app.css")))
 
     return app
