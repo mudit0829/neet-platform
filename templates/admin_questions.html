@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Question Bank | NEET Platform{% endblock %}
+
+{% block content %}
+<section class="dashboard-wrap">
+  <div class="topbar">
+    <div>
+      <div class="topbar-chip">Admin Module</div>
+      <h1>Question Bank</h1>
+      <p>Add, organize, and manage NEET questions by subject, chapter, topic, and difficulty.</p>
+    </div>
+  </div>
+
+  <section class="content-grid">
+    <div class="panel-card">
+      <h3>Question management</h3>
+      <p class="panel-text">
+        This page will handle question creation, bulk upload, tagging, answer keys, solutions,
+        and future filters for Physics, Chemistry, and Biology.
+      </p>
+      <div class="module-list" style="margin-top: 16px;">
+        <span class="module-chip">Subject-wise</span>
+        <span class="module-chip">Chapter-wise</span>
+        <span class="module-chip">Difficulty</span>
+        <span class="module-chip">Explanation</span>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <h3>Next development task</h3>
+      <p class="panel-text">
+        Next we will add the actual add-question form and the table listing all saved questions.
+      </p>
+    </div>
+  </section>
+</section>
+{% endblock %}
