@@ -1,63 +1,72 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup Admin | NEET Platform</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <section class="auth-shell">
+    <div class="auth-panel auth-brand">
+      <div class="brand-badge">Initial Setup</div>
+      <h1>Create the main admin and start onboarding your institute.</h1>
+      <p>
+        This panel is for the first admin account. After setup, you can add more teachers,
+        students, batches, tests, and study material from the admin dashboard.
+      </p>
 
-{% block title %}Setup Admin • NEET Platform{% endblock %}
-{% block body_class %}auth-page{% endblock %}
-
-{% block body %}
-<div class="auth-shell">
-  <div class="auth-panel auth-brand">
-    <div class="brand-badge">Institute Setup</div>
-    <h1>Create the first admin account</h1>
-    <p>
-      This setup step creates the initial administrator for your coaching
-      institute platform.
-    </p>
-
-    <div class="feature-list">
-      <div class="feature-item"><span class="feature-dot"></span>Secure password storage</div>
-      <div class="feature-item"><span class="feature-dot"></span>Role-based access foundation</div>
-      <div class="feature-item"><span class="feature-dot"></span>Ready for question bank and tests</div>
-    </div>
-  </div>
-
-  <div class="auth-panel auth-form-panel">
-    <div class="auth-card">
-      <div class="auth-heading">
-        <h2>Create admin account</h2>
-        <p>Use this account to manage the platform.</p>
-      </div>
-
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="flash flash-{{ category }}">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-
-      <form method="post" class="form-grid">
-        <div class="form-group">
-          <label>Full name</label>
-          <input type="text" name="full_name" placeholder="Your full name" required>
-        </div>
-
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="email" placeholder="admin@institute.com" required>
-        </div>
-
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" name="password" placeholder="Create a secure password" required>
-        </div>
-
-        <button type="submit" class="btn btn-success btn-block">Create admin</button>
-      </form>
-
-      <div class="auth-footer">
-        Already created? <a href="{{ url_for('auth.login') }}">Go to login</a>
+      <div class="feature-list">
+        <div class="feature-item"><span class="feature-dot"></span> Secure admin creation</div>
+        <div class="feature-item"><span class="feature-dot"></span> Batch and student management</div>
+        <div class="feature-item"><span class="feature-dot"></span> Online test and analysis workflow</div>
       </div>
     </div>
-  </div>
-</div>
-{% endblock %}
+
+    <div class="auth-panel auth-form-panel">
+      <div class="auth-card">
+        <div class="auth-heading">
+          <h2>Create Admin</h2>
+          <p>Set up the first administrator account.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash flash-{{ 'danger' if category in ['error', 'danger'] else 'success' }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="form-grid">
+          <div class="form-group">
+            <label for="name">Full name</label>
+            <input type="text" id="name" name="name" placeholder="Admin full name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="admin@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Create strong password" required>
+          </div>
+
+          <button type="submit" class="btn btn-success btn-block">Create Admin</button>
+        </form>
+
+        <div class="auth-footer">
+          Already created? <a href="{{ url_for('auth_bp.login') }}">Back to Login</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
