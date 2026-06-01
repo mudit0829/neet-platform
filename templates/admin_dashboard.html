@@ -8,10 +8,6 @@
     <h1>Admin Dashboard</h1>
     <p>Manage students, question bank, tests, and academic performance from one place.</p>
   </div>
-  <div class="landing-actions">
-    <a href="{{ url_for('admin.questions_page') }}" class="btn btn-secondary">Question Bank</a>
-    <a href="{{ url_for('admin.tests_page') }}" class="btn btn-primary">Create / Manage Tests</a>
-  </div>
 </div>
 
 <section class="kpi-grid">
@@ -43,35 +39,32 @@
 <section class="content-grid">
   <div class="panel-card">
     <h3>Operational modules</h3>
-    <p class="panel-text">Use these modules to complete day-to-day institute operations.</p>
+    <p class="panel-text">Question bank, tests, students, and analytics will be enabled in the next batch.</p>
     <div class="module-list" style="margin-top:16px;">
-      <span class="module-chip">Student Management</span>
       <span class="module-chip">Question Bank</span>
-      <span class="module-chip">Test Scheduling</span>
-      <span class="module-chip">Result Analysis</span>
-      <span class="module-chip">Study Material</span>
-      <span class="module-chip">Performance Tracking</span>
+      <span class="module-chip">Tests</span>
+      <span class="module-chip">Students</span>
+      <span class="module-chip">Results</span>
     </div>
   </div>
 
   <div class="panel-card">
-    <h3>Today’s checklist</h3>
+    <h3>Current status</h3>
     <div class="activity-list" style="margin-top:10px;">
-      <div class="activity-item"><span class="status-dot"></span> Add institute questions</div>
-      <div class="activity-item"><span class="status-dot"></span> Create first batch-wise test</div>
-      <div class="activity-item"><span class="status-dot"></span> Add student accounts</div>
-      <div class="activity-item"><span class="status-dot"></span> Verify student test attempt flow</div>
+      <div class="activity-item"><span class="status-dot"></span> Login and setup working</div>
+      <div class="activity-item"><span class="status-dot"></span> Admin dashboard working</div>
+      <div class="activity-item"><span class="status-dot"></span> CSS/static path fixed</div>
+      <div class="activity-item"><span class="status-dot"></span> Next: add admin question/test/student pages</div>
     </div>
   </div>
 
   <div class="panel-card">
-    <h3>Next actions</h3>
+    <h3>Next step</h3>
     <p class="panel-text">
-      Complete question bank upload, assign students into batches, and publish the first mock test.
-      Once this is done, the student panel can go live for real usage.
+      The next code batch should create the actual admin pages and routes for question bank, tests, and students.
     </p>
     <div class="alert-box">
-      Recommended sequence: Questions → Students → Tests → Student Attempt → Results Review.
+      Safe progress rule: add page route first, then link it in sidebar.
     </div>
   </div>
 </section>
