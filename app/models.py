@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 from ..models import Question, Test, User, Batch, Subject, Chapter
 from ..extensions import db
@@ -6,9 +6,18 @@ from ..extensions import db
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
+def admin_required():
+    if not current_user.is_authenticated:
+        abort(401)
+    if getattr(current_user, "role", "") != "admin":
+        abort(403)
+
+
 @admin_bp.route("/")
 @login_required
 def dashboard():
+    admin_required()
+
     stats = {
         "questions": Question.query.count(),
         "tests": Test.query.count(),
@@ -42,18 +51,20 @@ def dashboard():
 @admin_bp.route("/questions", methods=["GET", "POST"])
 @login_required
 def questions_page():
+    admin_required()
+
     if request.method == "POST":
         try:
             subject_id = request.form.get("subject_id", type=int)
             chapter_id = request.form.get("chapter_id", type=int)
-            stem = request.form.get("stem", "").strip()
-            option_a = request.form.get("option_a", "").strip()
-            option_b = request.form.get("option_b", "").strip()
-            option_c = request.form.get("option_c", "").strip()
-            option_d = request.form.get("option_d", "").strip()
-            correct_option = request.form.get("correct_option", "").strip().upper()
-            explanation = request.form.get("explanation", "").strip()
-            difficulty_level = request.form.get("difficulty_level", "medium").strip().lower()
+            stem = (request.form.get("stem") or "").strip()
+            option_a = (request.form.get("option_a") or "").strip()
+            option_b = (request.form.get("option_b") or "").strip()
+            option_c = (request.form.get("option_c") or "").strip()
+            option_d = (request.form.get("option_d") or "").strip()
+            correct_option = (request.form.get("correct_option") or "").strip().upper()
+            explanation = (request.form.get("explanation") or "").strip()
+            difficulty_level = (request.form.get("difficulty_level") or "medium").strip().lower()
 
             if not subject_id:
                 flash("Subject is required.", "danger")
@@ -75,6 +86,24 @@ def questions_page():
                 flash("Correct option must be A, B, C, or D.", "danger")
                 return redirect(url_for("admin.questions_page"))
 
+            subject = Subject.query.get(subject_id)
+            chapter = Chapter.query.get(chapter_id)
+
+            if not subject:
+                flash("Selected subject does not exist.", "danger")
+                return redirect(url_for("admin.questions_page"))
+
+            if not chapter:
+                flash("Selected chapter does not exist.", "danger")
+                return redirect(url_for("admin.questions_page"))
+
+            if chapter.subject_id != subject.id:
+                flash("Selected chapter does not belong to the chosen subject.", "danger")
+                return redirect(url_for("admin.questions_page"))
+
+            if difficulty_level not in ["easy", "medium", "hard"]:
+                difficulty_level = "medium"
+
             question = Question(
                 institute_id=current_user.institute_id,
                 subject_id=subject_id,
@@ -86,7 +115,7 @@ def questions_page():
                 option_d=option_d,
                 correct_option=correct_option,
                 explanation=explanation if explanation else None,
-                difficulty_level=difficulty_level or "medium",
+                difficulty_level=difficulty_level,
             )
 
             db.session.add(question)
@@ -114,6 +143,8 @@ def questions_page():
 @admin_bp.route("/students")
 @login_required
 def students_page():
+    admin_required()
+
     students = User.query.filter_by(role="student").order_by(User.id.desc()).all()
     return render_template("admin_students.html", students=students)
 
@@ -121,5 +152,7 @@ def students_page():
 @admin_bp.route("/tests")
 @login_required
 def tests_page():
+    admin_required()
+
     tests = Test.query.order_by(Test.id.desc()).all()
     return render_template("admin_tests.html", tests=tests)
