@@ -36,3 +36,23 @@ def dashboard():
         recent_activity=recent_activity,
         upcoming_modules=upcoming_modules,
     )
+
+from flask import render_template
+from flask_login import login_required
+
+# keep your existing admin blueprint import/name unchanged
+
+@admin.route("/questions")
+@login_required
+def questions_page():
+    return render_template("admin_questions.html")
+
+@admin.route("/students")
+@login_required
+def students_page():
+    return render_template("admin_students.html")
+
+@admin.route("/tests")
+@login_required
+def tests_page():
+    return render_template("admin_tests.html")
