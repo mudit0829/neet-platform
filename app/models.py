@@ -1,137 +1,125 @@
-from datetime import datetime
-from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from .extensions import db, login_manager
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required, current_user
+from ..models import Question, Test, User, Batch, Subject, Chapter
+from ..extensions import db
+
+admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
-class TimestampMixin:
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+@admin_bp.route("/")
+@login_required
+def dashboard():
+    stats = {
+        "questions": Question.query.count(),
+        "tests": Test.query.count(),
+        "students": User.query.filter_by(role="student").count(),
+        "batches": Batch.query.count(),
+    }
+
+    recent_activity = [
+        "New admin workspace initialized",
+        "Core NEET subjects seeded",
+        "Database schema created successfully",
+        "Platform ready for question bank module",
+    ]
+
+    upcoming_modules = [
+        "Question Bank",
+        "Test Builder",
+        "Student Panel",
+        "Analytics",
+    ]
+
+    return render_template(
+        "admin_dashboard.html",
+        current_user=current_user,
+        stats=stats,
+        recent_activity=recent_activity,
+        upcoming_modules=upcoming_modules,
     )
 
 
-class Institute(TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(150), nullable=False)
-    slug = db.Column(db.String(150), unique=True, nullable=False)
-    status = db.Column(db.String(20), default="active")
+@admin_bp.route("/questions", methods=["GET", "POST"])
+@login_required
+def questions_page():
+    if request.method == "POST":
+        try:
+            subject_id = request.form.get("subject_id", type=int)
+            chapter_id = request.form.get("chapter_id", type=int)
+            stem = request.form.get("stem", "").strip()
+            option_a = request.form.get("option_a", "").strip()
+            option_b = request.form.get("option_b", "").strip()
+            option_c = request.form.get("option_c", "").strip()
+            option_d = request.form.get("option_d", "").strip()
+            correct_option = request.form.get("correct_option", "").strip().upper()
+            explanation = request.form.get("explanation", "").strip()
+            difficulty_level = request.form.get("difficulty_level", "medium").strip().lower()
 
+            if not subject_id:
+                flash("Subject is required.", "danger")
+                return redirect(url_for("admin.questions_page"))
 
-class User(UserMixin, TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=True)
-    full_name = db.Column(db.String(150), nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default="student")
-    is_active_user = db.Column(db.Boolean, default=True)
+            if not chapter_id:
+                flash("Chapter is required.", "danger")
+                return redirect(url_for("admin.questions_page"))
 
-    institute = db.relationship("Institute", backref=db.backref("users", lazy=True))
+            if not stem:
+                flash("Question text is required.", "danger")
+                return redirect(url_for("admin.questions_page"))
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+            if not option_a or not option_b or not option_c or not option_d:
+                flash("All four options are required.", "danger")
+                return redirect(url_for("admin.questions_page"))
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+            if correct_option not in ["A", "B", "C", "D"]:
+                flash("Correct option must be A, B, C, or D.", "danger")
+                return redirect(url_for("admin.questions_page"))
 
+            question = Question(
+                institute_id=current_user.institute_id,
+                subject_id=subject_id,
+                chapter_id=chapter_id,
+                stem=stem,
+                option_a=option_a,
+                option_b=option_b,
+                option_c=option_c,
+                option_d=option_d,
+                correct_option=correct_option,
+                explanation=explanation if explanation else None,
+                difficulty_level=difficulty_level or "medium",
+            )
 
-class Batch(TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=False)
-    name = db.Column(db.String(120), nullable=False)
-    academic_year = db.Column(db.String(20), nullable=False)
-    status = db.Column(db.String(20), default="active")
+            db.session.add(question)
+            db.session.commit()
+            flash("Question added successfully.", "success")
 
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error adding question: {str(e)}", "danger")
 
-class Subject(TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False, unique=True)
+        return redirect(url_for("admin.questions_page"))
 
+    subjects = Subject.query.order_by(Subject.name.asc()).all()
+    chapters = Chapter.query.order_by(Chapter.name.asc()).all()
+    questions = Question.query.order_by(Question.id.desc()).all()
 
-class Chapter(TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    subject_id = db.Column(db.Integer, db.ForeignKey("subject.id"), nullable=False)
-    name = db.Column(db.String(150), nullable=False)
-
-    subject = db.relationship("Subject", backref=db.backref("chapters", lazy=True))
-
-
-class Question(TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=True)
-    subject_id = db.Column(db.Integer, db.ForeignKey("subject.id"), nullable=False)
-    chapter_id = db.Column(db.Integer, db.ForeignKey("chapter.id"), nullable=False)
-    stem = db.Column(db.Text, nullable=False)
-    option_a = db.Column(db.String(255), nullable=False)
-    option_b = db.Column(db.String(255), nullable=False)
-    option_c = db.Column(db.String(255), nullable=False)
-    option_d = db.Column(db.String(255), nullable=False)
-    correct_option = db.Column(db.String(1), nullable=False)
-    explanation = db.Column(db.Text, nullable=True)
-    difficulty_level = db.Column(db.String(20), default="medium")
-
-    subject = db.relationship("Subject", backref=db.backref("questions", lazy=True))
-    chapter = db.relationship("Chapter", backref=db.backref("questions", lazy=True))
-
-
-class Test(TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=True)
-    title = db.Column(db.String(200), nullable=False)
-    test_type = db.Column(db.String(30), default="chapter")
-    duration_minutes = db.Column(db.Integer, default=180)
-    total_marks = db.Column(db.Integer, default=720)
-    negative_marks = db.Column(db.Float, default=1.0)
-    status = db.Column(db.String(20), default="draft")
-
-
-class TestQuestion(TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    test_id = db.Column(db.Integer, db.ForeignKey("test.id"), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey("question.id"), nullable=False)
-    display_order = db.Column(db.Integer, nullable=False)
-    marks = db.Column(db.Float, default=4.0)
-    negative_marks = db.Column(db.Float, default=1.0)
-
-    test = db.relationship(
-        "Test",
-        backref=db.backref("test_questions", lazy=True, cascade="all, delete-orphan")
+    return render_template(
+        "admin_questions.html",
+        subjects=subjects,
+        chapters=chapters,
+        questions=questions,
     )
-    question = db.relationship("Question", backref=db.backref("test_links", lazy=True))
 
 
-class TestAttempt(TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    test_id = db.Column(db.Integer, db.ForeignKey("test.id"), nullable=False)
-    student_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    status = db.Column(db.String(20), default="ongoing")
-    total_score = db.Column(db.Float, default=0.0)
-    correct_count = db.Column(db.Integer, default=0)
-    wrong_count = db.Column(db.Integer, default=0)
-    skipped_count = db.Column(db.Integer, default=0)
-
-    test = db.relationship("Test", backref=db.backref("attempts", lazy=True))
-    student = db.relationship("User", backref=db.backref("attempts", lazy=True))
+@admin_bp.route("/students")
+@login_required
+def students_page():
+    students = User.query.filter_by(role="student").order_by(User.id.desc()).all()
+    return render_template("admin_students.html", students=students)
 
 
-class AttemptAnswer(TimestampMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    attempt_id = db.Column(db.Integer, db.ForeignKey("test_attempt.id"), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey("question.id"), nullable=False)
-    selected_option = db.Column(db.String(1), nullable=True)
-    is_marked_for_review = db.Column(db.Boolean, default=False)
-    time_spent_seconds = db.Column(db.Integer, default=0)
-
-    attempt = db.relationship(
-        "TestAttempt",
-        backref=db.backref("answers", lazy=True, cascade="all, delete-orphan")
-    )
-    question = db.relationship("Question", backref=db.backref("attempt_answers", lazy=True))
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+@admin_bp.route("/tests")
+@login_required
+def tests_page():
+    tests = Test.query.order_by(Test.id.desc()).all()
+    return render_template("admin_tests.html", tests=tests)
