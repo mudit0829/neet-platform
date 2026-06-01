@@ -84,6 +84,7 @@ class Test(TimestampMixin, db.Model):
     institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=True)
     title = db.Column(db.String(200), nullable=False)
     test_type = db.Column(db.String(30), default="chapter")
+    instructions = db.Column(db.Text, nullable=True)
     duration_minutes = db.Column(db.Integer, default=180)
     total_marks = db.Column(db.Integer, default=720)
     negative_marks = db.Column(db.Float, default=1.0)
