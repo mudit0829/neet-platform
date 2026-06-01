@@ -8,31 +8,211 @@
     <div>
       <div class="topbar-chip">Admin Module</div>
       <h1>Question Bank</h1>
-      <p>Add, organize, and manage NEET questions by subject, chapter, topic, and difficulty.</p>
+      <p>Add, organize, and manage NEET questions by subject, chapter, and difficulty.</p>
     </div>
   </div>
 
-  <section class="content-grid">
-    <div class="panel-card">
-      <h3>Question management</h3>
-      <p class="panel-text">
-        This page will handle question creation, bulk upload, tagging, answer keys, solutions,
-        and future filters for Physics, Chemistry, and Biology.
-      </p>
-      <div class="module-list" style="margin-top: 16px;">
-        <span class="module-chip">Subject-wise</span>
-        <span class="module-chip">Chapter-wise</span>
-        <span class="module-chip">Difficulty</span>
-        <span class="module-chip">Explanation</span>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div style="display:grid; gap:12px; margin-bottom:20px;">
+        {% for category, message in messages %}
+          <div
+            style="
+              padding:14px 16px;
+              border-radius:14px;
+              font-weight:600;
+              {% if category in ['success'] %}
+                background:#ecfdf3; color:#166534; border:1px solid #bbf7d0;
+              {% elif category in ['danger', 'error'] %}
+                background:#fef2f2; color:#991b1b; border:1px solid #fecaca;
+              {% else %}
+                background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;
+              {% endif %}
+            "
+          >
+            {{ message }}
+          </div>
+        {% endfor %}
       </div>
+    {% endif %}
+  {% endwith %}
+
+  <section class="content-grid" style="align-items:start;">
+    <div class="panel-card">
+      <h3>Add Question</h3>
+      <p class="panel-text" style="margin-bottom:16px;">
+        Create a new NEET question with subject, chapter, options, answer key, and explanation.
+      </p>
+
+      <form method="POST" action="{{ url_for('admin.questions_page') }}" style="display:grid; gap:14px;">
+        <div style="display:grid; gap:8px;">
+          <label for="subject_id"><strong>Subject</strong></label>
+          <select name="subject_id" id="subject_id" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+            <option value="">Select subject</option>
+            {% for subject in subjects %}
+              <option value="{{ subject.id }}">{{ subject.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div style="display:grid; gap:8px;">
+          <label for="chapter_id"><strong>Chapter</strong></label>
+          <select name="chapter_id" id="chapter_id" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+            <option value="">Select chapter</option>
+            {% for chapter in chapters %}
+              <option value="{{ chapter.id }}">
+                {{ chapter.name }}{% if chapter.subject %} - {{ chapter.subject.name }}{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div style="display:grid; gap:8px;">
+          <label for="stem"><strong>Question Text</strong></label>
+          <textarea
+            name="stem"
+            id="stem"
+            rows="5"
+            required
+            placeholder="Enter the full question here"
+            style="padding:12px; border-radius:12px; border:1px solid #d1d5db; resize:vertical;"
+          ></textarea>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="display:grid; gap:8px;">
+            <label for="option_a"><strong>Option A</strong></label>
+            <input type="text" name="option_a" id="option_a" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+          </div>
+          <div style="display:grid; gap:8px;">
+            <label for="option_b"><strong>Option B</strong></label>
+            <input type="text" name="option_b" id="option_b" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="display:grid; gap:8px;">
+            <label for="option_c"><strong>Option C</strong></label>
+            <input type="text" name="option_c" id="option_c" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+          </div>
+          <div style="display:grid; gap:8px;">
+            <label for="option_d"><strong>Option D</strong></label>
+            <input type="text" name="option_d" id="option_d" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="display:grid; gap:8px;">
+            <label for="correct_option"><strong>Correct Option</strong></label>
+            <select name="correct_option" id="correct_option" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+              <option value="">Select correct option</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+
+          <div style="display:grid; gap:8px;">
+            <label for="difficulty_level"><strong>Difficulty Level</strong></label>
+            <select name="difficulty_level" id="difficulty_level" style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; gap:8px;">
+          <label for="explanation"><strong>Explanation</strong></label>
+          <textarea
+            name="explanation"
+            id="explanation"
+            rows="4"
+            placeholder="Optional explanation / solution"
+            style="padding:12px; border-radius:12px; border:1px solid #d1d5db; resize:vertical;"
+          ></textarea>
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            style="padding:12px 18px; border:none; border-radius:12px; background:#0f766e; color:#fff; font-weight:700; cursor:pointer;"
+          >
+            Save Question
+          </button>
+        </div>
+      </form>
     </div>
 
     <div class="panel-card">
-      <h3>Next development task</h3>
+      <h3>Question Summary</h3>
+      <p class="panel-text" style="margin-bottom:16px;">
+        Track your current question bank as you build Physics, Chemistry, and Biology content.
+      </p>
+
+      <div class="module-list" style="margin-bottom:18px;">
+        <span class="module-chip">Total: {{ questions|length }}</span>
+        <span class="module-chip">Subjects: {{ subjects|length }}</span>
+        <span class="module-chip">Chapters: {{ chapters|length }}</span>
+      </div>
+
       <p class="panel-text">
-        Next we will add the actual add-question form and the table listing all saved questions.
+        Next step after this page works: edit/delete actions and chapter filtering by selected subject.
       </p>
     </div>
+  </section>
+
+  <section class="panel-card" style="margin-top:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+      <div>
+        <h3 style="margin-bottom:6px;">Saved Questions</h3>
+        <p class="panel-text">Recently added questions are listed below.</p>
+      </div>
+    </div>
+
+    {% if questions %}
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8fafc; text-align:left;">
+              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">#</th>
+              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Subject</th>
+              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Chapter</th>
+              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Question</th>
+              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Correct</th>
+              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Difficulty</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for question in questions %}
+              <tr>
+                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">{{ question.id }}</td>
+                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">
+                  {{ question.subject.name if question.subject else "-" }}
+                </td>
+                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">
+                  {{ question.chapter.name if question.chapter else "-" }}
+                </td>
+                <td style="padding:12px; border-bottom:1px solid #e5e7eb; min-width:320px;">
+                  {{ question.stem[:140] }}{% if question.stem|length > 140 %}...{% endif %}
+                </td>
+                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">
+                  <span class="module-chip">{{ question.correct_option }}</span>
+                </td>
+                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">
+                  {{ question.difficulty_level|capitalize }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="panel-text" style="margin-top:8px;">
+        No questions added yet. Use the form above to create your first question.
+      </div>
+    {% endif %}
   </section>
 </section>
 {% endblock %}
