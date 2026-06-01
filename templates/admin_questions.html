@@ -3,7 +3,178 @@
 {% block title %}Question Bank | NEET Platform{% endblock %}
 
 {% block content %}
-<section class="dashboard-wrap">
+<style>
+  .qb-page {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .qb-alerts {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .qb-alert {
+    padding: 14px 16px;
+    border-radius: 14px;
+    font-weight: 600;
+  }
+
+  .qb-alert.success {
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+
+  .qb-alert.danger,
+  .qb-alert.error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  .qb-alert.info {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+  }
+
+  .qb-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .qb-form,
+  .qb-sidecard {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .qb-form-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .qb-row-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .qb-field {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .qb-field label {
+    font-weight: 700;
+  }
+
+  .qb-input,
+  .qb-select,
+  .qb-textarea,
+  .qb-file {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #111827;
+    box-sizing: border-box;
+  }
+
+  .qb-textarea {
+    resize: vertical;
+  }
+
+  .qb-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .qb-toolbar button {
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(37, 99, 235, 0.14);
+    color: #dbeafe;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .qb-toolbar button:hover {
+    background: rgba(37, 99, 235, 0.22);
+  }
+
+  .qb-note {
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+
+  .qb-submit {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 12px;
+    background: #0f766e;
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .qb-summary-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .qb-table-wrap {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .qb-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 860px;
+  }
+
+  .qb-table th,
+  .qb-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .qb-table thead tr {
+    background: #f8fafc;
+    color: #111827;
+  }
+
+  @media (max-width: 1200px) {
+    .qb-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .qb-row-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<section class="dashboard-wrap qb-page">
   <div class="topbar">
     <div>
       <div class="topbar-chip">Admin Module</div>
@@ -14,22 +185,9 @@
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      <div style="display:grid; gap:12px; margin-bottom:20px;">
+      <div class="qb-alerts">
         {% for category, message in messages %}
-          <div
-            style="
-              padding:14px 16px;
-              border-radius:14px;
-              font-weight:600;
-              {% if category in ['success'] %}
-                background:#ecfdf3; color:#166534; border:1px solid #bbf7d0;
-              {% elif category in ['danger', 'error'] %}
-                background:#fef2f2; color:#991b1b; border:1px solid #fecaca;
-              {% else %}
-                background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;
-              {% endif %}
-            "
-          >
+          <div class="qb-alert {% if category in ['success'] %}success{% elif category in ['danger', 'error'] %}danger{% else %}info{% endif %}">
             {{ message }}
           </div>
         {% endfor %}
@@ -37,74 +195,92 @@
     {% endif %}
   {% endwith %}
 
-  <section class="content-grid" style="align-items:start;">
-    <div class="panel-card">
+  <section class="qb-grid">
+    <div class="panel-card qb-form">
       <h3>Add Question</h3>
       <p class="panel-text" style="margin-bottom:16px;">
-        Create a new NEET question with subject, chapter, options, answer key, and explanation.
+        Create a new NEET question with subject, chapter, options, answer key, explanation, and supporting images.
       </p>
 
-      <form method="POST" action="{{ url_for('admin.questions_page') }}" style="display:grid; gap:14px;">
-        <div style="display:grid; gap:8px;">
-          <label for="subject_id"><strong>Subject</strong></label>
-          <select name="subject_id" id="subject_id" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
-            <option value="">Select subject</option>
-            {% for subject in subjects %}
-              <option value="{{ subject.id }}">{{ subject.name }}</option>
-            {% endfor %}
-          </select>
+      <form method="POST" action="{{ url_for('admin.questions_page') }}" enctype="multipart/form-data" class="qb-form-grid">
+        <div class="qb-row-2">
+          <div class="qb-field">
+            <label for="subject_id">Subject</label>
+            <select name="subject_id" id="subject_id" required class="qb-select">
+              <option value="">Select subject</option>
+              {% for subject in subjects %}
+                <option value="{{ subject.id }}">{{ subject.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="qb-field">
+            <label for="chapter_id">Chapter</label>
+            <select name="chapter_id" id="chapter_id" required class="qb-select">
+              <option value="">Select chapter</option>
+              {% for chapter in chapters %}
+                <option value="{{ chapter.id }}">
+                  {{ chapter.name }}{% if chapter.subject %} - {{ chapter.subject.name }}{% endif %}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
 
-        <div style="display:grid; gap:8px;">
-          <label for="chapter_id"><strong>Chapter</strong></label>
-          <select name="chapter_id" id="chapter_id" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
-            <option value="">Select chapter</option>
-            {% for chapter in chapters %}
-              <option value="{{ chapter.id }}">
-                {{ chapter.name }}{% if chapter.subject %} - {{ chapter.subject.name }}{% endif %}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div style="display:grid; gap:8px;">
-          <label for="stem"><strong>Question Text</strong></label>
+        <div class="qb-field">
+          <label>Question Text Formatting</label>
+          <div class="qb-toolbar">
+            <button type="button" onclick="wrapTextarea('stem', '<b>', '</b>')">Bold</button>
+            <button type="button" onclick="wrapTextarea('stem', '<i>', '</i>')">Italic</button>
+            <button type="button" onclick="wrapTextarea('stem', '', '')">Normal</button>
+          </div>
           <textarea
             name="stem"
             id="stem"
             rows="5"
             required
-            placeholder="Enter the full question here"
-            style="padding:12px; border-radius:12px; border:1px solid #d1d5db; resize:vertical;"
+            placeholder="Enter the full question here. You can use simple HTML tags like <b>bold</b> and <i>italic</i>."
+            class="qb-textarea"
           ></textarea>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div style="display:grid; gap:8px;">
-            <label for="option_a"><strong>Option A</strong></label>
-            <input type="text" name="option_a" id="option_a" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
-          </div>
-          <div style="display:grid; gap:8px;">
-            <label for="option_b"><strong>Option B</strong></label>
-            <input type="text" name="option_b" id="option_b" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+          <div class="qb-note">
+            For now, bold/italic can be inserted using simple HTML tags. Proper rich editor support can be added next.
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div style="display:grid; gap:8px;">
-            <label for="option_c"><strong>Option C</strong></label>
-            <input type="text" name="option_c" id="option_c" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
-          </div>
-          <div style="display:grid; gap:8px;">
-            <label for="option_d"><strong>Option D</strong></label>
-            <input type="text" name="option_d" id="option_d" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+        <div class="qb-field">
+          <label for="question_image">Question Image / Diagram</label>
+          <input type="file" name="question_image" id="question_image" accept="image/*" class="qb-file">
+          <div class="qb-note">
+            Use this for diagrams, graphs, handwritten formulas, or biology figures. Backend image saving still needs to be added in models and routes.
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-          <div style="display:grid; gap:8px;">
-            <label for="correct_option"><strong>Correct Option</strong></label>
-            <select name="correct_option" id="correct_option" required style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+        <div class="qb-row-2">
+          <div class="qb-field">
+            <label for="option_a">Option A</label>
+            <input type="text" name="option_a" id="option_a" required class="qb-input">
+          </div>
+          <div class="qb-field">
+            <label for="option_b">Option B</label>
+            <input type="text" name="option_b" id="option_b" required class="qb-input">
+          </div>
+        </div>
+
+        <div class="qb-row-2">
+          <div class="qb-field">
+            <label for="option_c">Option C</label>
+            <input type="text" name="option_c" id="option_c" required class="qb-input">
+          </div>
+          <div class="qb-field">
+            <label for="option_d">Option D</label>
+            <input type="text" name="option_d" id="option_d" required class="qb-input">
+          </div>
+        </div>
+
+        <div class="qb-row-2">
+          <div class="qb-field">
+            <label for="correct_option">Correct Option</label>
+            <select name="correct_option" id="correct_option" required class="qb-select">
               <option value="">Select correct option</option>
               <option value="A">A</option>
               <option value="B">B</option>
@@ -113,9 +289,9 @@
             </select>
           </div>
 
-          <div style="display:grid; gap:8px;">
-            <label for="difficulty_level"><strong>Difficulty Level</strong></label>
-            <select name="difficulty_level" id="difficulty_level" style="padding:12px; border-radius:12px; border:1px solid #d1d5db;">
+          <div class="qb-field">
+            <label for="difficulty_level">Difficulty Level</label>
+            <select name="difficulty_level" id="difficulty_level" class="qb-select">
               <option value="easy">Easy</option>
               <option value="medium" selected>Medium</option>
               <option value="hard">Hard</option>
@@ -123,42 +299,50 @@
           </div>
         </div>
 
-        <div style="display:grid; gap:8px;">
-          <label for="explanation"><strong>Explanation</strong></label>
+        <div class="qb-field">
+          <label>Answer Explanation Formatting</label>
+          <div class="qb-toolbar">
+            <button type="button" onclick="wrapTextarea('explanation', '<b>', '</b>')">Bold</button>
+            <button type="button" onclick="wrapTextarea('explanation', '<i>', '</i>')">Italic</button>
+            <button type="button" onclick="wrapTextarea('explanation', '', '')">Normal</button>
+          </div>
           <textarea
             name="explanation"
             id="explanation"
             rows="4"
-            placeholder="Optional explanation / solution"
-            style="padding:12px; border-radius:12px; border:1px solid #d1d5db; resize:vertical;"
+            placeholder="Optional explanation / solution. You can use simple HTML tags like <b>bold</b> and <i>italic</i>."
+            class="qb-textarea"
           ></textarea>
         </div>
 
+        <div class="qb-field">
+          <label for="explanation_image">Explanation Image</label>
+          <input type="file" name="explanation_image" id="explanation_image" accept="image/*" class="qb-file">
+          <div class="qb-note">
+            Teachers can upload handwritten solutions, formula sheets, or scientific diagrams for explanation. Backend image storage still needs to be added.
+          </div>
+        </div>
+
         <div>
-          <button
-            type="submit"
-            style="padding:12px 18px; border:none; border-radius:12px; background:#0f766e; color:#fff; font-weight:700; cursor:pointer;"
-          >
-            Save Question
-          </button>
+          <button type="submit" class="qb-submit">Save Question</button>
         </div>
       </form>
     </div>
 
-    <div class="panel-card">
+    <div class="panel-card qb-sidecard">
       <h3>Question Summary</h3>
       <p class="panel-text" style="margin-bottom:16px;">
         Track your current question bank as you build Physics, Chemistry, and Biology content.
       </p>
 
-      <div class="module-list" style="margin-bottom:18px;">
+      <div class="qb-summary-chips">
         <span class="module-chip">Total: {{ questions|length }}</span>
         <span class="module-chip">Subjects: {{ subjects|length }}</span>
         <span class="module-chip">Chapters: {{ chapters|length }}</span>
       </div>
 
       <p class="panel-text">
-        Next step after this page works: edit/delete actions and chapter filtering by selected subject.
+        This layout now avoids overlap and is ready for future support of question images, explanation images, and rich formatting tools.
       </p>
     </div>
   </section>
@@ -172,37 +356,27 @@
     </div>
 
     {% if questions %}
-      <div style="overflow-x:auto;">
-        <table style="width:100%; border-collapse:collapse;">
+      <div class="qb-table-wrap">
+        <table class="qb-table">
           <thead>
-            <tr style="background:#f8fafc; text-align:left;">
-              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">#</th>
-              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Subject</th>
-              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Chapter</th>
-              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Question</th>
-              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Correct</th>
-              <th style="padding:12px; border-bottom:1px solid #e5e7eb;">Difficulty</th>
+            <tr>
+              <th>#</th>
+              <th>Subject</th>
+              <th>Chapter</th>
+              <th>Question</th>
+              <th>Correct</th>
+              <th>Difficulty</th>
             </tr>
           </thead>
           <tbody>
             {% for question in questions %}
               <tr>
-                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">{{ question.id }}</td>
-                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">
-                  {{ question.subject.name if question.subject else "-" }}
-                </td>
-                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">
-                  {{ question.chapter.name if question.chapter else "-" }}
-                </td>
-                <td style="padding:12px; border-bottom:1px solid #e5e7eb; min-width:320px;">
-                  {{ question.stem[:140] }}{% if question.stem|length > 140 %}...{% endif %}
-                </td>
-                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">
-                  <span class="module-chip">{{ question.correct_option }}</span>
-                </td>
-                <td style="padding:12px; border-bottom:1px solid #e5e7eb;">
-                  {{ question.difficulty_level|capitalize }}
-                </td>
+                <td>{{ question.id }}</td>
+                <td>{{ question.subject.name if question.subject else "-" }}</td>
+                <td>{{ question.chapter.name if question.chapter else "-" }}</td>
+                <td style="min-width:320px;">{{ question.stem[:140] }}{% if question.stem|length > 140 %}...{% endif %}</td>
+                <td><span class="module-chip">{{ question.correct_option }}</span></td>
+                <td>{{ question.difficulty_level|capitalize }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -215,4 +389,27 @@
     {% endif %}
   </section>
 </section>
+
+<script>
+  function wrapTextarea(id, startTag, endTag) {
+    const textarea = document.getElementById(id);
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selected = text.substring(start, end);
+
+    if (!selected && !startTag && !endTag) {
+      textarea.focus();
+      return;
+    }
+
+    const replacement = startTag + selected + endTag;
+    textarea.value = text.substring(0, start) + replacement + text.substring(end);
+    textarea.focus();
+    textarea.selectionStart = start + startTag.length;
+    textarea.selectionEnd = start + startTag.length + selected.length;
+  }
+</script>
 {% endblock %}
