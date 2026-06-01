@@ -34,16 +34,16 @@ def create_app():
     )
     app.config.from_object(Config)
 
-        import os
+    import os
 
-        app.config["EXPLAIN_TEMPLATE_LOADING"] = True
+    app.config["EXPLAIN_TEMPLATE_LOADING"] = True
 
-        print("APP ROOT PATH =", app.root_path)
-        print("TEMPLATE FOLDER =", app.template_folder)
-        print("STATIC FOLDER =", app.static_folder)
-        print("STATIC URL PATH =", app.static_url_path)
-        print("CSS app.css exists =", os.path.exists(os.path.join(app.static_folder, "css", "app.css")))
-        print("CSS style.css exists =", os.path.exists(os.path.join(app.static_folder, "css", "style.css")))
+    print("APP ROOT PATH =", app.root_path)
+    print("TEMPLATE FOLDER =", app.template_folder)
+    print("STATIC FOLDER =", app.static_folder)
+    print("STATIC URL PATH =", app.static_url_path)
+    print("CSS app.css exists =", os.path.exists(os.path.join(app.static_folder, "css", "app.css")))
+    print("CSS style.css exists =", os.path.exists(os.path.join(app.static_folder, "css", "style.css")))
 
     db.init_app(app)
     migrate.init_app(app, db)
