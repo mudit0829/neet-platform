@@ -1,16 +1,80 @@
 {% extends "base.html" %}
+
 {% block title %}Admin Dashboard | NEET Platform{% endblock %}
 
 {% block content %}
-<section style="padding: 32px; color: white;">
-  <h1 style="font-size: 32px; margin-bottom: 16px;">Admin Dashboard</h1>
-  <p style="font-size: 18px; margin-bottom: 24px;">If you can see this, the template is rendering correctly.</p>
-
-  <div style="display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr));">
-    <div style="background: rgba(255,255,255,0.08); padding: 20px; border-radius: 16px;">Students: {{ stats.students if stats else 0 }}</div>
-    <div style="background: rgba(255,255,255,0.08); padding: 20px; border-radius: 16px;">Questions: {{ stats.questions if stats else 0 }}</div>
-    <div style="background: rgba(255,255,255,0.08); padding: 20px; border-radius: 16px;">Tests: {{ stats.tests if stats else 0 }}</div>
-    <div style="background: rgba(255,255,255,0.08); padding: 20px; border-radius: 16px;">Batches: {{ stats.batches if stats else 0 }}</div>
+<section class="dashboard-wrap">
+  <div class="topbar">
+    <div>
+      <div class="topbar-chip">Institute Dashboard</div>
+      <h1>Admin Dashboard</h1>
+      <p>Manage students, tests, question bank, and institute activity from one place.</p>
+    </div>
   </div>
+
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Students</div>
+      <div class="kpi-value">{{ stats.students if stats else 0 }}</div>
+      <div class="kpi-meta">Registered on the platform</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Question Bank</div>
+      <div class="kpi-value">{{ stats.questions if stats else 0 }}</div>
+      <div class="kpi-meta">Questions available for tests</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Published Tests</div>
+      <div class="kpi-value">{{ stats.tests if stats else 0 }}</div>
+      <div class="kpi-meta">Mock tests and assessments</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Batches</div>
+      <div class="kpi-value">{{ stats.batches if stats else 0 }}</div>
+      <div class="kpi-meta">Managed student groups</div>
+    </div>
+  </section>
+
+  <section class="content-grid">
+    <div class="panel-card">
+      <h3>Platform modules</h3>
+      <p class="panel-text">
+        This platform is structured around online testing, student management, teacher workflow,
+        analytics, and study resources.
+      </p>
+      <div class="module-list" style="margin-top: 16px;">
+        <span class="module-chip">Question Bank</span>
+        <span class="module-chip">Students</span>
+        <span class="module-chip">Batches</span>
+        <span class="module-chip">Tests</span>
+        <span class="module-chip">Reports</span>
+        <span class="module-chip">Study Material</span>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <h3>Next actions</h3>
+      <div class="activity-list" style="margin-top: 12px;">
+        <div class="activity-item"><span class="status-dot"></span> Add first batch</div>
+        <div class="activity-item"><span class="status-dot"></span> Add question bank items</div>
+        <div class="activity-item"><span class="status-dot"></span> Create first mock test</div>
+        <div class="activity-item"><span class="status-dot"></span> Add student accounts</div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <h3>Current milestone</h3>
+      <p class="panel-text">
+        Home page and login pages are structured. The next stage is to create actual admin pages for
+        questions, students, and tests without changing shared working files.
+      </p>
+      <div class="alert-box" style="margin-top: 16px;">
+        Rule: add route first, then template, then sidebar link.
+      </div>
+    </div>
+  </section>
 </section>
 {% endblock %}
