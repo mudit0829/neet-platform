@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
-from ..models import Question, Test, User, Batch, Subject, Chapter
+from ..models import Question, Test, TestQuestion, User, Batch, Subject, Chapter
 from ..extensions import db
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -207,8 +207,7 @@ def tests_page():
         try:
             title = (request.form.get("title") or "").strip()
             test_type = (request.form.get("test_type") or "mock").strip().lower()
-            status = (request.form.get("status") or "draft").strip().lower()
-            description = (request.form.get("description") or "").strip()
+            instructions = (request.form.get("description") or "").strip()
             duration_minutes = request.form.get("duration_minutes", type=int)
             total_marks = request.form.get("total_marks", type=int)
             negative_marks = request.form.get("negative_marks", type=float)
@@ -218,13 +217,8 @@ def tests_page():
                 flash("Test name is required.", "danger")
                 return redirect(url_for("admin.tests_page"))
 
-            allowed_test_types = ["chapter", "subject", "monthly", "mock", "full_syllabus"]
-            if test_type not in allowed_test_types:
+            if test_type not in ["chapter", "subject", "monthly", "mock", "full_syllabus"]:
                 test_type = "mock"
-
-            allowed_statuses = ["draft", "published"]
-            if status not in allowed_statuses:
-                status = "draft"
 
             if not duration_minutes or duration_minutes < 1:
                 flash("Duration must be at least 1 minute.", "danger")
@@ -251,14 +245,11 @@ def tests_page():
                 duration_minutes=duration_minutes,
                 total_marks=total_marks,
                 negative_marks=negative_marks,
-                status=status,
+                status="draft",
             )
 
-            if hasattr(Test, "description"):
-                test.description = description if description else None
-
             if hasattr(Test, "instructions"):
-                test.instructions = description if description else None
+                test.instructions = instructions if instructions else None
 
             if hasattr(Test, "batch_id"):
                 test.batch_id = batch_id if selected_batch else None
@@ -268,7 +259,7 @@ def tests_page():
 
             db.session.add(test)
             db.session.commit()
-            flash("Test created successfully.", "success")
+            flash("Test created successfully. Add questions next.", "success")
 
         except Exception as e:
             db.session.rollback()
@@ -280,3 +271,126 @@ def tests_page():
     batches = Batch.query.order_by(Batch.id.desc()).all()
 
     return render_template("admin_tests.html", tests=tests, batches=batches)
+
+
+@admin_bp.route("/tests/<int:test_id>/builder", methods=["GET", "POST"])
+@login_required
+def test_builder_page(test_id):
+    admin_required()
+    test = Test.query.get_or_404(test_id)
+
+    if request.method == "POST":
+        try:
+            question_id = request.form.get("question_id", type=int)
+            display_order = request.form.get("display_order", type=int)
+            marks = request.form.get("marks", type=float)
+            negative_marks = request.form.get("negative_marks", type=float)
+
+            question = Question.query.get(question_id)
+            if not question:
+                flash("Question not found.", "danger")
+                return redirect(url_for("admin.test_builder_page", test_id=test.id))
+
+            if display_order is None or display_order < 1:
+                max_order = db.session.query(
+                    db.func.coalesce(db.func.max(TestQuestion.display_order), 0)
+                ).filter(TestQuestion.test_id == test.id).scalar()
+                display_order = (max_order or 0) + 1
+
+            if marks is None or marks < 0:
+                marks = 4.0
+
+            if negative_marks is None or negative_marks < 0:
+                negative_marks = 1.0
+
+            existing = TestQuestion.query.filter_by(
+                test_id=test.id,
+                question_id=question.id
+            ).first()
+
+            if existing:
+                existing.display_order = display_order
+                existing.marks = marks
+                existing.negative_marks = negative_marks
+                flash("Question already added. Order/marks updated.", "success")
+            else:
+                link = TestQuestion(
+                    test_id=test.id,
+                    question_id=question.id,
+                    display_order=display_order,
+                    marks=marks,
+                    negative_marks=negative_marks,
+                )
+                db.session.add(link)
+                flash("Question added to test.", "success")
+
+            db.session.commit()
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error adding question to test: {str(e)}", "danger")
+
+        return redirect(url_for("admin.test_builder_page", test_id=test.id))
+
+    linked_questions = TestQuestion.query.filter_by(test_id=test.id).order_by(
+        TestQuestion.display_order.asc(),
+        TestQuestion.id.asc()
+    ).all()
+
+    linked_question_ids = {item.question_id for item in linked_questions}
+    available_questions = Question.query.order_by(Question.id.desc()).all()
+    available_questions = [q for q in available_questions if q.id not in linked_question_ids]
+
+    return render_template(
+        "admin_test_builder.html",
+        test=test,
+        linked_questions=linked_questions,
+        available_questions=available_questions,
+    )
+
+
+@admin_bp.route("/tests/<int:test_id>/publish", methods=["POST"])
+@login_required
+def publish_test(test_id):
+    admin_required()
+    test = Test.query.get_or_404(test_id)
+
+    if not test.test_questions:
+        flash("Add at least one question before publishing.", "danger")
+        return redirect(url_for("admin.tests_page"))
+
+    test.status = "published"
+    db.session.commit()
+    flash("Test published successfully.", "success")
+    return redirect(url_for("admin.tests_page"))
+
+
+@admin_bp.route("/tests/<int:test_id>/unpublish", methods=["POST"])
+@login_required
+def unpublish_test(test_id):
+    admin_required()
+    test = Test.query.get_or_404(test_id)
+    test.status = "draft"
+    db.session.commit()
+    flash("Test moved back to draft.", "success")
+    return redirect(url_for("admin.tests_page"))
+
+
+@admin_bp.route("/tests/<int:test_id>/questions/<int:link_id>/delete", methods=["POST"])
+@login_required
+def delete_test_question(test_id, link_id):
+    admin_required()
+    link = TestQuestion.query.filter_by(id=link_id, test_id=test_id).first_or_404()
+
+    db.session.delete(link)
+    db.session.commit()
+
+    test = Test.query.get(test_id)
+    if test and test.status == "published" and not test.test_questions:
+        test.status = "draft"
+        db.session.commit()
+        flash("Question removed. Test moved back to draft because it has no questions.", "success")
+    else:
+        flash("Question removed from test.", "success")
+
+    return redirect(url_for("admin.test_builder_page", test_id=test_id))
