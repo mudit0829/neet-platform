@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template_string
+from sqlalchemy.exc import SQLAlchemyError
 from ..models import Test, Question, User, Batch
 
 main_bp = Blueprint("main", __name__)
@@ -6,10 +7,18 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/")
 def home():
-    total_tests = Test.query.count()
-    total_questions = Question.query.count()
-    total_students = User.query.filter_by(role="student").count()
-    total_batches = Batch.query.count()
+    try:
+        total_tests = Test.query.count()
+        total_questions = Question.query.count()
+        total_students = User.query.filter_by(role="student").count()
+        total_batches = Batch.query.count()
+        db_ready = True
+    except SQLAlchemyError:
+        total_tests = 0
+        total_questions = 0
+        total_students = 0
+        total_batches = 0
+        db_ready = False
 
     return render_template_string("""
     <!doctype html>
@@ -51,6 +60,12 @@ def home():
                 font-weight: 700;
                 margin-top: 10px;
             }
+            .warn {
+                margin-top: 16px;
+                padding: 14px;
+                background: #7c2d12;
+                border-radius: 12px;
+            }
             a {
                 color: #93c5fd;
                 text-decoration: none;
@@ -62,7 +77,13 @@ def home():
             <div class="hero">
                 <h1>NEET Coaching Test Platform</h1>
                 <p>Online test engine, question bank, analytics, and institute management.</p>
-                <p><a href="/login">Login</a></p>
+                <p><a href="/login">Login</a> | <a href="/setup">Create First Admin</a></p>
+
+                {% if not db_ready %}
+                <div class="warn">
+                    Database tables are not ready yet. Refresh after deployment completes.
+                </div>
+                {% endif %}
             </div>
 
             <div class="grid">
@@ -86,4 +107,4 @@ def home():
         </div>
     </body>
     </html>
-    """, total_tests=total_tests, total_questions=total_questions, total_students=total_students, total_batches=total_batches)
+    """, total_tests=total_tests, total_questions=total_questions, total_students=total_students, total_batches=total_batches, db_ready=db_ready)
