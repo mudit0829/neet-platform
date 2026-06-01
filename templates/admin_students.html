@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Students | NEET Platform{% endblock %}
+
+{% block content %}
+<section class="dashboard-wrap">
+  <div class="topbar">
+    <div>
+      <div class="topbar-chip">Admin Module</div>
+      <h1>Students</h1>
+      <p>Manage student accounts, batches, login access, and academic grouping.</p>
+    </div>
+  </div>
+
+  <section class="content-grid">
+    <div class="panel-card">
+      <h3>Student management</h3>
+      <p class="panel-text">
+        This page will contain student listing, batch assignment, status updates, and search filters.
+      </p>
+      <div class="module-list" style="margin-top: 16px;">
+        <span class="module-chip">Admissions</span>
+        <span class="module-chip">Batches</span>
+        <span class="module-chip">Status</span>
+        <span class="module-chip">Performance</span>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <h3>Next development task</h3>
+      <p class="panel-text">
+        Next we will add student table, add-student form, and filters by batch and performance.
+      </p>
+    </div>
+  </section>
+</section>
+{% endblock %}
