@@ -12,226 +12,104 @@
     flex-wrap: wrap;
     align-items: flex-start;
   }
-  .builder-grid {
-    display: grid;
-    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
-    gap: 20px;
-    align-items: start;
-  }
-  .builder-card, .builder-summary-card {
-    min-width: 0;
-    overflow: hidden;
-  }
-  .builder-form, .filter-form {
-    display: grid;
-    gap: 12px;
-  }
-  .builder-field { display: grid; gap: 8px; }
-  .builder-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-  .builder-input, .builder-select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
-    background: #fff;
-    color: #111827;
-    box-sizing: border-box;
-  }
-  .builder-btn {
-    padding: 12px 16px;
-    border: none;
-    border-radius: 12px;
-    background: #0f766e;
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .builder-btn.secondary {
-    background: #fff;
-    color: #0f172a;
-    border: 1px solid #cbd5e1;
-  }
-  .builder-outline {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 14px;
-    border-radius: 12px;
-    border: 1px solid #cbd5e1;
-    text-decoration: none;
-    color: #0f172a;
-    font-weight: 700;
-    background: #fff;
-  }
-  .builder-alerts { display: grid; gap: 12px; }
-  .builder-alert {
-    padding: 14px 16px;
-    border-radius: 14px;
-    font-weight: 600;
-  }
-  .builder-alert.success { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
-  .builder-alert.danger, .builder-alert.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-  .builder-alert.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-
   .summary-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
   }
-  .summary-box {
+  .summary-card {
     border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    padding: 16px;
-    background: #fff;
+    border-radius: 18px;
+    background: #ffffff;
+    padding: 18px;
   }
   .summary-label {
     color: #64748b;
     font-size: 13px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   .summary-value {
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 800;
     color: #0f172a;
     line-height: 1.1;
+    margin-bottom: 8px;
   }
-
-  .count-list {
+  .summary-meta {
+    color: #475569;
+    font-size: 14px;
+  }
+  .subject-grid {
     display: grid;
-    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
   }
-  .count-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 10px 12px;
+  .subject-card {
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    background: #fff;
+    border-radius: 20px;
+    background: #ffffff;
+    padding: 20px;
   }
-  .count-row strong {
+  .subject-name {
+    font-size: 22px;
+    font-weight: 800;
     color: #0f172a;
+    margin-bottom: 10px;
   }
-
-  .question-table-wrap {
-    overflow-x: auto;
-    width: 100%;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    background: #fff;
+  .subject-count {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
   }
-  .question-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 1100px;
+  .subject-count.ok { color: #15803d; }
+  .subject-count.low { color: #b45309; }
+  .subject-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
   }
-  .question-table th,
-  .question-table td {
-    padding: 12px;
-    border-bottom: 1px solid #e5e7eb;
-    text-align: left;
-    vertical-align: top;
-  }
-  .question-table thead tr {
-    background: #f8fafc;
-    color: #111827;
-  }
-
-  .question-preview {
-    max-width: 520px;
-    color: #1f2937;
-    line-height: 1.5;
-  }
-
-  .usage-badge, .meta-chip {
+  .btn-main, .btn-light {
     display: inline-flex;
     align-items: center;
-    padding: 5px 10px;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-weight: 700;
+  }
+  .btn-main {
+    background: #0f766e;
+    color: #ffffff;
+  }
+  .btn-light {
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+  }
+  .note-box {
+    border: 1px dashed #cbd5e1;
+    border-radius: 18px;
+    background: #f8fafc;
+    padding: 18px;
+    color: #475569;
+  }
+  .status-badge {
+    display: inline-flex;
+    padding: 6px 10px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 700;
+    background: #e2e8f0;
+    color: #334155;
   }
-  .usage-0 { background: #dcfce7; color: #166534; }
-  .usage-1, .usage-2 { background: #fef3c7; color: #92400e; }
-  .usage-3, .usage-4 { background: #fee2e2; color: #b91c1c; }
-  .usage-5 { background: #e9d5ff; color: #7e22ce; }
-
-  .meta-chip { background: #e2e8f0; color: #334155; }
-
-  .bulk-bar {
-    display: flex;
-    justify-content: space-between;
-    gap: 14px;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-bottom: 14px;
+  .status-badge.published {
+    background: #dcfce7;
+    color: #166534;
   }
-  .bulk-controls {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .checkbox-cell {
-    width: 44px;
-  }
-
-  .builder-list { display: grid; gap: 12px; }
-  .builder-item {
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    padding: 14px;
-    background: #fff;
-  }
-  .builder-item-top {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 8px;
-  }
-  .builder-meta {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-  }
-  .builder-danger {
-    padding: 8px 12px;
-    border: 1px solid #fecaca;
-    background: #fff1f2;
-    color: #9f1239;
-    border-radius: 10px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .builder-muted {
-    color: #64748b;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-  .empty-box {
-    padding: 18px;
-    border: 1px dashed #cbd5e1;
-    border-radius: 14px;
-    color: #64748b;
-    background: #f8fafc;
-  }
-
-  @media (max-width: 1200px) {
-    .builder-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-  @media (max-width: 900px) {
-    .summary-grid {
-      grid-template-columns: 1fr;
-    }
-    .builder-row {
+  @media (max-width: 1100px) {
+    .summary-grid,
+    .subject-grid {
       grid-template-columns: 1fr;
     }
   }
@@ -241,20 +119,43 @@
   <div class="builder-wrap">
     <div class="builder-top">
       <div>
-        <div class="topbar-chip">Advanced Test Builder</div>
+        <div class="topbar-chip">NEET Test Builder</div>
         <h1 style="margin:8px 0 6px;">{{ test.title }}</h1>
         <p class="panel-text">
-          {{ test.test_type|replace('_', ' ')|title }} • {{ test.duration_minutes }} minutes • Status: {{ test.status|title }}
+          {{ test.test_type|replace('_', ' ')|title }} • {{ test.duration_minutes }} minutes •
+          <span class="status-badge {% if test.status == 'published' %}published{% endif %}">
+            {{ test.status|title }}
+          </span>
         </p>
       </div>
-      <a href="{{ url_for('admin.tests_page') }}" class="builder-outline">Back to Tests</a>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="{{ url_for('admin.tests_page') }}" class="btn-light">Back to Tests</a>
+        {% if subject_counts['Physics'] >= 45 and subject_counts['Chemistry'] >= 45 and subject_counts['Biology'] >= 90 %}
+          {% if test.status == 'draft' %}
+            <form method="POST" action="{{ url_for('admin.publish_test', test_id=test.id) }}">
+              <button type="submit" class="btn-main" style="border:none; cursor:pointer;">Publish Test</button>
+            </form>
+          {% else %}
+            <form method="POST" action="{{ url_for('admin.unpublish_test', test_id=test.id) }}">
+              <button type="submit" class="btn-light" style="cursor:pointer;">Unpublish</button>
+            </form>
+          {% endif %}
+        {% endif %}
+      </div>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="builder-alerts">
+        <div style="display:grid; gap:12px;">
           {% for category, message in messages %}
-            <div class="builder-alert {% if category in ['success'] %}success{% elif category in ['danger', 'error'] %}danger{% else %}info{% endif %}">
+            <div style="padding:14px 16px; border-radius:14px; font-weight:600;
+              {% if category in ['success'] %}
+                background:#ecfdf3; color:#166534; border:1px solid #bbf7d0;
+              {% elif category in ['danger', 'error'] %}
+                background:#fef2f2; color:#991b1b; border:1px solid #fecaca;
+              {% else %}
+                background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;
+              {% endif %}">
               {{ message }}
             </div>
           {% endfor %}
@@ -263,252 +164,74 @@
     {% endwith %}
 
     <div class="summary-grid">
-      <div class="summary-box">
-        <div class="summary-label">Selected questions</div>
+      <div class="summary-card">
+        <div class="summary-label">Physics</div>
+        <div class="summary-value">{{ subject_counts['Physics'] }}</div>
+        <div class="summary-meta">Target: {{ subject_targets['Physics'] }}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Chemistry</div>
+        <div class="summary-value">{{ subject_counts['Chemistry'] }}</div>
+        <div class="summary-meta">Target: {{ subject_targets['Chemistry'] }}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Biology</div>
+        <div class="summary-value">{{ subject_counts['Biology'] }}</div>
+        <div class="summary-meta">Target: {{ subject_targets['Biology'] }}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Total</div>
         <div class="summary-value">{{ total_selected_questions }}</div>
-      </div>
-      <div class="summary-box">
-        <div class="summary-label">Selected marks</div>
-        <div class="summary-value">{{ "%.0f"|format(total_selected_marks) }}</div>
-      </div>
-      <div class="summary-box">
-        <div class="summary-label">Available after filters</div>
-        <div class="summary-value">{{ available_questions|length }}</div>
+        <div class="summary-meta">Selected marks: {{ "%.0f"|format(total_selected_marks) }}</div>
       </div>
     </div>
 
-    <div class="builder-grid">
-      <div class="panel-card builder-summary-card">
-        <h3>Filters</h3>
-        <p class="builder-muted" style="margin-bottom:16px;">
-          Use filters instead of scrolling a long dropdown.
-        </p>
-
-        <form method="GET" class="filter-form">
-          <div class="builder-field">
-            <label for="search"><strong>Search question text</strong></label>
-            <input
-              type="text"
-              id="search"
-              name="search"
-              class="builder-input"
-              value="{{ search or '' }}"
-              placeholder="Search by question text"
-            >
-          </div>
-
-          <div class="builder-field">
-            <label for="subject_id"><strong>Subject</strong></label>
-            <select name="subject_id" id="subject_id" class="builder-select">
-              <option value="">All subjects</option>
-              {% for subject in subjects %}
-                <option value="{{ subject.id }}" {% if subject_id == subject.id %}selected{% endif %}>
-                  {{ subject.name }}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="builder-field">
-            <label for="chapter_id"><strong>Chapter</strong></label>
-            <select name="chapter_id" id="chapter_id" class="builder-select">
-              <option value="">All chapters</option>
-              {% for chapter in chapters %}
-                <option value="{{ chapter.id }}" {% if chapter_id == chapter.id %}selected{% endif %}>
-                  {{ chapter.name }}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="builder-field">
-            <label for="difficulty_level"><strong>Difficulty</strong></label>
-            <select name="difficulty_level" id="difficulty_level" class="builder-select">
-              <option value="">All difficulty levels</option>
-              <option value="easy" {% if difficulty_level == 'easy' %}selected{% endif %}>Easy</option>
-              <option value="medium" {% if difficulty_level == 'medium' %}selected{% endif %}>Medium</option>
-              <option value="hard" {% if difficulty_level == 'hard' %}selected{% endif %}>Hard</option>
-            </select>
-          </div>
-
-          <div class="builder-field">
-            <label for="usage_count"><strong>Appeared in tests</strong></label>
-            <select name="usage_count" id="usage_count" class="builder-select">
-              <option value="">All</option>
-              <option value="0" {% if usage_count_filter == '0' %}selected{% endif %}>0 times</option>
-              <option value="1" {% if usage_count_filter == '1' %}selected{% endif %}>1 time</option>
-              <option value="2" {% if usage_count_filter == '2' %}selected{% endif %}>2 times</option>
-              <option value="3" {% if usage_count_filter == '3' %}selected{% endif %}>3 times</option>
-              <option value="4" {% if usage_count_filter == '4' %}selected{% endif %}>4 times</option>
-              <option value="5_plus" {% if usage_count_filter == '5_plus' %}selected{% endif %}>5+ times</option>
-            </select>
-          </div>
-
-          <div class="builder-row">
-            <button type="submit" class="builder-btn">Apply Filters</button>
-            <a href="{{ url_for('admin.test_builder_page', test_id=test.id) }}" class="builder-btn secondary" style="text-decoration:none;text-align:center;">
-              Reset
-            </a>
-          </div>
-        </form>
-
-        <div style="margin-top:20px;">
-          <h3 style="margin-bottom:12px;">Selected by subject</h3>
-          {% if selected_subject_counts %}
-            <div class="count-list">
-              {% for subject_name, count in selected_subject_counts.items() %}
-                <div class="count-row">
-                  <span>{{ subject_name }}</span>
-                  <strong>{{ count }}</strong>
-                </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="empty-box">No questions selected in this test yet.</div>
-          {% endif %}
+    <div class="subject-grid">
+      <div class="subject-card">
+        <div class="subject-name">Physics</div>
+        <div class="subject-count {% if subject_counts['Physics'] >= subject_targets['Physics'] %}ok{% else %}low{% endif %}">
+          {{ subject_counts['Physics'] }} / {{ subject_targets['Physics'] }}
         </div>
-
-        <div style="margin-top:20px;">
-          <h3 style="margin-bottom:12px;">Filtered bank by subject</h3>
-          {% if filtered_available_subject_counts %}
-            <div class="count-list">
-              {% for subject_name, count in filtered_available_subject_counts.items() %}
-                <div class="count-row">
-                  <span>{{ subject_name }}</span>
-                  <strong>{{ count }}</strong>
-                </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="empty-box">No questions found for current filters.</div>
-          {% endif %}
+        <div class="panel-text">
+          Build Physics section with chapter filters, preview popup, usage count and bulk selection.
+        </div>
+        <div class="subject-actions">
+          <a href="{{ url_for('admin.test_builder_subject_page', test_id=test.id, subject_name='physics') }}" class="btn-main">Open Physics Bank</a>
         </div>
       </div>
 
-      <div class="panel-card builder-card">
-        <h3>Question Bank</h3>
-        <p class="builder-muted" style="margin-bottom:16px;">
-          Select multiple questions and add them in one go.
-        </p>
-
-        <form method="POST" class="builder-form">
-          <div class="bulk-bar">
-            <div class="bulk-controls">
-              <label style="display:flex;align-items:center;gap:8px;">
-                <input type="checkbox" id="select-all-questions">
-                <strong>Select all visible</strong>
-              </label>
-            </div>
-
-            <div class="bulk-controls">
-              <input type="number" step="0.25" name="marks" class="builder-input" value="4" style="width:110px;" placeholder="Marks">
-              <input type="number" step="0.25" name="negative_marks" class="builder-input" value="1" style="width:140px;" placeholder="Negative">
-              <button type="submit" class="builder-btn">Add Selected Questions</button>
-            </div>
-          </div>
-
-          {% if available_questions %}
-            <div class="question-table-wrap">
-              <table class="question-table">
-                <thead>
-                  <tr>
-                    <th class="checkbox-cell">#</th>
-                    <th>ID</th>
-                    <th>Question</th>
-                    <th>Subject</th>
-                    <th>Chapter</th>
-                    <th>Difficulty</th>
-                    <th>Usage</th>
-                    <th>Correct</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for question in available_questions %}
-                    <tr>
-                      <td class="checkbox-cell">
-                        <input type="checkbox" name="question_ids" value="{{ question.id }}" class="question-checkbox">
-                      </td>
-                      <td>{{ question.id }}</td>
-                      <td>
-                        <div class="question-preview">{{ question.stem }}</div>
-                      </td>
-                      <td><span class="meta-chip">{{ question.subject_name }}</span></td>
-                      <td><span class="meta-chip">{{ question.chapter_name }}</span></td>
-                      <td><span class="meta-chip">{{ question.difficulty_level|title }}</span></td>
-                      <td>
-                        <span class="usage-badge {% if question.usage_count == 0 %}usage-0{% elif question.usage_count in [1,2] %}usage-1{% elif question.usage_count in [3,4] %}usage-3{% else %}usage-5{% endif %}">
-                          {{ question.usage_count }} time{% if question.usage_count != 1 %}s{% endif %}
-                        </span>
-                      </td>
-                      <td>{{ question.correct_option }}</td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          {% else %}
-            <div class="empty-box">
-              No questions available for the current filters.
-            </div>
-          {% endif %}
-        </form>
-
-        <div style="margin-top:24px;">
-          <h3>Already Added To This Test</h3>
-          <p class="builder-muted" style="margin-bottom:16px;">
-            Review current paper composition and remove any question if needed.
-          </p>
-
-          {% if linked_questions %}
-            <div class="builder-list">
-              {% for item in linked_questions %}
-                <div class="builder-item">
-                  <div class="builder-item-top">
-                    <div>
-                      <strong>#{{ item.display_order }}</strong>
-                      <div class="builder-muted" style="margin-top:6px;">
-                        {{ item.question.stem if item.question else '' }}
-                      </div>
-                    </div>
-
-                    <form method="POST" action="{{ url_for('admin.delete_test_question', test_id=test.id, link_id=item.id) }}">
-                      <button type="submit" class="builder-danger">Remove</button>
-                    </form>
-                  </div>
-
-                  <div class="builder-meta">
-                    <span class="meta-chip">{{ item.question.subject.name if item.question and item.question.subject else 'Subject' }}</span>
-                    <span class="meta-chip">{{ item.question.chapter.name if item.question and item.question.chapter else 'Chapter' }}</span>
-                    <span class="meta-chip">Marks: {{ item.marks }}</span>
-                    <span class="meta-chip">Negative: {{ item.negative_marks }}</span>
-                    <span class="meta-chip">Correct: {{ item.question.correct_option if item.question else '-' }}</span>
-                  </div>
-                </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="empty-box">
-              No questions attached yet. Add at least one question before publishing this test.
-            </div>
-          {% endif %}
+      <div class="subject-card">
+        <div class="subject-name">Chemistry</div>
+        <div class="subject-count {% if subject_counts['Chemistry'] >= subject_targets['Chemistry'] %}ok{% else %}low{% endif %}">
+          {{ subject_counts['Chemistry'] }} / {{ subject_targets['Chemistry'] }}
+        </div>
+        <div class="panel-text">
+          Build Chemistry section with chapter filters, preview popup, usage count and bulk selection.
+        </div>
+        <div class="subject-actions">
+          <a href="{{ url_for('admin.test_builder_subject_page', test_id=test.id, subject_name='chemistry') }}" class="btn-main">Open Chemistry Bank</a>
         </div>
       </div>
+
+      <div class="subject-card">
+        <div class="subject-name">Biology</div>
+        <div class="subject-count {% if subject_counts['Biology'] >= subject_targets['Biology'] %}ok{% else %}low{% endif %}">
+          {{ subject_counts['Biology'] }} / {{ subject_targets['Biology'] }}
+        </div>
+        <div class="panel-text">
+          Build Biology section with chapter filters, preview popup, usage count and bulk selection.
+        </div>
+        <div class="subject-actions">
+          <a href="{{ url_for('admin.test_builder_subject_page', test_id=test.id, subject_name='biology') }}" class="btn-main">Open Biology Bank</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-box">
+      <strong>Professional builder rule:</strong>
+      Test can be published only when Physics has 45 questions, Chemistry has 45 questions, and Biology has 90 questions.
+      This keeps the NEET paper structure complete and reduces human error during paper setting.
     </div>
   </div>
 </section>
-
-<script>
-  (function () {
-    const selectAll = document.getElementById("select-all-questions");
-    const boxes = document.querySelectorAll(".question-checkbox");
-
-    if (selectAll) {
-      selectAll.addEventListener("change", function () {
-        boxes.forEach(function (box) {
-          box.checked = selectAll.checked;
-        });
-      });
-    }
-  })();
-</script>
 {% endblock %}
