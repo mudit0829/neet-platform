@@ -8,29 +8,266 @@
     <div>
       <div class="topbar-chip">Admin Module</div>
       <h1>Students</h1>
-      <p>Manage student accounts, batches, login access, and academic grouping.</p>
+      <p>Create student login accounts, capture admission details, upload photograph, and map each student to a batch.</p>
     </div>
   </div>
 
-  <section class="content-grid">
+  <section class="content-grid" style="grid-template-columns: 1.3fr 1fr;">
     <div class="panel-card">
-      <h3>Student management</h3>
-      <p class="panel-text">
-        This page will contain student listing, batch assignment, status updates, and search filters.
-      </p>
-      <div class="module-list" style="margin-top: 16px;">
-        <span class="module-chip">Admissions</span>
-        <span class="module-chip">Batches</span>
-        <span class="module-chip">Status</span>
-        <span class="module-chip">Performance</span>
-      </div>
+      <h3>Create student account</h3>
+      <p class="panel-text">Admin creates the student profile, login credentials, and admission record from one form.</p>
+
+      <form method="POST" enctype="multipart/form-data" style="margin-top: 18px;">
+        <div class="form-grid" style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+          <div style="grid-column: span 2;">
+            <h4 style="margin-bottom: 8px;">Login details</h4>
+          </div>
+
+          <div>
+            <label>Full name *</label>
+            <input type="text" name="full_name" required class="form-control">
+          </div>
+
+          <div>
+            <label>Username *</label>
+            <input type="text" name="username" required class="form-control">
+          </div>
+
+          <div>
+            <label>Password *</label>
+            <input type="text" name="password" required class="form-control">
+          </div>
+
+          <div>
+            <label>Status *</label>
+            <select name="status" class="form-control" required>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div style="grid-column: span 2; margin-top: 8px;">
+            <h4 style="margin-bottom: 8px;">Admission details</h4>
+          </div>
+
+          <div>
+            <label>Admission no. *</label>
+            <input type="text" name="admission_no" required class="form-control">
+          </div>
+
+          <div>
+            <label>Admission session *</label>
+            <input type="text" name="admission_session" placeholder="2026-27" required class="form-control">
+          </div>
+
+          <div>
+            <label>Course applied *</label>
+            <input type="text" name="course_applied" placeholder="Foundation / NEET" required class="form-control">
+          </div>
+
+          <div>
+            <label>Target exam</label>
+            <input type="text" name="target_exam" placeholder="NEET 2027" class="form-control">
+          </div>
+
+          <div>
+            <label>Current class</label>
+            <input type="text" name="current_class" placeholder="XI / XII / XII Pass" class="form-control">
+          </div>
+
+          <div>
+            <label>Batch *</label>
+            <select name="batch_id" required class="form-control">
+              <option value="">Select batch</option>
+              {% for batch in batches %}
+                <option value="{{ batch.id }}">{{ batch.name }} ({{ batch.academic_year }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div style="grid-column: span 2; margin-top: 8px;">
+            <h4 style="margin-bottom: 8px;">Photograph & identity</h4>
+          </div>
+
+          <div>
+            <label>Photograph *</label>
+            <input type="file" name="photograph" accept=".png,.jpg,.jpeg,.gif,.webp" required class="form-control">
+          </div>
+
+          <div>
+            <label>Date of birth *</label>
+            <input type="date" name="dob" required class="form-control">
+          </div>
+
+          <div>
+            <label>Gender *</label>
+            <select name="gender" required class="form-control">
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Category</label>
+            <input type="text" name="category" class="form-control">
+          </div>
+
+          <div style="grid-column: span 2; margin-top: 8px;">
+            <h4 style="margin-bottom: 8px;">Contact details</h4>
+          </div>
+
+          <div>
+            <label>Student mobile *</label>
+            <input type="text" name="student_mobile" required class="form-control">
+          </div>
+
+          <div>
+            <label>Student email</label>
+            <input type="email" name="student_email" class="form-control">
+          </div>
+
+          <div>
+            <label>Father name *</label>
+            <input type="text" name="father_name" required class="form-control">
+          </div>
+
+          <div>
+            <label>Mother name</label>
+            <input type="text" name="mother_name" class="form-control">
+          </div>
+
+          <div>
+            <label>Father mobile *</label>
+            <input type="text" name="father_mobile" required class="form-control">
+          </div>
+
+          <div>
+            <label>Mother mobile</label>
+            <input type="text" name="mother_mobile" class="form-control">
+          </div>
+
+          <div>
+            <label>Parent email</label>
+            <input type="email" name="parent_email" class="form-control">
+          </div>
+
+          <div></div>
+
+          <div style="grid-column: span 2; margin-top: 8px;">
+            <h4 style="margin-bottom: 8px;">Address & academic info</h4>
+          </div>
+
+          <div style="grid-column: span 2;">
+            <label>Address *</label>
+            <textarea name="address" required class="form-control" rows="3"></textarea>
+          </div>
+
+          <div>
+            <label>City *</label>
+            <input type="text" name="city" required class="form-control">
+          </div>
+
+          <div>
+            <label>District</label>
+            <input type="text" name="district" class="form-control">
+          </div>
+
+          <div>
+            <label>State *</label>
+            <input type="text" name="state" required class="form-control">
+          </div>
+
+          <div>
+            <label>Pincode</label>
+            <input type="text" name="pincode" class="form-control">
+          </div>
+
+          <div>
+            <label>School name</label>
+            <input type="text" name="school_name" class="form-control">
+          </div>
+
+          <div>
+            <label>Board name</label>
+            <input type="text" name="board_name" class="form-control">
+          </div>
+
+          <div style="grid-column: span 2;">
+            <label>Remarks</label>
+            <textarea name="remarks" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top: 18px; display:flex; gap:12px; flex-wrap:wrap;">
+          <button type="submit" class="btn btn-primary">Create student</button>
+          <span class="module-chip">Photograph required</span>
+          <span class="module-chip">Username set by admin</span>
+          <span class="module-chip">Batch linked</span>
+        </div>
+      </form>
     </div>
 
     <div class="panel-card">
-      <h3>Next development task</h3>
-      <p class="panel-text">
-        Next we will add student table, add-student form, and filters by batch and performance.
-      </p>
+      <h3>Current student list</h3>
+      <p class="panel-text">View student accounts, assigned batches, status, and activity count.</p>
+
+      <div style="margin-top: 18px; overflow:auto;">
+        <table class="data-table" style="width:100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:10px;">Student</th>
+              <th style="text-align:left; padding:10px;">Username</th>
+              <th style="text-align:left; padding:10px;">Batch</th>
+              <th style="text-align:left; padding:10px;">Status</th>
+              <th style="text-align:left; padding:10px;">Attempts</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in students %}
+              <tr>
+                <td style="padding:10px; border-top:1px solid rgba(255,255,255,.08);">
+                  <div style="font-weight:600;">{{ student.full_name }}</div>
+                  <div style="font-size:12px; opacity:.7;">
+                    {% if student.student_profile %}
+                      {{ student.student_profile.admission_no }}
+                    {% else %}
+                      No admission no.
+                    {% endif %}
+                  </div>
+                </td>
+                <td style="padding:10px; border-top:1px solid rgba(255,255,255,.08);">
+                  {{ student.username or "-" }}
+                </td>
+                <td style="padding:10px; border-top:1px solid rgba(255,255,255,.08);">
+                  {% if student.batch %}
+                    {{ student.batch.name }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td style="padding:10px; border-top:1px solid rgba(255,255,255,.08);">
+                  {% if student.is_active_user %}
+                    <span class="module-chip">Active</span>
+                  {% else %}
+                    <span class="module-chip">Inactive</span>
+                  {% endif %}
+                </td>
+                <td style="padding:10px; border-top:1px solid rgba(255,255,255,.08);">
+                  {{ student_attempt_counts.get(student.id, 0) }}
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="5" style="padding:14px; border-top:1px solid rgba(255,255,255,.08); opacity:.8;">
+                  No students created yet.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 </section>
