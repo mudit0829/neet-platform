@@ -259,7 +259,7 @@ def tests_page():
 
             db.session.add(test)
             db.session.commit()
-            flash("Test created successfully. Add questions next.", "success")
+            flash("Test created successfully. Build subject-wise paper next.", "success")
 
         except Exception as e:
             db.session.rollback()
@@ -271,6 +271,339 @@ def tests_page():
     batches = Batch.query.order_by(Batch.id.desc()).all()
 
     return render_template("admin_tests.html", tests=tests, batches=batches)
+
+
+@admin_bp.route("/tests/<int:test_id>/builder")
+@login_required
+def test_builder_page(test_id):
+    admin_required()
+    test = Test.query.get_or_404(test_id)
+
+    linked_questions = TestQuestion.query.filter_by(test_id=test.id).all()
+
+    subject_targets = {
+        "Physics": 45,
+        "Chemistry": 45,
+        "Biology": 90,
+    }
+
+    subject_counts = {
+        "Physics": 0,
+        "Chemistry": 0,
+        "Biology": 0,
+    }
+
+    total_selected_marks = 0.0
+
+    for item in linked_questions:
+        if item.question and item.question.subject:
+            subject_name = (item.question.subject.name or "").strip()
+            if subject_name in subject_counts:
+                subject_counts[subject_name] += 1
+        total_selected_marks += float(item.marks or 0)
+
+    total_selected_questions = sum(subject_counts.values())
+
+    return render_template(
+        "admin_test_builder.html",
+        test=test,
+        subject_targets=subject_targets,
+        subject_counts=subject_counts,
+        total_selected_questions=total_selected_questions,
+        total_selected_marks=total_selected_marks,
+    )
+
+
+@admin_bp.route("/tests/<int:test_id>/builder/<subject_name>", methods=["GET", "POST"])
+@login_required
+def test_builder_subject_page(test_id, subject_name):
+    admin_required()
+    test = Test.query.get_or_404(test_id)
+
+    allowed_subjects = {
+        "physics": "Physics",
+        "chemistry": "Chemistry",
+        "biology": "Biology",
+    }
+
+    subject_key = (subject_name or "").strip().lower()
+    if subject_key not in allowed_subjects:
+        abort(404)
+
+    selected_subject_name = allowed_subjects[subject_key]
+    subject_obj = Subject.query.filter(db.func.lower(Subject.name) == subject_key).first()
+
+    if not subject_obj:
+        flash(f"{selected_subject_name} subject is not available in database.", "danger")
+        return redirect(url_for("admin.test_builder_page", test_id=test.id))
+
+    if request.method == "POST":
+        try:
+            question_ids = request.form.getlist("question_ids")
+            selected_ids = []
+
+            for qid in question_ids:
+                try:
+                    selected_ids.append(int(qid))
+                except (TypeError, ValueError):
+                    pass
+
+            if not selected_ids:
+                flash("Please select at least one question to add.", "danger")
+                return redirect(url_for("admin.test_builder_subject_page", test_id=test.id, subject_name=subject_key, **request.args.to_dict()))
+
+            marks = request.form.get("marks", type=float)
+            negative_marks = request.form.get("negative_marks", type=float)
+
+            if marks is None or marks < 0:
+                marks = 4.0
+
+            if negative_marks is None or negative_marks < 0:
+                negative_marks = 1.0
+
+            max_order = db.session.query(
+                db.func.coalesce(db.func.max(TestQuestion.display_order), 0)
+            ).filter(TestQuestion.test_id == test.id).scalar() or 0
+
+            added_count = 0
+            skipped_count = 0
+
+            for question_id in selected_ids:
+                question = Question.query.get(question_id)
+                if not question:
+                    skipped_count += 1
+                    continue
+
+                if question.subject_id != subject_obj.id:
+                    skipped_count += 1
+                    continue
+
+                existing = TestQuestion.query.filter_by(
+                    test_id=test.id,
+                    question_id=question.id
+                ).first()
+
+                if existing:
+                    skipped_count += 1
+                    continue
+
+                max_order += 1
+                link = TestQuestion(
+                    test_id=test.id,
+                    question_id=question.id,
+                    display_order=max_order,
+                    marks=marks,
+                    negative_marks=negative_marks,
+                )
+                db.session.add(link)
+                added_count += 1
+
+            db.session.commit()
+
+            if added_count and skipped_count:
+                flash(f"{added_count} question(s) added successfully. {skipped_count} duplicate/invalid question(s) skipped.", "success")
+            elif added_count:
+                flash(f"{added_count} question(s) added successfully.", "success")
+            else:
+                flash("No new questions were added.", "info")
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error adding questions to test: {str(e)}", "danger")
+
+        return redirect(url_for("admin.test_builder_subject_page", test_id=test.id, subject_name=subject_key, **request.args.to_dict()))
+
+    chapter_id = request.args.get("chapter_id", type=int)
+    difficulty_level = (request.args.get("difficulty_level") or "").strip().lower()
+    usage_count_filter = (request.args.get("usage_count") or "").strip().lower()
+    search = (request.args.get("search") or "").strip()
+    only_unused = (request.args.get("only_unused") or "").strip()
+
+    linked_questions = TestQuestion.query.filter_by(test_id=test.id).order_by(
+        TestQuestion.display_order.asc(),
+        TestQuestion.id.asc()
+    ).all()
+
+    linked_question_ids = [item.question_id for item in linked_questions]
+
+    usage_subquery = db.session.query(
+        TestQuestion.question_id.label("question_id"),
+        db.func.count(TestQuestion.id).label("usage_count")
+    ).group_by(TestQuestion.question_id).subquery()
+
+    available_query = db.session.query(
+        Question,
+        db.func.coalesce(usage_subquery.c.usage_count, 0).label("usage_count")
+    ).outerjoin(
+        usage_subquery,
+        usage_subquery.c.question_id == Question.id
+    ).filter(
+        Question.subject_id == subject_obj.id
+    )
+
+    if linked_question_ids:
+        available_query = available_query.filter(~Question.id.in_(linked_question_ids))
+
+    if chapter_id:
+        available_query = available_query.filter(Question.chapter_id == chapter_id)
+
+    if difficulty_level in ["easy", "medium", "hard"]:
+        available_query = available_query.filter(Question.difficulty_level == difficulty_level)
+
+    usage_expr = db.func.coalesce(usage_subquery.c.usage_count, 0)
+
+    if only_unused == "1":
+        available_query = available_query.filter(usage_expr == 0)
+
+    if usage_count_filter:
+        if usage_count_filter == "5_plus":
+            available_query = available_query.filter(usage_expr >= 5)
+        else:
+            try:
+                usage_number = int(usage_count_filter)
+                available_query = available_query.filter(usage_expr == usage_number)
+            except ValueError:
+                pass
+
+    if search:
+        available_query = available_query.filter(Question.stem.ilike(f"%{search}%"))
+
+    available_rows = available_query.order_by(
+        usage_expr.asc(),
+        Question.chapter_id.asc(),
+        Question.id.desc()
+    ).all()
+
+    available_questions = []
+    for question, usage_count in available_rows:
+        available_questions.append({
+            "id": question.id,
+            "stem": question.stem,
+            "chapter_name": question.chapter.name if question.chapter else "Chapter",
+            "difficulty_level": question.difficulty_level or "medium",
+            "correct_option": question.correct_option,
+            "usage_count": int(usage_count or 0),
+            "question_image": question.question_image,
+            "option_a": question.option_a,
+            "option_b": question.option_b,
+            "option_c": question.option_c,
+            "option_d": question.option_d,
+            "explanation": question.explanation,
+        })
+
+    subject_targets = {
+        "Physics": 45,
+        "Chemistry": 45,
+        "Biology": 90,
+    }
+
+    subject_counts = {
+        "Physics": 0,
+        "Chemistry": 0,
+        "Biology": 0,
+    }
+
+    for item in linked_questions:
+        if item.question and item.question.subject:
+            q_subject_name = (item.question.subject.name or "").strip()
+            if q_subject_name in subject_counts:
+                subject_counts[q_subject_name] += 1
+
+    current_subject_selected = subject_counts.get(selected_subject_name, 0)
+    current_subject_target = subject_targets.get(selected_subject_name, 0)
+
+    chapters = Chapter.query.filter_by(subject_id=subject_obj.id).order_by(Chapter.name.asc()).all()
+
+    return render_template(
+        "admin_test_builder_subject.html",
+        test=test,
+        selected_subject_name=selected_subject_name,
+        subject_key=subject_key,
+        subject_targets=subject_targets,
+        subject_counts=subject_counts,
+        current_subject_selected=current_subject_selected,
+        current_subject_target=current_subject_target,
+        linked_questions=linked_questions,
+        available_questions=available_questions,
+        chapters=chapters,
+        chapter_id=chapter_id,
+        difficulty_level=difficulty_level,
+        usage_count_filter=usage_count_filter,
+        search=search,
+        only_unused=only_unused,
+    )
+
+
+@admin_bp.route("/tests/<int:test_id>/publish", methods=["POST"])
+@login_required
+def publish_test(test_id):
+    admin_required()
+    test = Test.query.get_or_404(test_id)
+
+    subject_counts = {
+        "Physics": 0,
+        "Chemistry": 0,
+        "Biology": 0,
+    }
+
+    for item in test.test_questions:
+        if item.question and item.question.subject:
+            subject_name = (item.question.subject.name or "").strip()
+            if subject_name in subject_counts:
+                subject_counts[subject_name] += 1
+
+    if subject_counts["Physics"] < 45 or subject_counts["Chemistry"] < 45 or subject_counts["Biology"] < 90:
+        flash("Cannot publish. Required minimum: Physics 45, Chemistry 45, Biology 90.", "danger")
+        return redirect(url_for("admin.test_builder_page", test_id=test.id))
+
+    test.status = "published"
+    db.session.commit()
+    flash("Test published successfully.", "success")
+    return redirect(url_for("admin.tests_page"))
+
+
+@admin_bp.route("/tests/<int:test_id>/unpublish", methods=["POST"])
+@login_required
+def unpublish_test(test_id):
+    admin_required()
+    test = Test.query.get_or_404(test_id)
+    test.status = "draft"
+    db.session.commit()
+    flash("Test moved back to draft.", "success")
+    return redirect(url_for("admin.tests_page"))
+
+
+@admin_bp.route("/tests/<int:test_id>/questions/<int:link_id>/delete", methods=["POST"])
+@login_required
+def delete_test_question(test_id, link_id):
+    admin_required()
+    link = TestQuestion.query.filter_by(id=link_id, test_id=test_id).first_or_404()
+
+    db.session.delete(link)
+    db.session.commit()
+
+    test = Test.query.get(test_id)
+    if test and test.status == "published":
+        subject_counts = {
+            "Physics": 0,
+            "Chemistry": 0,
+            "Biology": 0,
+        }
+
+        for item in test.test_questions:
+            if item.question and item.question.subject:
+                subject_name = (item.question.subject.name or "").strip()
+                if subject_name in subject_counts:
+                    subject_counts[subject_name] += 1
+
+        if subject_counts["Physics"] < 45 or subject_counts["Chemistry"] < 45 or subject_counts["Biology"] < 90:
+            test.status = "draft"
+            db.session.commit()
+            flash("Question removed. Test moved back to draft because NEET subject requirement is no longer complete.", "success")
+            return redirect(url_for("admin.test_builder_page", test_id=test_id))
+
+    flash("Question removed from test.", "success")
+    return redirect(request.referrer or url_for("admin.test_builder_page", test_id=test_id))
 
 
 @admin_bp.route("/tests/<int:test_id>/builder", methods=["GET", "POST"])
