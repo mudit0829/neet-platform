@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Batches | NEET Platform{% endblock %}
+
+{% block content %}
+<section class="admin-page">
+  <style>
+    .admin-page {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .page-intro {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #0f766e 100%);
+      border-radius: 24px;
+      padding: 26px;
+      color: #ffffff;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    }
+
+    .page-intro h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .page-intro p {
+      margin: 0;
+      max-width: 760px;
+      color: rgba(255, 255, 255, 0.84);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 380px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+    }
+
+    .panel-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .panel-text {
+      margin: 0 0 18px;
+      font-size: 14px;
+      color: #64748b;
+      line-height: 1.7;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: grid;
+      gap: 7px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .form-control {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #0f172a;
+      background: #ffffff;
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    .form-control:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+    }
+
+    .btn-primary {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 16px;
+      background: linear-gradient(135deg, #2563eb, #059669);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table thead th {
+      text-align: left;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #64748b;
+      padding: 14px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    .data-table tbody td {
+      padding: 16px 12px;
+      border-bottom: 1px solid #eef2f7;
+      font-size: 14px;
+      color: #0f172a;
+      vertical-align: middle;
+    }
+
+    .data-table tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .empty-state {
+      padding: 18px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1024px) {
+      .two-col-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <section class="page-intro">
+    <h2>Batches</h2>
+    <p>
+      Create and manage academic batches so students can be organized properly for login, test assignment, and reporting.
+    </p>
+  </section>
+
+  <section class="two-col-grid">
+    <div class="panel-card">
+      <h3>Create batch</h3>
+      <p class="panel-text">
+        Add a batch with an academic year and status. This will later help in assigning students and tests in a clean way.
+      </p>
+
+      <form method="POST" class="form-grid">
+        <div class="form-group">
+          <label for="name">Batch name</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="e.g. NEET 2026 Batch A" required>
+        </div>
+
+        <div class="form-group">
+          <label for="academic_year">Academic year</label>
+          <input type="text" id="academic_year" name="academic_year" class="form-control" placeholder="e.g. 2026-27" required>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" name="status" class="form-control">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-primary">Create Batch</button>
+      </form>
+    </div>
+
+    <div class="panel-card">
+      <h3>Batch list</h3>
+      <p class="panel-text">
+        Review all created batches and use them as the base structure for student grouping and future test assignment.
+      </p>
+
+      {% if batches %}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Batch Name</th>
+              <th>Academic Year</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for batch in batches %}
+            <tr>
+              <td>#{{ batch.id }}</td>
+              <td>{{ batch.name }}</td>
+              <td>{{ batch.academic_year }}</td>
+              <td>
+                <span class="status-badge {% if batch.status == 'active' %}status-active{% else %}status-inactive{% endif %}">
+                  {{ batch.status|title }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">No batches created yet.</div>
+      {% endif %}
+    </div>
+  </section>
+</section>
+{% endblock %}
