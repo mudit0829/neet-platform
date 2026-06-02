@@ -38,6 +38,7 @@
   .summary-meta {
     color: #475569;
     font-size: 14px;
+    line-height: 1.6;
   }
   .subject-grid {
     display: grid;
@@ -69,7 +70,7 @@
     flex-wrap: wrap;
     margin-top: 16px;
   }
-  .btn-main, .btn-light {
+  .btn-main, .btn-light, .btn-disabled {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -77,15 +78,23 @@
     border-radius: 12px;
     padding: 12px 16px;
     font-weight: 700;
+    border: none;
   }
   .btn-main {
     background: #0f766e;
     color: #ffffff;
+    cursor: pointer;
   }
   .btn-light {
     background: #ffffff;
     color: #0f172a;
     border: 1px solid #cbd5e1;
+  }
+  .btn-disabled {
+    background: #e2e8f0;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    cursor: not-allowed;
   }
   .note-box {
     border: 1px dashed #cbd5e1;
@@ -93,19 +102,48 @@
     background: #f8fafc;
     padding: 18px;
     color: #475569;
+    line-height: 1.7;
   }
-  .status-badge {
+  .rule-box {
+    border-radius: 18px;
+    padding: 18px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+  }
+  .rule-box.ok {
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+  .rule-box.warn {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #9a3412;
+  }
+  .status-badge,
+  .mode-badge,
+  .schedule-badge {
     display: inline-flex;
     padding: 6px 10px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 700;
+  }
+  .status-badge {
     background: #e2e8f0;
     color: #334155;
   }
   .status-badge.published {
     background: #dcfce7;
     color: #166534;
+  }
+  .mode-badge {
+    background: #ecfeff;
+    color: #155e75;
+  }
+  .schedule-badge {
+    background: #fef3c7;
+    color: #92400e;
   }
   @media (max-width: 1100px) {
     .summary-grid,
@@ -115,31 +153,60 @@
   }
 </style>
 
+{% set current_mode = test.test_mode if test.test_mode is defined and test.test_mode else 'custom' %}
+{% set current_schedule = test.schedule_type if test.schedule_type is defined and test.schedule_type else 'instant' %}
+{% set can_publish = false %}
+{% set publish_message = '' %}
+
+{% if current_mode == 'neet_full' %}
+  {% if subject_counts['Physics'] >= 45 and subject_counts['Chemistry'] >= 45 and subject_counts['Biology'] >= 90 %}
+    {% set can_publish = true %}
+    {% set publish_message = 'NEET full structure complete. This test is ready for publish validation.' %}
+  {% else %}
+    {% set publish_message = 'NEET Full Test requires Physics 45, Chemistry 45, and Biology 90 before publishing.' %}
+  {% endif %}
+{% else %}
+  {% if total_selected_questions > 0 %}
+    {% set can_publish = true %}
+    {% set publish_message = 'This test has linked questions and can be published when scheduling is valid.' %}
+  {% else %}
+    {% set publish_message = 'Add at least 1 question before publishing this test.' %}
+  {% endif %}
+{% endif %}
+
 <section class="dashboard-wrap">
   <div class="builder-wrap">
     <div class="builder-top">
       <div>
         <div class="topbar-chip">NEET Test Builder</div>
         <h1 style="margin:8px 0 6px;">{{ test.title }}</h1>
-        <p class="panel-text">
-          {{ test.test_type|replace('_', ' ')|title }} • {{ test.duration_minutes }} minutes •
+        <p class="panel-text" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <span>{{ test.test_type|replace('_', ' ')|title }}</span>
+          <span>•</span>
+          <span>{{ test.duration_minutes }} minutes</span>
           <span class="status-badge {% if test.status == 'published' %}published{% endif %}">
             {{ test.status|title }}
           </span>
+          <span class="mode-badge">{{ current_mode|replace('_', ' ')|title }}</span>
+          <span class="schedule-badge">{{ current_schedule|replace('_', ' ')|title }}</span>
         </p>
       </div>
+
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <a href="{{ url_for('admin.tests_page') }}" class="btn-light">Back to Tests</a>
-        {% if subject_counts['Physics'] >= 45 and subject_counts['Chemistry'] >= 45 and subject_counts['Biology'] >= 90 %}
-          {% if test.status == 'draft' %}
+
+        {% if test.status == 'draft' %}
+          {% if can_publish %}
             <form method="POST" action="{{ url_for('admin.publish_test', test_id=test.id) }}">
-              <button type="submit" class="btn-main" style="border:none; cursor:pointer;">Publish Test</button>
+              <button type="submit" class="btn-main">Publish Test</button>
             </form>
           {% else %}
-            <form method="POST" action="{{ url_for('admin.unpublish_test', test_id=test.id) }}">
-              <button type="submit" class="btn-light" style="cursor:pointer;">Unpublish</button>
-            </form>
+            <span class="btn-disabled">Not Ready to Publish</span>
           {% endif %}
+        {% else %}
+          <form method="POST" action="{{ url_for('admin.unpublish_test', test_id=test.id) }}">
+            <button type="submit" class="btn-light" style="cursor:pointer;">Unpublish</button>
+          </form>
         {% endif %}
       </div>
     </div>
@@ -163,22 +230,47 @@
       {% endif %}
     {% endwith %}
 
+    <div class="rule-box {% if can_publish %}ok{% else %}warn{% endif %}">
+      <strong>Publish validation:</strong> {{ publish_message }}
+    </div>
+
     <div class="summary-grid">
       <div class="summary-card">
         <div class="summary-label">Physics</div>
         <div class="summary-value">{{ subject_counts['Physics'] }}</div>
-        <div class="summary-meta">Target: {{ subject_targets['Physics'] }}</div>
+        <div class="summary-meta">
+          {% if current_mode == 'neet_full' %}
+            Target: {{ subject_targets['Physics'] }}
+          {% else %}
+            Flexible count for this mode
+          {% endif %}
+        </div>
       </div>
+
       <div class="summary-card">
         <div class="summary-label">Chemistry</div>
         <div class="summary-value">{{ subject_counts['Chemistry'] }}</div>
-        <div class="summary-meta">Target: {{ subject_targets['Chemistry'] }}</div>
+        <div class="summary-meta">
+          {% if current_mode == 'neet_full' %}
+            Target: {{ subject_targets['Chemistry'] }}
+          {% else %}
+            Flexible count for this mode
+          {% endif %}
+        </div>
       </div>
+
       <div class="summary-card">
         <div class="summary-label">Biology</div>
         <div class="summary-value">{{ subject_counts['Biology'] }}</div>
-        <div class="summary-meta">Target: {{ subject_targets['Biology'] }}</div>
+        <div class="summary-meta">
+          {% if current_mode == 'neet_full' %}
+            Target: {{ subject_targets['Biology'] }}
+          {% else %}
+            Flexible count for this mode
+          {% endif %}
+        </div>
       </div>
+
       <div class="summary-card">
         <div class="summary-label">Total</div>
         <div class="summary-value">{{ total_selected_questions }}</div>
@@ -189,8 +281,8 @@
     <div class="subject-grid">
       <div class="subject-card">
         <div class="subject-name">Physics</div>
-        <div class="subject-count {% if subject_counts['Physics'] >= subject_targets['Physics'] %}ok{% else %}low{% endif %}">
-          {{ subject_counts['Physics'] }} / {{ subject_targets['Physics'] }}
+        <div class="subject-count {% if current_mode != 'neet_full' or subject_counts['Physics'] >= subject_targets['Physics'] %}ok{% else %}low{% endif %}">
+          {{ subject_counts['Physics'] }}{% if current_mode == 'neet_full' %} / {{ subject_targets['Physics'] }}{% endif %}
         </div>
         <div class="panel-text">
           Build Physics section with chapter filters, preview popup, usage count and bulk selection.
@@ -202,8 +294,8 @@
 
       <div class="subject-card">
         <div class="subject-name">Chemistry</div>
-        <div class="subject-count {% if subject_counts['Chemistry'] >= subject_targets['Chemistry'] %}ok{% else %}low{% endif %}">
-          {{ subject_counts['Chemistry'] }} / {{ subject_targets['Chemistry'] }}
+        <div class="subject-count {% if current_mode != 'neet_full' or subject_counts['Chemistry'] >= subject_targets['Chemistry'] %}ok{% else %}low{% endif %}">
+          {{ subject_counts['Chemistry'] }}{% if current_mode == 'neet_full' %} / {{ subject_targets['Chemistry'] }}{% endif %}
         </div>
         <div class="panel-text">
           Build Chemistry section with chapter filters, preview popup, usage count and bulk selection.
@@ -215,8 +307,8 @@
 
       <div class="subject-card">
         <div class="subject-name">Biology</div>
-        <div class="subject-count {% if subject_counts['Biology'] >= subject_targets['Biology'] %}ok{% else %}low{% endif %}">
-          {{ subject_counts['Biology'] }} / {{ subject_targets['Biology'] }}
+        <div class="subject-count {% if current_mode != 'neet_full' or subject_counts['Biology'] >= subject_targets['Biology'] %}ok{% else %}low{% endif %}">
+          {{ subject_counts['Biology'] }}{% if current_mode == 'neet_full' %} / {{ subject_targets['Biology'] }}{% endif %}
         </div>
         <div class="panel-text">
           Build Biology section with chapter filters, preview popup, usage count and bulk selection.
@@ -228,9 +320,15 @@
     </div>
 
     <div class="note-box">
-      <strong>Professional builder rule:</strong>
-      Test can be published only when Physics has 45 questions, Chemistry has 45 questions, and Biology has 90 questions.
-      This keeps the NEET paper structure complete and reduces human error during paper setting.
+      <strong>Builder rule:</strong>
+      {% if current_mode == 'neet_full' %}
+        This paper follows the NEET full structure and can be published only when Physics has 45 questions, Chemistry has 45 questions, and Biology has 90 questions.
+      {% elif current_mode == 'quick_test' %}
+        This paper follows quick test mode and can be published with at least 1 linked question.
+      {% else %}
+        This paper follows custom mode and can be published with at least 1 linked question.
+      {% endif %}
+      Scheduling rules and final backend validation still apply at publish time. [web:942][web:945]
     </div>
   </div>
 </section>
