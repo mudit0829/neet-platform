@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Test Result{% endblock %}
+
+{% block content %}
+<style>
+  .result-wrap { display:grid; gap:20px; }
+  .hero {
+    background:linear-gradient(135deg,#2563eb,#059669);
+    color:#fff;
+    border-radius:28px;
+    padding:28px;
+  }
+  .hero-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-top:20px; }
+  .hero-card {
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:18px;
+    padding:18px;
+  }
+  .stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+  .stat-card, .panel-card2 {
+    background:#fff; border:1px solid #e5e7eb; border-radius:20px; padding:20px;
+  }
+  .subject-row { margin-top:18px; }
+  .bar {
+    width:100%; height:14px; border-radius:999px; background:#e2e8f0; overflow:hidden; margin-top:8px;
+  }
+  .bar-fill {
+    height:100%; background:#3b82f6;
+  }
+  .detail-item {
+    background:#fff; border:1px solid #e5e7eb; border-radius:18px; padding:18px; margin-top:14px;
+  }
+  .status-chip {
+    display:inline-flex; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700;
+  }
+  .correct { background:#dcfce7; color:#166534; }
+  .wrong { background:#fee2e2; color:#b91c1c; }
+  .skipped { background:#e2e8f0; color:#475569; }
+  @media (max-width: 1100px) {
+    .hero-grid, .stat-grid { grid-template-columns:1fr; }
+  }
+</style>
+
+<section class="dashboard-wrap">
+  <div class="result-wrap">
+    <div class="hero">
+      <h1 style="margin:0 0 6px;">Test Completed!</h1>
+      <p style="margin:0; opacity:0.95;">Here's your detailed performance analysis.</p>
+
+      <div class="hero-grid">
+        <div class="hero-card">
+          <div style="font-size:42px; font-weight:800;">{{ "%.0f"|format(attempt.total_score) }}</div>
+          <div>Score / {{ test.total_marks }}</div>
+        </div>
+        <div class="hero-card">
+          <div style="font-size:42px; font-weight:800;">{{ accuracy }}%</div>
+          <div>Accuracy</div>
+        </div>
+        <div class="hero-card">
+          <div style="font-size:42px; font-weight:800;">{{ attempt.correct_count }}</div>
+          <div>Correct</div>
+        </div>
+        <div class="hero-card">
+          <div style="font-size:42px; font-weight:800;" id="time-taken" data-seconds="{{ time_taken_seconds }}">{{ time_taken_seconds }}</div>
+          <div>Time Taken</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div style="font-size:36px; font-weight:800; color:#166534;">{{ attempt.correct_count }}</div>
+        <div class="panel-text">Correct (+{{ attempt.correct_count * 4 }})</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:36px; font-weight:800; color:#b91c1c;">{{ attempt.wrong_count }}</div>
+        <div class="panel-text">Incorrect (-{{ attempt.wrong_count * test.negative_marks }})</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:36px; font-weight:800; color:#475569;">{{ attempt.skipped_count }}</div>
+        <div class="panel-text">Unattempted</div>
+      </div>
+    </div>
+
+    <div class="panel-card2">
+      <h2 style="margin-top:0;">Subject-wise Performance</h2>
+
+      {% for subject_name, stat in subject_stats.items() %}
+        {% set percent = 0 %}
+        {% if stat.total > 0 %}
+          {% set percent = ((stat.correct / stat.total) * 100)|round(2) %}
+        {% endif %}
+
+        <div class="subject-row">
+          <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <strong>{{ subject_name }}</strong>
+            <span>{{ "%.0f"|format(stat.score) }} pts • {{ stat.correct }}/{{ stat.total }} correct</span>
+          </div>
+          <div class="bar">
+            <div class="bar-fill" style="width: {{ percent }}%;"></div>
+          </div>
+          <div class="panel-text" style="margin-top:8px;">
+            ✓ {{ stat.correct }} correct &nbsp;&nbsp; ✗ {{ stat.wrong }} wrong &nbsp;&nbsp; - {{ stat.skipped }} skipped
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="panel-card2">
+      <h2 style="margin-top:0;">Detailed Solutions</h2>
+
+      {% for row in detailed_rows %}
+        <div class="detail-item">
+          <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div>
+              <strong>Q{{ row.index }}. {{ row.question.stem }}</strong>
+              <div class="panel-text" style="margin-top:6px;">
+                {{ row.question.subject.name if row.question.subject else 'Subject' }} • {{ row.chapter_name }}
+              </div>
+            </div>
+            <span class="status-chip {{ row.status }}">
+              {% if row.status == 'correct' %}Correct{% elif row.status == 'wrong' %}Incorrect{% else %}Skipped{% endif %}
+            </span>
+          </div>
+
+          <div style="margin-top:14px; display:grid; gap:8px;">
+            <div><strong>Your Answer:</strong> {{ row.selected_option or 'Not Answered' }}</div>
+            <div><strong>Correct Answer:</strong> {{ row.correct_option }}</div>
+            {% if row.question.explanation %}
+              <div><strong>Explanation:</strong> {{ row.question.explanation }}</div>
+            {% endif %}
+            {% if row.question.explanation_image %}
+              <div style="margin-top:8px;">
+                <img src="{{ url_for('static', filename=row.question.explanation_image) }}" alt="Explanation image" style="max-width:100%; border-radius:14px; border:1px solid #e5e7eb;">
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const timeEl = document.getElementById("time-taken");
+    if (!timeEl) return;
+
+    const totalSeconds = parseInt(timeEl.dataset.seconds || "0", 10);
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    timeEl.textContent = mins + "m " + secs + "s";
+  })();
+</script>
+{% endblock %}
