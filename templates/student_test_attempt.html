@@ -3,80 +3,358 @@
 
 {% block content %}
 <style>
-  .attempt-shell { display:grid; gap:20px; }
+  .attempt-shell {
+    display: grid;
+    gap: 20px;
+  }
+
   .attempt-top {
-    display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
-    background:#fff; border:1px solid #e5e7eb; border-radius:18px; padding:18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 18px 20px;
   }
-  .attempt-main { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:20px; align-items:start; }
-  .card { background:#fff; border:1px solid #e5e7eb; border-radius:20px; overflow:hidden; }
-  .question-head { padding:20px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
-  .question-body { padding:22px 20px; }
-  .chip-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  .chip { display:inline-flex; padding:6px 10px; border-radius:999px; font-size:13px; font-weight:700; }
-  .chip.subject { background:#dbeafe; color:#1d4ed8; }
-  .chip.difficulty { background:#dcfce7; color:#166534; }
-  .chip.chapter { background:#e2e8f0; color:#475569; }
-  .option-list { display:grid; gap:14px; margin-top:24px; }
+
+  .attempt-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .question-head {
+    padding: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .question-body {
+    padding: 22px 20px;
+  }
+
+  .chip-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .chip {
+    display: inline-flex;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .chip.subject {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  .chip.difficulty {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .chip.chapter {
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  .question-text {
+    font-size: 18px;
+    line-height: 1.7;
+    color: #0f172a;
+  }
+
+  .option-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
   .option-item label {
-    display:flex; align-items:flex-start; gap:14px; padding:16px 18px; border:1px solid #cbd5e1;
-    border-radius:16px; cursor:pointer; background:#fff;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+    cursor: pointer;
+    background: #ffffff;
+    transition: all 0.2s ease;
   }
-  .option-item input[type="radio"] { margin-top:4px; }
+
+  .option-item label:hover {
+    border-color: #93c5fd;
+    background: #f8fbff;
+  }
+
+  .option-item input[type="radio"] {
+    margin-top: 4px;
+  }
+
+  .option-item input[type="radio"]:checked + .option-key {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
   .option-key {
-    min-width:36px; width:36px; height:36px; border-radius:999px; display:flex; align-items:center; justify-content:center;
-    background:#f1f5f9; color:#334155; font-weight:800;
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 800;
   }
+
   .action-bar {
-    margin-top:24px; padding-top:18px; border-top:1px solid #e5e7eb;
-    display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
   }
-  .btn-main,.btn-light,.btn-review,.btn-danger {
-    display:inline-flex; align-items:center; justify-content:center; text-decoration:none;
-    padding:12px 18px; border-radius:12px; font-weight:700; cursor:pointer; border:none;
+
+  .btn-main,
+  .btn-light,
+  .btn-review,
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
   }
-  .btn-main { background:#2563eb; color:#fff; }
-  .btn-light { background:#fff; color:#0f172a; border:1px solid #cbd5e1; }
-  .btn-review { background:#f3e8ff; color:#7e22ce; }
-  .btn-danger { background:#059669; color:#fff; }
-  .side-card { background:#fff; border:1px solid #e5e7eb; border-radius:20px; padding:18px; position:sticky; top:20px; }
-  .legend { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
-  .legend-item { display:flex; align-items:center; gap:8px; color:#475569; font-size:14px; }
-  .legend-dot { width:16px; height:16px; border-radius:4px; }
-  .palette-subject { margin-top:18px; }
-  .palette-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; margin-top:12px; }
+
+  .btn-main {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .btn-light {
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+  }
+
+  .btn-review {
+    background: #f3e8ff;
+    color: #7e22ce;
+  }
+
+  .btn-submit {
+    background: #059669;
+    color: #ffffff;
+  }
+
+  .side-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 18px;
+    position: sticky;
+    top: 20px;
+  }
+
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-size: 14px;
+  }
+
+  .legend-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+  }
+
+  .palette-subject {
+    margin-top: 18px;
+  }
+
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
   .palette-link {
-    display:flex; align-items:center; justify-content:center; text-decoration:none;
-    height:48px; border-radius:10px; font-weight:800; color:#0f172a; background:#cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    height: 48px;
+    border-radius: 10px;
+    font-weight: 800;
+    color: #0f172a;
+    background: #cbd5e1;
   }
-  .palette-link.current { outline:3px solid #93c5fd; }
-  .palette-link.answered { background:#10b981; color:#fff; }
-  .palette-link.not_answered { background:#ef4444; color:#fff; }
+
+  .palette-link.current {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+  }
+
+  .palette-link.answered {
+    background: #10b981;
+    color: #ffffff;
+  }
+
+  .palette-link.not_answered {
+    background: #ef4444;
+    color: #ffffff;
+  }
+
   .palette-link.review,
-  .palette-link.review_answered { background:#9333ea; color:#fff; }
-  .palette-link.not_visited { background:#cbd5e1; color:#334155; }
+  .palette-link.review_answered {
+    background: #9333ea;
+    color: #ffffff;
+  }
+
+  .palette-link.not_visited {
+    background: #cbd5e1;
+    color: #334155;
+  }
+
   .timer-box {
-    display:inline-flex; align-items:center; gap:8px; background:#eff6ff; color:#1d4ed8;
-    padding:10px 14px; border-radius:12px; font-weight:800;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 800;
   }
+
   .submit-modal {
-    display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:9999;
-    align-items:center; justify-content:center; padding:20px;
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
   }
-  .submit-modal.show { display:flex; }
+
+  .submit-modal.show {
+    display: flex;
+  }
+
   .submit-dialog {
-    width:100%; max-width:500px; background:#fff; border-radius:22px; padding:24px;
+    width: 100%;
+    max-width: 500px;
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 24px;
   }
-  .submit-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:18px 0; }
-  .submit-stat { padding:16px; border-radius:16px; text-align:center; }
-  .submit-stat.green { background:#ecfdf3; color:#166534; }
-  .submit-stat.red { background:#fef2f2; color:#b91c1c; }
-  .submit-stat.purple { background:#f3e8ff; color:#7e22ce; }
+
+  .submit-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+  }
+
+  .submit-stat {
+    padding: 16px;
+    border-radius: 16px;
+    text-align: center;
+  }
+
+  .submit-stat.green {
+    background: #ecfdf3;
+    color: #166534;
+  }
+
+  .submit-stat.red {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+
+  .submit-stat.purple {
+    background: #f3e8ff;
+    color: #7e22ce;
+  }
+
   @media (max-width: 1100px) {
-    .attempt-main { grid-template-columns:1fr; }
-    .side-card { position:static; }
+    .attempt-main {
+      grid-template-columns: 1fr;
+    }
+
+    .side-card {
+      position: static;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .legend {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .palette-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .palette-link {
+      height: 42px;
+      font-size: 14px;
+    }
+
+    .action-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
   }
 </style>
+
+{% set review_ns = namespace(count=0) %}
+{% for subject_name, questions in subject_groups.items() %}
+  {% for item in questions %}
+    {% if item.state == 'review' or item.state == 'review_answered' %}
+      {% set review_ns.count = review_ns.count + 1 %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
 
 <section class="dashboard-wrap">
   <div class="attempt-shell">
@@ -85,9 +363,13 @@
         <h1 style="margin:0 0 4px;">{{ test.title }}</h1>
         <div class="panel-text">{{ answered_count }} of {{ total_questions }} answered</div>
       </div>
+
       <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-        <div class="timer-box">⏰ <span id="time-remaining" data-seconds="{{ remaining_seconds }}">{{ remaining_seconds }}</span></div>
-        <button type="button" class="btn-danger" id="open-submit-modal">Submit</button>
+        <div class="timer-box">
+          ⏰
+          <span id="time-remaining" data-seconds="{{ remaining_seconds }}">00:00:00</span>
+        </div>
+        <button type="button" class="btn-submit" id="open-submit-modal">Submit</button>
       </div>
     </div>
 
@@ -103,11 +385,15 @@
         </div>
 
         <div class="question-body">
-          <div style="font-size:18px; line-height:1.7; color:#0f172a;">{{ current_question.stem }}</div>
+          <div class="question-text">{{ current_question.stem }}</div>
 
           {% if current_question.question_image %}
             <div style="margin-top:18px;">
-              <img src="{{ url_for('static', filename=current_question.question_image) }}" alt="Question image" style="max-width:100%; border-radius:16px; border:1px solid #e5e7eb;">
+              <img
+                src="{{ url_for('static', filename=current_question.question_image) }}"
+                alt="Question image"
+                style="max-width:100%; border-radius:16px; border:1px solid #e5e7eb;"
+              >
             </div>
           {% endif %}
 
@@ -119,7 +405,12 @@
               {% for key, value in [('A', current_question.option_a), ('B', current_question.option_b), ('C', current_question.option_c), ('D', current_question.option_d)] %}
                 <div class="option-item">
                   <label>
-                    <input type="radio" name="selected_option" value="{{ key }}" {% if current_answer and current_answer.selected_option == key %}checked{% endif %}>
+                    <input
+                      type="radio"
+                      name="selected_option"
+                      value="{{ key }}"
+                      {% if current_answer and current_answer.selected_option == key %}checked{% endif %}
+                    >
                     <span class="option-key">{{ key }}</span>
                     <span>{{ value }}</span>
                   </label>
@@ -130,14 +421,27 @@
             <div class="action-bar">
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
                 {% if question_number > 1 %}
-                  <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id, q=question_number-1) }}" class="btn-light">Previous</a>
+                  <a
+                    href="{{ url_for('student.attempt_page', attempt_id=attempt.id, q=question_number-1) }}"
+                    class="btn-light"
+                  >
+                    Previous
+                  </a>
                 {% endif %}
-                <button type="submit" name="action_type" value="mark_review" class="btn-review">Mark for Review</button>
-                <button type="submit" name="action_type" value="clear" class="btn-light">Clear Response</button>
+
+                <button type="submit" name="action_type" value="mark_review" class="btn-review">
+                  Mark for Review
+                </button>
+
+                <button type="submit" name="action_type" value="clear" class="btn-light">
+                  Clear Response
+                </button>
               </div>
 
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button type="submit" name="action_type" value="save_next" class="btn-main">Save & Next</button>
+                <button type="submit" name="action_type" value="save_next" class="btn-main">
+                  Save & Next
+                </button>
               </div>
             </div>
           </form>
@@ -157,6 +461,7 @@
         {% for subject_name, questions in subject_groups.items() %}
           <div class="palette-subject">
             <div style="font-weight:800; color:#0f172a;">{{ subject_name }} ({{ questions|length }})</div>
+
             <div class="palette-grid">
               {% for item in questions %}
                 <a
@@ -184,34 +489,29 @@
         <div style="font-size:28px; font-weight:800;">{{ answered_count }}</div>
         <div>Answered</div>
       </div>
+
       <div class="submit-stat red">
         <div style="font-size:28px; font-weight:800;">{{ total_questions - answered_count }}</div>
         <div>Unanswered</div>
       </div>
+
       <div class="submit-stat purple">
-        <div style="font-size:28px; font-weight:800;">
-          {% set review_count = 0 %}
-          {% for subject_name, questions in subject_groups.items() %}
-            {% for item in questions %}
-              {% if item.state == 'review' or item.state == 'review_answered' %}
-                {% set review_count = review_count + 1 %}
-              {% endif %}
-            {% endfor %}
-          {% endfor %}
-          {{ review_count }}
-        </div>
+        <div style="font-size:28px; font-weight:800;">{{ review_ns.count }}</div>
         <div>Review</div>
       </div>
     </div>
 
     <div style="display:flex; justify-content:flex-end; gap:12px; flex-wrap:wrap;">
       <button type="button" class="btn-light" id="close-submit-modal">Continue Test</button>
+
       <form method="POST" action="{{ url_for('student.submit_attempt', attempt_id=attempt.id) }}">
-        <button type="submit" class="btn-danger">Submit Now</button>
+        <button type="submit" class="btn-submit">Submit Now</button>
       </form>
     </div>
   </div>
 </div>
+
+<form id="autoSubmitForm" method="POST" action="{{ url_for('student.submit_attempt', attempt_id=attempt.id) }}"></form>
 
 <script>
   (function () {
@@ -219,28 +519,39 @@
     const submitModal = document.getElementById("submitModal");
     const openSubmitModal = document.getElementById("open-submit-modal");
     const closeSubmitModal = document.getElementById("close-submit-modal");
+    const autoSubmitForm = document.getElementById("autoSubmitForm");
 
     function formatTime(totalSeconds) {
       const hrs = Math.floor(totalSeconds / 3600);
       const mins = Math.floor((totalSeconds % 3600) / 60);
       const secs = totalSeconds % 60;
-      return String(hrs).padStart(2, "0") + ":" + String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+      return String(hrs).padStart(2, "0") + ":" +
+             String(mins).padStart(2, "0") + ":" +
+             String(secs).padStart(2, "0");
     }
 
     if (timerEl) {
       let seconds = parseInt(timerEl.dataset.seconds || "0", 10);
+      let timerRef = null;
 
       function tick() {
-        timerEl.textContent = formatTime(seconds);
         if (seconds <= 0) {
-          window.location.href = "{{ url_for('student.submit_attempt', attempt_id=attempt.id) }}";
+          timerEl.textContent = "00:00:00";
+          if (timerRef) {
+            clearInterval(timerRef);
+          }
+          if (autoSubmitForm) {
+            autoSubmitForm.submit();
+          }
           return;
         }
+
+        timerEl.textContent = formatTime(seconds);
         seconds -= 1;
       }
 
       tick();
-      setInterval(tick, 1000);
+      timerRef = setInterval(tick, 1000);
     }
 
     if (openSubmitModal) {
