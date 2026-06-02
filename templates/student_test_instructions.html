@@ -3,15 +3,110 @@
 
 {% block content %}
 <style>
-  .page-wrap { display:grid; gap:20px; max-width:900px; margin:0 auto; }
+  .page-wrap { display:grid; gap:20px; max-width:980px; margin:0 auto; }
   .box { background:#fff; border:1px solid #e5e7eb; border-radius:22px; padding:24px; }
-  .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+  .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
   .mini { background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:18px; }
-  .btn-main,.btn-light { display:inline-flex; text-decoration:none; align-items:center; justify-content:center; padding:12px 18px; border-radius:12px; font-weight:700; }
-  .btn-main { background:#059669; color:#fff; border:none; }
+  .mini strong { display:block; font-size:20px; margin-bottom:4px; color:#0f172a; }
+  .note {
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    padding:16px 18px;
+    color:#334155;
+    line-height:1.6;
+  }
+  .note.warning {
+    background:#fff7ed;
+    border-color:#fed7aa;
+    color:#9a3412;
+  }
+  .note.success {
+    background:#ecfdf3;
+    border-color:#bbf7d0;
+    color:#166534;
+  }
+  .note.info {
+    background:#eff6ff;
+    border-color:#bfdbfe;
+    color:#1d4ed8;
+  }
+  .badge-row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:12px;
+  }
+  .badge {
+    display:inline-flex;
+    align-items:center;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    background:#e2e8f0;
+    color:#334155;
+  }
+  .badge.mode { background:#ecfeff; color:#155e75; }
+  .badge.schedule { background:#fef3c7; color:#92400e; }
+  .btn-main,.btn-light,.btn-disabled {
+    display:inline-flex;
+    text-decoration:none;
+    align-items:center;
+    justify-content:center;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:700;
+  }
+  .btn-main { background:#059669; color:#fff; border:none; cursor:pointer; }
   .btn-light { background:#fff; color:#0f172a; border:1px solid #cbd5e1; }
-  ul.guide { margin:0; padding-left:18px; color:#475569; line-height:1.8; }
-  @media (max-width: 800px){ .grid { grid-template-columns:1fr; } }
+  .btn-disabled {
+    background:#e2e8f0;
+    color:#64748b;
+    border:1px solid #cbd5e1;
+    cursor:not-allowed;
+  }
+  ul.guide {
+    margin:0;
+    padding-left:18px;
+    color:#475569;
+    line-height:1.8;
+  }
+  .meta-grid {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+    margin-top:16px;
+  }
+  .meta-box {
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    padding:16px 18px;
+  }
+  .meta-label {
+    font-size:12px;
+    font-weight:700;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-bottom:6px;
+  }
+  .meta-value {
+    font-size:15px;
+    font-weight:600;
+    color:#0f172a;
+    line-height:1.6;
+  }
+  @media (max-width: 900px){
+    .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  }
+  @media (max-width: 800px){
+    .meta-grid { grid-template-columns:1fr; }
+  }
+  @media (max-width: 640px){
+    .grid { grid-template-columns:1fr; }
+  }
 </style>
 
 <section class="dashboard-wrap">
@@ -20,23 +115,126 @@
       <div class="topbar-chip">Instructions</div>
       <h1 style="margin:8px 0 6px;">{{ test.title }}</h1>
       <p class="panel-text">Read carefully before starting the test.</p>
+
+      <div class="badge-row">
+        <span class="badge mode">
+          {{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}
+        </span>
+        <span class="badge schedule">
+          {{ (test.schedule_type if test.schedule_type is defined else 'instant')|replace('_', ' ')|title }}
+        </span>
+        <span class="badge">
+          Max Attempts: {{ test.max_attempts if test.max_attempts is defined else 1 }}
+        </span>
+        <span class="badge">
+          Resume: {% if test.is_resume_allowed %}Allowed{% else %}Not Allowed{% endif %}
+        </span>
+      </div>
     </div>
 
     <div class="grid">
-      <div class="mini"><strong>{{ question_count }}</strong><div class="panel-text">Questions</div></div>
-      <div class="mini"><strong>{{ test.duration_minutes }}</strong><div class="panel-text">Minutes</div></div>
-      <div class="mini"><strong>{{ test.total_marks }}</strong><div class="panel-text">Total Marks</div></div>
+      <div class="mini">
+        <strong>{{ question_count }}</strong>
+        <div class="panel-text">Questions</div>
+      </div>
+      <div class="mini">
+        <strong>{{ test.duration_minutes }}</strong>
+        <div class="panel-text">Minutes</div>
+      </div>
+      <div class="mini">
+        <strong>{{ test.total_marks }}</strong>
+        <div class="panel-text">Total Marks</div>
+      </div>
+      <div class="mini">
+        <strong>{{ test.negative_marks }}</strong>
+        <div class="panel-text">Negative Marks</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>Schedule Details</h3>
+
+      <div class="meta-grid">
+        <div class="meta-box">
+          <div class="meta-label">Availability Type</div>
+          <div class="meta-value">
+            {% if test.schedule_type == 'fixed_start' %}
+              Fixed start test
+            {% elif test.schedule_type == 'window' %}
+              Time window test
+            {% else %}
+              Instant test
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="meta-box">
+          <div class="meta-label">Attempt Policy</div>
+          <div class="meta-value">
+            Once your attempt starts, the timer runs continuously until submission or auto-submit.
+          </div>
+        </div>
+
+        <div class="meta-box">
+          <div class="meta-label">Start Time</div>
+          <div class="meta-value">
+            {% if test.start_at %}
+              {{ test.start_at.strftime('%d %b %Y %I:%M %p') }}
+            {% else %}
+              Available immediately after publish
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="meta-box">
+          <div class="meta-label">End Time</div>
+          <div class="meta-value">
+            {% if test.end_at %}
+              {{ test.end_at.strftime('%d %b %Y %I:%M %p') }}
+            {% elif test.schedule_type == 'fixed_start' %}
+              Auto-calculated from start time and duration
+            {% else %}
+              Not restricted by a fixed closing time
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% if test.schedule_type == 'fixed_start' %}
+        <div class="note warning" style="margin-top:16px;">
+          This is a fixed start test. You can begin only after the configured start time. If you start late, your remaining available time may be shorter.
+        </div>
+      {% elif test.schedule_type == 'window' %}
+        <div class="note info" style="margin-top:16px;">
+          This test can be started only inside the allowed time window. Once started, it must still be completed within the valid remaining time.
+        </div>
+      {% else %}
+        <div class="note success" style="margin-top:16px;">
+          This test is available for instant start after publication, subject to the allowed attempt count.
+        </div>
+      {% endif %}
     </div>
 
     <div class="box">
       <h3>General Instructions</h3>
       <ul class="guide">
-        <li>The timer starts when you begin the attempt and continues even after refresh. [web:647][web:652]</li>
-        <li>You can save answers, clear response, and mark questions for review. [web:639][web:651]</li>
-        <li>You can move between questions using the question navigator. [web:648][web:651]</li>
-        <li>The test will auto-submit when time is over. [web:647][web:652]</li>
-        <li>Marked-for-review questions are still considered if an answer is selected. [web:651]</li>
+        <li>The timer starts when you begin the attempt and continues on the server until the test is submitted or expires. [web:876][web:882][web:896]</li>
+        <li>The test will auto-submit when time is over, even if you do not manually submit it. [web:877][web:882]</li>
+        <li>You can save answers, clear response, and mark questions for review during the attempt. [cite:888]</li>
+        <li>You can move between questions using the question navigator and answer sheet flow. [cite:888]</li>
+        <li>If resume is not allowed for this test, leaving the attempt may prevent you from continuing later. [web:877][web:882]</li>
+        <li>Marked-for-review questions are still considered if an answer is selected before final submission. [web:875]</li>
       </ul>
+
+      <div class="note warning" style="margin-top:18px;">
+        Important: once you start the test, you must finish it within the allotted time. Do not start unless you are ready to complete it in one sitting.
+      </div>
+
+      {% if start_message %}
+        <div class="note info" style="margin-top:16px;">
+          {{ start_message }}
+        </div>
+      {% endif %}
 
       {% if test.instructions %}
         <div style="margin-top:18px;">
@@ -50,15 +248,30 @@
 
         {% if ongoing_attempt %}
           <a href="{{ url_for('student.attempt_page', attempt_id=ongoing_attempt.id) }}" class="btn-main">Resume Attempt</a>
+
+        {% elif submitted_attempt and (test.max_attempts if test.max_attempts is defined else 1) <= 1 %}
+          <a href="{{ url_for('student.result_page', attempt_id=submitted_attempt.id) }}" class="btn-light">View Last Result</a>
+          <span class="btn-disabled">Attempt Limit Reached</span>
+
         {% elif submitted_attempt %}
           <a href="{{ url_for('student.result_page', attempt_id=submitted_attempt.id) }}" class="btn-light">View Last Result</a>
-          <form method="POST" action="{{ url_for('student.start_test_attempt', test_id=test.id) }}">
-            <button type="submit" class="btn-main">Start New Attempt</button>
-          </form>
+
+          {% if can_start %}
+            <form method="POST" action="{{ url_for('student.start_test_attempt', test_id=test.id) }}">
+              <button type="submit" class="btn-main">Start New Attempt</button>
+            </form>
+          {% else %}
+            <span class="btn-disabled">Cannot Start Now</span>
+          {% endif %}
+
         {% else %}
-          <form method="POST" action="{{ url_for('student.start_test_attempt', test_id=test.id) }}">
-            <button type="submit" class="btn-main">Start Test</button>
-          </form>
+          {% if can_start %}
+            <form method="POST" action="{{ url_for('student.start_test_attempt', test_id=test.id) }}">
+              <button type="submit" class="btn-main">Start Test</button>
+            </form>
+          {% else %}
+            <span class="btn-disabled">Cannot Start Now</span>
+          {% endif %}
         {% endif %}
       </div>
     </div>
