@@ -4,15 +4,146 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}NEET Platform{% endblock %}</title>
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   {% block head_extra %}{% endblock %}
+
+  <style>
+    .sidebar-group-label {
+      padding: 14px 14px 6px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.22), rgba(16, 185, 129, 0.16));
+      color: #ffffff;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);
+    }
+
+    .nav-bullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+      flex-shrink: 0;
+      opacity: 0.95;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      padding: 18px 22px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .topbar-title {
+      margin: 0 0 4px;
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .topbar-subtitle {
+      margin: 0;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .topbar-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2563eb, #059669);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .topbar-user-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+
+    .topbar-user-role {
+      margin-top: 3px;
+      font-size: 12px;
+      color: #64748b;
+      text-transform: capitalize;
+      line-height: 1.2;
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
 </head>
 <body>
+  {% set is_admin = current_user.is_authenticated and request.path.startswith('/admin') %}
+
   <div class="app-shell">
-    {% if current_user.is_authenticated and request.path.startswith('/admin') %}
+    {% if is_admin %}
     <aside class="sidebar">
       <div class="sidebar-brand">
         <div class="logo-mark">NP</div>
@@ -23,11 +154,54 @@
       </div>
 
       <nav class="sidebar-nav">
-                <a class="nav-item {% if request.path == '/admin/' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
-                <a class="nav-item {% if '/admin/questions' in request.path %}active{% endif %}" href="{{ url_for('admin.questions_page') }}">Question Bank</a>
-                <a class="nav-item {% if '/admin/students' in request.path %}active{% endif %}" href="{{ url_for('admin.students_page') }}">Students</a>
-                <a class="nav-item {% if '/admin/tests' in request.path %}active{% endif %}" href="{{ url_for('admin.tests_page') }}">Tests</a>
-     </nav>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Overview</div>
+          <a class="nav-item {% if request.path == '/admin/' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">
+            <span class="nav-bullet"></span>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Academic Setup</div>
+          <a class="nav-item {% if '/admin/batches' in request.path %}active{% endif %}" href="{{ url_for('admin.batches_page') }}">
+            <span class="nav-bullet"></span>
+            <span>Batches</span>
+          </a>
+          <a class="nav-item {% if '/admin/subjects' in request.path %}active{% endif %}" href="{{ url_for('admin.subjects_page') }}">
+            <span class="nav-bullet"></span>
+            <span>Subjects</span>
+          </a>
+          <a class="nav-item {% if '/admin/chapters' in request.path %}active{% endif %}" href="{{ url_for('admin.chapters_page') }}">
+            <span class="nav-bullet"></span>
+            <span>Chapters</span>
+          </a>
+        </div>
+
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Users</div>
+          <a class="nav-item {% if '/admin/students' in request.path %}active{% endif %}" href="{{ url_for('admin.students_page') }}">
+            <span class="nav-bullet"></span>
+            <span>Students</span>
+          </a>
+        </div>
+
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Question Bank</div>
+          <a class="nav-item {% if '/admin/questions' in request.path %}active{% endif %}" href="{{ url_for('admin.questions_page') }}">
+            <span class="nav-bullet"></span>
+            <span>All Questions</span>
+          </a>
+        </div>
+
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Tests</div>
+          <a class="nav-item {% if '/admin/tests' in request.path %}active{% endif %}" href="{{ url_for('admin.tests_page') }}">
+            <span class="nav-bullet"></span>
+            <span>Tests</span>
+          </a>
+        </div>
+      </nav>
 
       <div class="sidebar-footer">
         <a class="btn btn-secondary btn-block" href="{{ url_for('auth.logout') }}">Logout</a>
@@ -35,7 +209,56 @@
     </aside>
     {% endif %}
 
-    <main class="{% if current_user.is_authenticated and request.path.startswith('/admin') %}main-panel{% else %}landing-page{% endif %}">
+    <main class="{% if is_admin %}main-panel{% else %}landing-page{% endif %}">
+      {% if is_admin %}
+      <div class="topbar">
+        <div>
+          <h1 class="topbar-title">
+            {% if request.path == '/admin/' %}
+              Dashboard
+            {% elif '/admin/batches' in request.path %}
+              Batches
+            {% elif '/admin/subjects' in request.path %}
+              Subjects
+            {% elif '/admin/chapters' in request.path %}
+              Chapters
+            {% elif '/admin/students' in request.path %}
+              Students
+            {% elif '/admin/questions' in request.path %}
+              Question Bank
+            {% elif '/admin/tests' in request.path %}
+              Tests
+            {% else %}
+              Admin Panel
+            {% endif %}
+          </h1>
+          <p class="topbar-subtitle">
+            Manage academic setup, students, question bank, and test operations from one professional control panel.
+          </p>
+        </div>
+
+        <div class="topbar-user">
+          <div class="topbar-avatar">
+            {% if current_user.full_name %}
+              {{ current_user.full_name[:1] }}
+            {% elif current_user.email %}
+              {{ current_user.email[:1] }}
+            {% else %}
+              A
+            {% endif %}
+          </div>
+          <div>
+            <div class="topbar-user-name">
+              {{ current_user.full_name if current_user.full_name else 'Admin User' }}
+            </div>
+            <div class="topbar-user-role">
+              {{ current_user.role if current_user.role else 'admin' }}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           <div style="margin-bottom: 18px;">
