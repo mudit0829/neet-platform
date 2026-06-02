@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Test Builder | NEET Platform{% endblock %}
+
+{% block content %}
+<style>
+  .builder-wrap { display: grid; gap: 20px; }
+  .builder-top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .builder-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .builder-card { min-width: 0; overflow: hidden; }
+  .builder-form { display: grid; gap: 12px; }
+  .builder-field { display: grid; gap: 8px; }
+  .builder-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .builder-input, .builder-select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: #fff;
+    color: #111827;
+    box-sizing: border-box;
+  }
+  .builder-btn {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 12px;
+    background: #0f766e;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .builder-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    text-decoration: none;
+    color: #0f172a;
+    font-weight: 700;
+    background: #fff;
+  }
+  .builder-list { display: grid; gap: 12px; }
+  .builder-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+  }
+  .builder-item-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .builder-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .builder-chip {
+    display: inline-flex;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .builder-danger {
+    padding: 8px 12px;
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #9f1239;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .builder-muted { color: #64748b; font-size: 14px; line-height: 1.6; }
+  .builder-alerts { display: grid; gap: 12px; }
+  .builder-alert { padding: 14px 16px; border-radius: 14px; font-weight: 600; }
+  .builder-alert.success { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
+  .builder-alert.danger, .builder-alert.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .builder-alert.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .empty-box {
+    padding: 18px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    color: #64748b;
+    background: #f8fafc;
+  }
+  @media (max-width: 980px) {
+    .builder-grid { grid-template-columns: 1fr; }
+    .builder-row { grid-template-columns: 1fr; }
+  }
+</style>
+
+<section class="dashboard-wrap">
+  <div class="builder-wrap">
+    <div class="builder-top">
+      <div>
+        <div class="topbar-chip">Test Builder</div>
+        <h1 style="margin:8px 0 6px;">{{ test.title }}</h1>
+        <p class="panel-text">
+          {{ test.test_type|replace('_', ' ')|title }} • {{ test.duration_minutes }} minutes • Status: {{ test.status|title }}
+        </p>
+      </div>
+      <a href="{{ url_for('admin.tests_page') }}" class="builder-outline">Back to Tests</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="builder-alerts">
+          {% for category, message in messages %}
+            <div class="builder-alert {% if category in ['success'] %}success{% elif category in ['danger', 'error'] %}danger{% else %}info{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="builder-grid">
+      <div class="panel-card builder-card">
+        <h3>Add Question To This Test</h3>
+        <p class="builder-muted" style="margin-bottom:16px;">
+          Select any question from the question bank and attach it to this paper.
+        </p>
+
+        <form method="POST" class="builder-form">
+          <div class="builder-field">
+            <label for="question_id"><strong>Select Question</strong></label>
+            <select name="question_id" id="question_id" class="builder-select" required>
+              <option value="">Choose a question</option>
+              {% for question in available_questions %}
+                <option value="{{ question.id }}">
+                  Q{{ question.id }} -
+                  {{ question.subject.name if question.subject else 'Subject' }} -
+                  {{ question.chapter.name if question.chapter else 'Chapter' }} -
+                  {{ (question.stem or '')[:100] }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="builder-row">
+            <div class="builder-field">
+              <label for="display_order"><strong>Display Order</strong></label>
+              <input type="number" name="display_order" id="display_order" class="builder-input" min="1" placeholder="Auto if blank">
+            </div>
+
+            <div class="builder-field">
+              <label for="marks"><strong>Marks</strong></label>
+              <input type="number" step="0.25" name="marks" id="marks" class="builder-input" value="4">
+            </div>
+
+            <div class="builder-field">
+              <label for="negative_marks"><strong>Negative Marks</strong></label>
+              <input type="number" step="0.25" name="negative_marks" id="negative_marks" class="builder-input" value="1">
+            </div>
+          </div>
+
+          <div>
+            <button type="submit" class="builder-btn">Add To Test</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel-card builder-card">
+        <h3>Attached Questions</h3>
+        <p class="builder-muted" style="margin-bottom:16px;">
+          These questions are currently part of this test.
+        </p>
+
+        {% if linked_questions %}
+          <div class="builder-list">
+            {% for item in linked_questions %}
+              <div class="builder-item">
+                <div class="builder-item-top">
+                  <div>
+                    <strong>#{{ item.display_order }}</strong>
+                    <div class="builder-muted" style="margin-top:6px;">
+                      {{ item.question.stem if item.question else '' }}
+                    </div>
+                  </div>
+
+                  <form method="POST" action="{{ url_for('admin.delete_test_question', test_id=test.id, link_id=item.id) }}">
+                    <button type="submit" class="builder-danger">Remove</button>
+                  </form>
+                </div>
+
+                <div class="builder-meta">
+                  <span class="builder-chip">{{ item.question.subject.name if item.question and item.question.subject else 'Subject' }}</span>
+                  <span class="builder-chip">{{ item.question.chapter.name if item.question and item.question.chapter else 'Chapter' }}</span>
+                  <span class="builder-chip">Marks: {{ item.marks }}</span>
+                  <span class="builder-chip">Negative: {{ item.negative_marks }}</span>
+                  <span class="builder-chip">Correct: {{ item.question.correct_option if item.question else '-' }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-box">
+            No questions attached yet. Add at least one question before publishing this test.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
