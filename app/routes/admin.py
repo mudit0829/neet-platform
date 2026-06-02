@@ -281,21 +281,25 @@ def test_builder_page(test_id):
 
     if request.method == "POST":
         try:
-            question_id = request.form.get("question_id", type=int)
-            display_order = request.form.get("display_order", type=int)
-            marks = request.form.get("marks", type=float)
-            negative_marks = request.form.get("negative_marks", type=float)
+            question_ids = request.form.getlist("question_ids")
+            single_question_id = request.form.get("question_id", type=int)
 
-            question = Question.query.get(question_id)
-            if not question:
-                flash("Question not found.", "danger")
+            selected_ids = []
+            for qid in question_ids:
+                try:
+                    selected_ids.append(int(qid))
+                except (TypeError, ValueError):
+                    pass
+
+            if single_question_id and single_question_id not in selected_ids:
+                selected_ids.append(single_question_id)
+
+            if not selected_ids:
+                flash("Please select at least one question to add.", "danger")
                 return redirect(url_for("admin.test_builder_page", test_id=test.id))
 
-            if display_order is None or display_order < 1:
-                max_order = db.session.query(
-                    db.func.coalesce(db.func.max(TestQuestion.display_order), 0)
-                ).filter(TestQuestion.test_id == test.id).scalar()
-                display_order = (max_order or 0) + 1
+            marks = request.form.get("marks", type=float)
+            negative_marks = request.form.get("negative_marks", type=float)
 
             if marks is None or marks < 0:
                 marks = 4.0
@@ -303,49 +307,169 @@ def test_builder_page(test_id):
             if negative_marks is None or negative_marks < 0:
                 negative_marks = 1.0
 
-            existing = TestQuestion.query.filter_by(
-                test_id=test.id,
-                question_id=question.id
-            ).first()
+            max_order = db.session.query(
+                db.func.coalesce(db.func.max(TestQuestion.display_order), 0)
+            ).filter(TestQuestion.test_id == test.id).scalar() or 0
 
-            if existing:
-                existing.display_order = display_order
-                existing.marks = marks
-                existing.negative_marks = negative_marks
-                flash("Question already added. Order/marks updated.", "success")
-            else:
+            added_count = 0
+            skipped_count = 0
+
+            for question_id in selected_ids:
+                question = Question.query.get(question_id)
+                if not question:
+                    skipped_count += 1
+                    continue
+
+                existing = TestQuestion.query.filter_by(
+                    test_id=test.id,
+                    question_id=question.id
+                ).first()
+
+                if existing:
+                    skipped_count += 1
+                    continue
+
+                max_order += 1
                 link = TestQuestion(
                     test_id=test.id,
                     question_id=question.id,
-                    display_order=display_order,
+                    display_order=max_order,
                     marks=marks,
                     negative_marks=negative_marks,
                 )
                 db.session.add(link)
-                flash("Question added to test.", "success")
+                added_count += 1
 
             db.session.commit()
 
+            if added_count and skipped_count:
+                flash(
+                    f"{added_count} question(s) added successfully. {skipped_count} duplicate/invalid question(s) skipped.",
+                    "success"
+                )
+            elif added_count:
+                flash(f"{added_count} question(s) added successfully.", "success")
+            else:
+                flash("No new questions were added.", "info")
+
         except Exception as e:
             db.session.rollback()
-            flash(f"Error adding question to test: {str(e)}", "danger")
+            flash(f"Error adding questions to test: {str(e)}", "danger")
 
-        return redirect(url_for("admin.test_builder_page", test_id=test.id))
+        return redirect(url_for("admin.test_builder_page", test_id=test.id, **request.args.to_dict()))
+
+    subject_id = request.args.get("subject_id", type=int)
+    chapter_id = request.args.get("chapter_id", type=int)
+    difficulty_level = (request.args.get("difficulty_level") or "").strip().lower()
+    usage_count_filter = (request.args.get("usage_count") or "").strip().lower()
+    search = (request.args.get("search") or "").strip()
 
     linked_questions = TestQuestion.query.filter_by(test_id=test.id).order_by(
         TestQuestion.display_order.asc(),
         TestQuestion.id.asc()
     ).all()
 
-    linked_question_ids = {item.question_id for item in linked_questions}
-    available_questions = Question.query.order_by(Question.id.desc()).all()
-    available_questions = [q for q in available_questions if q.id not in linked_question_ids]
+    linked_question_ids = [item.question_id for item in linked_questions]
+
+    usage_subquery = db.session.query(
+        TestQuestion.question_id.label("question_id"),
+        db.func.count(TestQuestion.id).label("usage_count")
+    ).group_by(TestQuestion.question_id).subquery()
+
+    available_query = db.session.query(
+        Question,
+        db.func.coalesce(usage_subquery.c.usage_count, 0).label("usage_count")
+    ).outerjoin(
+        usage_subquery,
+        usage_subquery.c.question_id == Question.id
+    )
+
+    if linked_question_ids:
+        available_query = available_query.filter(~Question.id.in_(linked_question_ids))
+
+    if subject_id:
+        available_query = available_query.filter(Question.subject_id == subject_id)
+
+    if chapter_id:
+        available_query = available_query.filter(Question.chapter_id == chapter_id)
+
+    if difficulty_level in ["easy", "medium", "hard"]:
+        available_query = available_query.filter(Question.difficulty_level == difficulty_level)
+
+    if usage_count_filter:
+        usage_expr = db.func.coalesce(usage_subquery.c.usage_count, 0)
+
+        if usage_count_filter == "5_plus":
+            available_query = available_query.filter(usage_expr >= 5)
+        else:
+            try:
+                usage_number = int(usage_count_filter)
+                available_query = available_query.filter(usage_expr == usage_number)
+            except ValueError:
+                pass
+
+    if search:
+        available_query = available_query.filter(Question.stem.ilike(f"%{search}%"))
+
+    available_rows = available_query.order_by(
+        db.func.coalesce(usage_subquery.c.usage_count, 0).asc(),
+        Question.subject_id.asc(),
+        Question.chapter_id.asc(),
+        Question.id.desc()
+    ).all()
+
+    available_questions = []
+    filtered_available_subject_counts = {}
+
+    for question, usage_count in available_rows:
+        usage_count = int(usage_count or 0)
+        available_questions.append({
+            "id": question.id,
+            "stem": question.stem,
+            "subject_name": question.subject.name if question.subject else "Subject",
+            "chapter_name": question.chapter.name if question.chapter else "Chapter",
+            "difficulty_level": question.difficulty_level or "medium",
+            "correct_option": question.correct_option,
+            "usage_count": usage_count,
+        })
+        subject_name = question.subject.name if question.subject else "Unknown"
+        filtered_available_subject_counts[subject_name] = filtered_available_subject_counts.get(subject_name, 0) + 1
+
+    selected_subject_counts = {}
+    total_selected_marks = 0.0
+
+    for item in linked_questions:
+        subject_name = (
+            item.question.subject.name
+            if item.question and item.question.subject
+            else "Unknown"
+        )
+        selected_subject_counts[subject_name] = selected_subject_counts.get(subject_name, 0) + 1
+        total_selected_marks += float(item.marks or 0)
+
+    subjects = Subject.query.order_by(Subject.name.asc()).all()
+
+    chapters_query = Chapter.query.order_by(Chapter.name.asc())
+    if subject_id:
+        chapters_query = chapters_query.filter_by(subject_id=subject_id)
+    chapters = chapters_query.all()
 
     return render_template(
         "admin_test_builder.html",
         test=test,
         linked_questions=linked_questions,
         available_questions=available_questions,
+        subjects=subjects,
+        chapters=chapters,
+        subject_id=subject_id,
+        chapter_id=chapter_id,
+        difficulty_level=difficulty_level,
+        usage_count_filter=usage_count_filter,
+        search=search,
+        selected_subject_counts=selected_subject_counts,
+        filtered_available_subject_counts=filtered_available_subject_counts,
+        total_selected_questions=len(linked_questions),
+        total_selected_marks=total_selected_marks,
     )
 
 
