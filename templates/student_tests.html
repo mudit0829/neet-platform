@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}My Tests{% endblock %}
+
+{% block content %}
+<style>
+  .student-wrap { display:grid; gap:20px; }
+  .student-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
+  .test-card { background:#fff; border:1px solid #e5e7eb; border-radius:20px; padding:20px; }
+  .meta { color:#64748b; font-size:14px; margin-top:8px; }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .btn-main,.btn-light { display:inline-flex; text-decoration:none; align-items:center; justify-content:center; padding:12px 16px; border-radius:12px; font-weight:700; }
+  .btn-main { background:#2563eb; color:#fff; }
+  .btn-light { background:#fff; color:#0f172a; border:1px solid #cbd5e1; }
+</style>
+
+<section class="dashboard-wrap">
+  <div class="student-wrap">
+    <div>
+      <div class="topbar-chip">Student Panel</div>
+      <h1 style="margin:8px 0 6px;">Available Tests</h1>
+      <p class="panel-text">Start published tests, resume ongoing attempts, or review completed results.</p>
+    </div>
+
+    <div class="student-grid">
+      {% for test in tests %}
+        <div class="test-card">
+          <h3>{{ test.title }}</h3>
+          <div class="meta">{{ test.test_type|replace('_', ' ')|title }} • {{ test.duration_minutes }} mins • {{ test.total_marks }} marks</div>
+
+          <div class="actions">
+            {% if ongoing_attempts.get(test.id) %}
+              <a class="btn-main" href="{{ url_for('student.attempt_page', attempt_id=ongoing_attempts.get(test.id).id) }}">Resume Test</a>
+            {% else %}
+              <a class="btn-main" href="{{ url_for('student.test_instructions_page', test_id=test.id) }}">Open Test</a>
+            {% endif %}
+
+            {% if submitted_attempts.get(test.id) %}
+              <a class="btn-light" href="{{ url_for('student.result_page', attempt_id=submitted_attempts.get(test.id).id) }}">View Result</a>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <div class="test-card">
+          <h3>No tests available</h3>
+          <div class="meta">Published tests will appear here.</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
