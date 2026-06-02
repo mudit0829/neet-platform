@@ -107,11 +107,15 @@ def batches_page():
             if status not in ["active", "inactive"]:
                 status = "active"
 
+            if not getattr(current_user, "institute_id", None):
+                flash("Your admin account is not linked to any institute. Please assign an institute first.", "danger")
+                return redirect(url_for("admin.batches_page"))
+
             batch = Batch(
-                institute_id=current_user.institute_id or 1,
-                name=name,
-                academic_year=academic_year,
-                status=status,
+            institute_id=current_user.institute_id,
+            name=name,
+            academic_year=academic_year,
+            status=status,
             )
 
             db.session.add(batch)
