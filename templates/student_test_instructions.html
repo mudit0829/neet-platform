@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Test Instructions{% endblock %}
+
+{% block content %}
+<style>
+  .page-wrap { display:grid; gap:20px; max-width:900px; margin:0 auto; }
+  .box { background:#fff; border:1px solid #e5e7eb; border-radius:22px; padding:24px; }
+  .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+  .mini { background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:18px; }
+  .btn-main,.btn-light { display:inline-flex; text-decoration:none; align-items:center; justify-content:center; padding:12px 18px; border-radius:12px; font-weight:700; }
+  .btn-main { background:#059669; color:#fff; border:none; }
+  .btn-light { background:#fff; color:#0f172a; border:1px solid #cbd5e1; }
+  ul.guide { margin:0; padding-left:18px; color:#475569; line-height:1.8; }
+  @media (max-width: 800px){ .grid { grid-template-columns:1fr; } }
+</style>
+
+<section class="dashboard-wrap">
+  <div class="page-wrap">
+    <div class="box">
+      <div class="topbar-chip">Instructions</div>
+      <h1 style="margin:8px 0 6px;">{{ test.title }}</h1>
+      <p class="panel-text">Read carefully before starting the test.</p>
+    </div>
+
+    <div class="grid">
+      <div class="mini"><strong>{{ question_count }}</strong><div class="panel-text">Questions</div></div>
+      <div class="mini"><strong>{{ test.duration_minutes }}</strong><div class="panel-text">Minutes</div></div>
+      <div class="mini"><strong>{{ test.total_marks }}</strong><div class="panel-text">Total Marks</div></div>
+    </div>
+
+    <div class="box">
+      <h3>General Instructions</h3>
+      <ul class="guide">
+        <li>The timer starts when you begin the attempt and continues even after refresh. [web:647][web:652]</li>
+        <li>You can save answers, clear response, and mark questions for review. [web:639][web:651]</li>
+        <li>You can move between questions using the question navigator. [web:648][web:651]</li>
+        <li>The test will auto-submit when time is over. [web:647][web:652]</li>
+        <li>Marked-for-review questions are still considered if an answer is selected. [web:651]</li>
+      </ul>
+
+      {% if test.instructions %}
+        <div style="margin-top:18px;">
+          <h3>Additional Instructions</h3>
+          <p class="panel-text">{{ test.instructions }}</p>
+        </div>
+      {% endif %}
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
+        <a href="{{ url_for('student.tests_page') }}" class="btn-light">Back</a>
+
+        {% if ongoing_attempt %}
+          <a href="{{ url_for('student.attempt_page', attempt_id=ongoing_attempt.id) }}" class="btn-main">Resume Attempt</a>
+        {% elif submitted_attempt %}
+          <a href="{{ url_for('student.result_page', attempt_id=submitted_attempt.id) }}" class="btn-light">View Last Result</a>
+          <form method="POST" action="{{ url_for('student.start_test_attempt', test_id=test.id) }}">
+            <button type="submit" class="btn-main">Start New Attempt</button>
+          </form>
+        {% else %}
+          <form method="POST" action="{{ url_for('student.start_test_attempt', test_id=test.id) }}">
+            <button type="submit" class="btn-main">Start Test</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
