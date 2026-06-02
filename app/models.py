@@ -20,16 +20,37 @@ class Institute(TimestampMixin, db.Model):
     status = db.Column(db.String(20), default="active")
 
 
+class Batch(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=False)
+    name = db.Column(db.String(120), nullable=False)
+    academic_year = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), default="active")
+
+    institute = db.relationship("Institute", backref=db.backref("batches", lazy=True))
+
+
 class User(UserMixin, TimestampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=True)
+    batch_id = db.Column(db.Integer, db.ForeignKey("batch.id"), nullable=True)
+
     full_name = db.Column(db.String(150), nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=True)
+    email = db.Column(db.String(150), unique=True, nullable=True)
     password_hash = db.Column(db.String(255), nullable=False)
+
     role = db.Column(db.String(20), nullable=False, default="student")
     is_active_user = db.Column(db.Boolean, default=True)
 
     institute = db.relationship("Institute", backref=db.backref("users", lazy=True))
+    batch = db.relationship("Batch", backref=db.backref("students", lazy=True))
+    student_profile = db.relationship(
+        "StudentProfile",
+        backref=db.backref("user", uselist=False),
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -37,12 +58,45 @@ class User(UserMixin, TimestampMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    @property
+    def is_active(self):
+        return self.is_active_user
 
-class Batch(TimestampMixin, db.Model):
+
+class StudentProfile(TimestampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=False)
-    name = db.Column(db.String(120), nullable=False)
-    academic_year = db.Column(db.String(20), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True)
+
+    admission_no = db.Column(db.String(50), unique=True, nullable=False)
+    admission_session = db.Column(db.String(30), nullable=False)
+
+    course_applied = db.Column(db.String(100), nullable=False)
+    target_exam = db.Column(db.String(100), nullable=True)
+    current_class = db.Column(db.String(30), nullable=True)
+
+    student_mobile = db.Column(db.String(20), nullable=False)
+    student_email = db.Column(db.String(150), nullable=True)
+    father_name = db.Column(db.String(150), nullable=False)
+    mother_name = db.Column(db.String(150), nullable=True)
+    father_mobile = db.Column(db.String(20), nullable=False)
+    mother_mobile = db.Column(db.String(20), nullable=True)
+    parent_email = db.Column(db.String(150), nullable=True)
+
+    dob = db.Column(db.Date, nullable=False)
+    gender = db.Column(db.String(20), nullable=False)
+    category = db.Column(db.String(50), nullable=True)
+
+    address = db.Column(db.Text, nullable=False)
+    city = db.Column(db.String(100), nullable=False)
+    district = db.Column(db.String(100), nullable=True)
+    state = db.Column(db.String(100), nullable=False)
+    pincode = db.Column(db.String(20), nullable=True)
+
+    school_name = db.Column(db.String(200), nullable=True)
+    board_name = db.Column(db.String(100), nullable=True)
+    remarks = db.Column(db.Text, nullable=True)
+
+    photograph = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(20), default="active")
 
 
