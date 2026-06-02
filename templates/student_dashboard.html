@@ -3,109 +3,255 @@
 {% block title %}Student Dashboard | NEET Platform{% endblock %}
 
 {% block content %}
-<section class="dashboard-wrap">
-  <div class="topbar">
-    <div>
-      <div class="topbar-chip">Student Portal</div>
-      <h1>Welcome, {{ current_user.full_name }}</h1>
-      <p>
-        {% if current_user.batch %}
-          Batch: {{ current_user.batch.name }}
-        {% else %}
-          Your batch is not assigned yet.
-        {% endif %}
-      </p>
-    </div>
-  </div>
+<style>
+  .student-dashboard { display:grid; gap:20px; }
+  .hero-card {
+    background:#ffffff;
+    border:1px solid #e5e7eb;
+    border-radius:24px;
+    padding:24px;
+  }
+  .hero-row {
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .hero-user {
+    display:flex;
+    gap:18px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .hero-avatar {
+    width:96px;
+    height:96px;
+    object-fit:cover;
+    border-radius:18px;
+    border:1px solid #e5e7eb;
+    background:#f8fafc;
+  }
+  .hero-actions {
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .btn-main,.btn-light {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:700;
+  }
+  .btn-main {
+    background:#2563eb;
+    color:#ffffff;
+  }
+  .btn-light {
+    background:#ffffff;
+    color:#0f172a;
+    border:1px solid #cbd5e1;
+  }
+  .stats-grid {
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:16px;
+  }
+  .stat-card {
+    background:#ffffff;
+    border:1px solid #e5e7eb;
+    border-radius:20px;
+    padding:20px;
+  }
+  .stat-value {
+    font-size:32px;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:6px;
+  }
+  .stat-label {
+    color:#64748b;
+    font-size:14px;
+  }
+  .dashboard-grid {
+    display:grid;
+    grid-template-columns:minmax(0,1.3fr) minmax(320px,0.9fr);
+    gap:20px;
+  }
+  .panel-card-soft {
+    background:#ffffff;
+    border:1px solid #e5e7eb;
+    border-radius:22px;
+    padding:22px;
+  }
+  .list-item {
+    padding:14px 0;
+    border-top:1px solid #e5e7eb;
+  }
+  .list-item:first-child {
+    border-top:none;
+    padding-top:0;
+  }
+  .badge-row {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:8px;
+  }
+  .badge {
+    display:inline-flex;
+    align-items:center;
+    padding:5px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+  }
+  .badge.live { background:#dcfce7; color:#166534; }
+  .badge.ongoing { background:#dbeafe; color:#1d4ed8; }
+  .badge.done { background:#e2e8f0; color:#334155; }
+  .subtle {
+    color:#64748b;
+    font-size:14px;
+    line-height:1.6;
+  }
+  @media (max-width: 1100px) {
+    .stats-grid,
+    .dashboard-grid {
+      grid-template-columns:1fr;
+    }
+  }
+</style>
 
-  <section class="content-grid">
-    <div class="panel-card">
-      <h3>Profile snapshot</h3>
-      <div style="display:flex; gap:18px; align-items:center; margin-top:16px; flex-wrap:wrap;">
-        {% if current_user.student_profile and current_user.student_profile.photograph %}
-          <img
-            src="{{ url_for('static', filename=current_user.student_profile.photograph) }}"
-            alt="{{ current_user.full_name }}"
-            style="width:96px; height:96px; object-fit:cover; border-radius:16px; border:1px solid rgba(255,255,255,.12);"
-          >
-        {% endif %}
-        <div>
-          <div style="font-weight:700; font-size:1.1rem;">{{ current_user.full_name }}</div>
-          <div style="opacity:.75;">Username: {{ current_user.username or '-' }}</div>
-          <div style="opacity:.75;">
-            Admission No:
-            {% if current_user.student_profile %}
-              {{ current_user.student_profile.admission_no }}
-            {% else %}
-              -
-            {% endif %}
+<section class="dashboard-wrap">
+  <div class="student-dashboard">
+    <div class="hero-card">
+      <div class="hero-row">
+        <div class="hero-user">
+          {% if current_user.student_profile and current_user.student_profile.photograph %}
+            <img
+              src="{{ url_for('static', filename=current_user.student_profile.photograph) }}"
+              alt="{{ current_user.full_name }}"
+              class="hero-avatar"
+            >
+          {% else %}
+            <div class="hero-avatar" style="display:flex; align-items:center; justify-content:center; font-weight:800; color:#475569;">
+              {{ current_user.full_name[:1] }}
+            </div>
+          {% endif %}
+
+          <div>
+            <div class="topbar-chip">Student Portal</div>
+            <h1 style="margin:8px 0 6px;">Welcome, {{ current_user.full_name }}</h1>
+            <p class="subtle" style="margin:0;">
+              {% if current_user.batch %}
+                Batch: {{ current_user.batch.name }}
+              {% else %}
+                Your batch is not assigned yet.
+              {% endif %}
+            </p>
+            <div class="badge-row">
+              <span class="badge live">Available Tests: {{ available_tests }}</span>
+              <span class="badge ongoing">Ongoing: {{ ongoing_tests }}</span>
+              <span class="badge done">Completed: {{ completed_tests }}</span>
+            </div>
           </div>
-          <div style="opacity:.75;">
-            Course:
-            {% if current_user.student_profile %}
-              {{ current_user.student_profile.course_applied }}
-            {% else %}
-              -
-            {% endif %}
+        </div>
+
+        <div class="hero-actions">
+          <a href="{{ url_for('student.tests_page') }}" class="btn-main">Open Tests</a>
+          {% if ongoing_attempts %}
+            <a href="{{ url_for('student.attempt_page', attempt_id=ongoing_attempts[0].id) }}" class="btn-light">Continue Ongoing Test</a>
+          {% else %}
+            <a href="{{ url_for('student.tests_page') }}" class="btn-light">View Results</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ available_tests }}</div>
+        <div class="stat-label">Available Tests</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ ongoing_tests }}</div>
+        <div class="stat-label">Ongoing Attempts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ completed_tests }}</div>
+        <div class="stat-label">Completed Tests</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ latest_attempts|length }}</div>
+        <div class="stat-label">Recent Activities</div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="panel-card-soft">
+        <h3 style="margin-top:0;">Ongoing Attempts</h3>
+        <p class="subtle">Continue unfinished tests before time expires.</p>
+
+        <div style="margin-top:16px;">
+          {% for attempt in ongoing_attempts %}
+            <div class="list-item">
+              <div style="font-weight:700;">{{ attempt.test.title }}</div>
+              <div class="subtle">Status: {{ attempt.status|title }}</div>
+              <div style="margin-top:10px;">
+                <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="btn-main">Continue</a>
+              </div>
+            </div>
+          {% else %}
+            <p class="subtle" style="margin-top:10px;">No ongoing test attempts.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="panel-card-soft">
+        <h3 style="margin-top:0;">Profile Snapshot</h3>
+        <div style="display:grid; gap:10px; margin-top:16px;">
+          <div class="subtle"><strong style="color:#0f172a;">Username:</strong> {{ current_user.username or '-' }}</div>
+          <div class="subtle">
+            <strong style="color:#0f172a;">Admission No:</strong>
+            {% if current_user.student_profile %}{{ current_user.student_profile.admission_no }}{% else %}-{% endif %}
+          </div>
+          <div class="subtle">
+            <strong style="color:#0f172a;">Course:</strong>
+            {% if current_user.student_profile %}{{ current_user.student_profile.course_applied }}{% else %}-{% endif %}
+          </div>
+          <div class="subtle">
+            <strong style="color:#0f172a;">Batch:</strong>
+            {% if current_user.batch %}{{ current_user.batch.name }}{% else %}Not assigned{% endif %}
           </div>
         </div>
       </div>
     </div>
 
-    <div class="panel-card">
-      <h3>Quick actions</h3>
-      <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;">
-        <a href="{{ url_for('student.tests_page') }}" class="btn btn-primary">View tests</a>
-        <a href="{{ url_for('student.tests_page') }}" class="btn btn-secondary">Continue test</a>
-      </div>
-    </div>
-  </section>
+    <div class="panel-card-soft">
+      <h3 style="margin-top:0;">Recent Activity</h3>
 
-  <section class="content-grid">
-    <div class="panel-card">
-      <h3>Overview</h3>
-      <div class="module-list" style="margin-top: 16px;">
-        <span class="module-chip">Available tests: {{ available_tests }}</span>
-        <span class="module-chip">Ongoing: {{ ongoing_tests }}</span>
-        <span class="module-chip">Completed: {{ completed_tests }}</span>
-      </div>
-    </div>
-
-    <div class="panel-card">
-      <h3>Ongoing attempts</h3>
-      <div style="margin-top:16px;">
-        {% for attempt in ongoing_attempts %}
-          <div style="padding:12px 0; border-top:1px solid rgba(255,255,255,.08);">
-            <div style="font-weight:600;">{{ attempt.test.title }}</div>
-            <div style="opacity:.7; font-size:14px;">Status: {{ attempt.status|title }}</div>
-            <div style="margin-top:8px;">
-              <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="btn btn-primary">Continue</a>
-            </div>
-          </div>
-        {% else %}
-          <p class="panel-text" style="margin-top:10px;">No ongoing test attempts.</p>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <section class="content-grid">
-    <div class="panel-card">
-      <h3>Recent activity</h3>
       <div style="margin-top:16px;">
         {% for attempt in latest_attempts %}
-          <div style="padding:12px 0; border-top:1px solid rgba(255,255,255,.08);">
-            <div style="font-weight:600;">{{ attempt.test.title }}</div>
-            <div style="opacity:.7; font-size:14px;">
+          <div class="list-item">
+            <div style="font-weight:700;">{{ attempt.test.title }}</div>
+            <div class="subtle">
               Status: {{ attempt.status|title }} |
               Score: {{ attempt.total_score }}
             </div>
+            {% if attempt.status == 'submitted' %}
+              <div style="margin-top:10px;">
+                <a href="{{ url_for('student.result_page', attempt_id=attempt.id) }}" class="btn-light">View Result</a>
+              </div>
+            {% endif %}
           </div>
         {% else %}
-          <p class="panel-text" style="margin-top:10px;">No attempts yet.</p>
+          <p class="subtle" style="margin-top:10px;">No attempts yet.</p>
         {% endfor %}
       </div>
     </div>
-  </section>
+  </div>
 </section>
 {% endblock %}
