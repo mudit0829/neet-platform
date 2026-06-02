@@ -136,13 +136,43 @@ class Question(TimestampMixin, db.Model):
 class Test(TimestampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=True)
+
     title = db.Column(db.String(200), nullable=False)
     test_type = db.Column(db.String(30), default="chapter")
     instructions = db.Column(db.Text, nullable=True)
+
     duration_minutes = db.Column(db.Integer, default=180)
     total_marks = db.Column(db.Integer, default=720)
     negative_marks = db.Column(db.Float, default=1.0)
+
     status = db.Column(db.String(20), default="draft")
+
+    test_mode = db.Column(db.String(30), default="custom")
+    schedule_type = db.Column(db.String(20), default="instant")
+    start_at = db.Column(db.DateTime, nullable=True)
+    end_at = db.Column(db.DateTime, nullable=True)
+
+    max_attempts = db.Column(db.Integer, default=1)
+    is_resume_allowed = db.Column(db.Boolean, default=False)
+    auto_submit_on_expiry = db.Column(db.Boolean, default=True)
+    published_at = db.Column(db.DateTime, nullable=True)
+
+    def can_start_now(self, now_utc):
+        if self.status != "published":
+            return False
+
+        if self.schedule_type == "instant":
+            return True
+
+        if self.schedule_type == "fixed_start":
+            return self.start_at is not None and now_utc >= self.start_at
+
+        if self.schedule_type == "window":
+            if not self.start_at or not self.end_at:
+                return False
+            return self.start_at <= now_utc <= self.end_at
+
+        return False
 
 
 class TestQuestion(TimestampMixin, db.Model):
@@ -164,14 +194,23 @@ class TestAttempt(TimestampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     test_id = db.Column(db.Integer, db.ForeignKey("test.id"), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
     status = db.Column(db.String(20), default="ongoing")
     total_score = db.Column(db.Float, default=0.0)
     correct_count = db.Column(db.Integer, default=0)
     wrong_count = db.Column(db.Integer, default=0)
     skipped_count = db.Column(db.Integer, default=0)
 
+    started_at = db.Column(db.DateTime, nullable=True)
+    expires_at = db.Column(db.DateTime, nullable=True)
+    submitted_at = db.Column(db.DateTime, nullable=True)
+    is_abandoned = db.Column(db.Boolean, default=False)
+
     test = db.relationship("Test", backref=db.backref("attempts", lazy=True))
     student = db.relationship("User", backref=db.backref("attempts", lazy=True))
+
+    def is_expired(self, now_utc):
+        return self.expires_at is not None and now_utc >= self.expires_at
 
 
 class AttemptAnswer(TimestampMixin, db.Model):
