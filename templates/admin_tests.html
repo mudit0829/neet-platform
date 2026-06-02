@@ -9,6 +9,7 @@
   .tests-form-card, .tests-side-card { min-width: 0; overflow: hidden; }
   .tests-form-grid { display: grid; gap: 14px; }
   .tests-row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .tests-row-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .tests-field { display: grid; gap: 8px; min-width: 0; }
   .tests-field label { font-weight: 700; }
   .tests-input, .tests-select, .tests-textarea {
@@ -38,8 +39,30 @@
   .tests-alert.success { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
   .tests-alert.danger, .tests-alert.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
   .tests-alert.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .tests-note {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .tests-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+  }
+  .tests-checkbox input {
+    width: 18px;
+    height: 18px;
+  }
   .tests-table-wrap { overflow-x: auto; width: 100%; }
-  .tests-table { width: 100%; border-collapse: collapse; min-width: 1120px; }
+  .tests-table { width: 100%; border-collapse: collapse; min-width: 1420px; }
   .tests-table th, .tests-table td {
     padding: 12px;
     border-bottom: 1px solid #e5e7eb;
@@ -60,6 +83,7 @@
     text-decoration: none;
     font-weight: 600;
     font-size: 14px;
+    cursor: pointer;
   }
   .action-btn.primary { background: #0f766e; color: #ffffff; border-color: #0f766e; }
   .action-btn.danger { background: #fff1f2; color: #9f1239; border-color: #fecdd3; }
@@ -83,8 +107,28 @@
     font-size: 12px;
     font-weight: 700;
   }
-  @media (max-width: 1200px) { .tests-grid { grid-template-columns: 1fr; } }
-  @media (max-width: 768px) { .tests-row-2 { grid-template-columns: 1fr; } }
+  .badge.mode { background: #ecfeff; color: #155e75; }
+  .badge.schedule { background: #fef3c7; color: #92400e; }
+  .muted-line {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+  .schedule-fields {
+    display: none;
+    gap: 12px;
+  }
+  .schedule-fields.active {
+    display: grid;
+  }
+  @media (max-width: 1200px) {
+    .tests-grid { grid-template-columns: 1fr; }
+    .tests-row-3 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .tests-row-2 { grid-template-columns: 1fr; }
+  }
 </style>
 
 <section class="dashboard-wrap tests-page">
@@ -92,7 +136,7 @@
     <div>
       <div class="topbar-chip">Admin Module</div>
       <h1>Tests</h1>
-      <p>Create chapter tests, mock tests, monthly papers, and full syllabus papers with custom duration and publish control.</p>
+      <p>Create flexible NEET full tests, subject tests, and quick tests with schedule control and strict timer rules.</p>
     </div>
   </div>
 
@@ -112,7 +156,7 @@
     <div class="panel-card tests-form-card">
       <h3>Create Test Paper</h3>
       <p class="panel-text" style="margin-bottom:16px;">
-        Create a paper first, then attach questions to it from the question bank.
+        Create a paper first, then attach questions to it from the question bank and publish only when ready.
       </p>
 
       <form method="POST" action="{{ url_for('admin.tests_page') }}" class="tests-form-grid">
@@ -134,11 +178,15 @@
           </div>
 
           <div class="tests-field">
-            <label for="status">Status</label>
-            <select name="status" id="status" class="tests-select" required>
-              <option value="draft" selected>Draft</option>
-              <option value="published" disabled>Published after questions</option>
+            <label for="test_mode">Publish Rule</label>
+            <select name="test_mode" id="test_mode" class="tests-select" required>
+              <option value="custom">Custom Test</option>
+              <option value="quick_test">Quick Test</option>
+              <option value="neet_full">NEET Full Test</option>
             </select>
+            <div class="muted-line" id="test-mode-help">
+              Custom test: publish with at least 1 question.
+            </div>
           </div>
         </div>
 
@@ -161,7 +209,7 @@
           </div>
 
           <div class="tests-field">
-            <label for="batch_id">Assign Batch (optional later)</label>
+            <label for="batch_id">Assign Batch (optional)</label>
             <select name="batch_id" id="batch_id" class="tests-select">
               <option value="">No batch selected</option>
               {% if batches %}
@@ -173,9 +221,78 @@
           </div>
         </div>
 
+        <div class="tests-row-3">
+          <div class="tests-field">
+            <label for="schedule_type">Schedule Type</label>
+            <select name="schedule_type" id="schedule_type" class="tests-select" required>
+              <option value="instant">Instant</option>
+              <option value="fixed_start">Fixed Start</option>
+              <option value="window">Time Window</option>
+            </select>
+          </div>
+
+          <div class="tests-field">
+            <label for="max_attempts">Max Attempts</label>
+            <input type="number" name="max_attempts" id="max_attempts" class="tests-input" min="1" value="1" required>
+          </div>
+
+          <div class="tests-field">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="tests-select" required>
+              <option value="draft" selected>Draft</option>
+              <option value="published" disabled>Published after validation</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="schedule-fields" id="schedule-fields-fixed">
+          <div class="tests-row-2">
+            <div class="tests-field">
+              <label for="start_at">Start Time</label>
+              <input type="datetime-local" name="start_at" id="start_at" class="tests-input">
+            </div>
+
+            <div class="tests-field">
+              <label for="end_at">End Time (optional)</label>
+              <input type="datetime-local" name="end_at" id="end_at" class="tests-input">
+            </div>
+          </div>
+          <div class="tests-note">
+            Fixed start means students can begin only after the configured start time. If they start late, available remaining time may be shorter.
+          </div>
+        </div>
+
+        <div class="schedule-fields" id="schedule-fields-window">
+          <div class="tests-row-2">
+            <div class="tests-field">
+              <label for="start_at_window">Window Start Time</label>
+              <input type="datetime-local" name="start_at" id="start_at_window" class="tests-input">
+            </div>
+
+            <div class="tests-field">
+              <label for="end_at_window">Window End Time</label>
+              <input type="datetime-local" name="end_at" id="end_at_window" class="tests-input">
+            </div>
+          </div>
+          <div class="tests-note">
+            Time window means students may start any time within the allowed window, but once started they must finish within the valid remaining duration.
+          </div>
+        </div>
+
+        <div class="tests-checkbox">
+          <input type="checkbox" name="is_resume_allowed" id="is_resume_allowed" value="1">
+          <label for="is_resume_allowed" style="margin:0; font-weight:600;">
+            Allow resume after leaving test page
+          </label>
+        </div>
+
+        <div class="tests-note">
+          Once a student starts the test, the timer continues on the server and the attempt will auto-submit when time ends.
+        </div>
+
         <div class="tests-field">
           <label for="description">Instructions / Guidance</label>
-          <textarea name="description" id="description" rows="5" class="tests-textarea" placeholder="Example: Read all questions carefully. Each question carries 4 marks. Negative marking is applicable. Do not refresh the page during the test."></textarea>
+          <textarea name="description" id="description" rows="5" class="tests-textarea" placeholder="Example: Read all questions carefully. Each question carries 4 marks. Negative marking is applicable. Do not refresh the page during the test. Once started, the timer will continue until submission or expiry."></textarea>
         </div>
 
         <div>
@@ -187,20 +304,27 @@
     <div class="panel-card tests-side-card">
       <h3>Paper Settings</h3>
       <p class="panel-text" style="margin-bottom:16px;">
-        Create in draft, attach questions, then publish.
+        Create in draft, attach questions, then publish after validation.
       </p>
 
       <div class="tests-chip-wrap">
-        <span class="module-chip">30 Minutes</span>
-        <span class="module-chip">60 Minutes</span>
-        <span class="module-chip">90 Minutes</span>
-        <span class="module-chip">180 Minutes</span>
+        <span class="module-chip">Quick Tests</span>
+        <span class="module-chip">NEET Full Tests</span>
+        <span class="module-chip">Flexible Timing</span>
       </div>
 
       <div class="tests-chip-wrap">
         <span class="module-chip">Draft First</span>
         <span class="module-chip">Question Mapping</span>
         <span class="module-chip">Publish Control</span>
+      </div>
+
+      <div class="tests-note" style="margin-top:16px;">
+        NEET Full Test requires Physics 45, Chemistry 45, Biology 90 before publish. Quick Test and Custom Test can publish with at least 1 linked question.
+      </div>
+
+      <div class="tests-note" style="margin-top:12px;">
+        Recommended: use Fixed Start for live evening exams and Time Window for flexible student practice tests.
       </div>
     </div>
   </section>
@@ -209,7 +333,7 @@
     <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
       <div>
         <h3 style="margin-bottom:6px;">Created Tests</h3>
-        <p class="panel-text">Manage questions and publish only after the paper is ready.</p>
+        <p class="panel-text">Manage questions and publish only after the paper is ready and scheduling is valid.</p>
       </div>
     </div>
 
@@ -221,6 +345,8 @@
               <th>ID</th>
               <th>Title</th>
               <th>Type</th>
+              <th>Publish Rule</th>
+              <th>Schedule</th>
               <th>Duration</th>
               <th>Questions</th>
               <th>Total Marks</th>
@@ -233,8 +359,41 @@
             {% for test in tests %}
               <tr>
                 <td>{{ test.id }}</td>
-                <td style="min-width:240px;">{{ test.title }}</td>
+                <td style="min-width:240px;">
+                  <div style="font-weight:700;">{{ test.title }}</div>
+                  {% if test.instructions %}
+                    <div class="muted-line">{{ test.instructions[:120] }}{% if test.instructions|length > 120 %}...{% endif %}</div>
+                  {% endif %}
+                </td>
                 <td>{{ test.test_type|replace('_', ' ')|title }}</td>
+                <td>
+                  <span class="badge mode">
+                    {{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}
+                  </span>
+                </td>
+                <td style="min-width:210px;">
+                  <div>
+                    <span class="badge schedule">
+                      {{ (test.schedule_type if test.schedule_type is defined else 'instant')|replace('_', ' ')|title }}
+                    </span>
+                  </div>
+                  <div class="muted-line">
+                    {% if test.schedule_type == 'fixed_start' %}
+                      Start: {{ test.start_at.strftime('%d %b %Y %I:%M %p') if test.start_at else 'Not set' }}
+                      <br>
+                      End: {{ test.end_at.strftime('%d %b %Y %I:%M %p') if test.end_at else 'Auto by duration' }}
+                    {% elif test.schedule_type == 'window' %}
+                      Start: {{ test.start_at.strftime('%d %b %Y %I:%M %p') if test.start_at else 'Not set' }}
+                      <br>
+                      End: {{ test.end_at.strftime('%d %b %Y %I:%M %p') if test.end_at else 'Not set' }}
+                    {% else %}
+                      Available immediately after publish
+                    {% endif %}
+                    <br>
+                    Attempts: {{ test.max_attempts if test.max_attempts is defined else 1 }},
+                    Resume: {% if test.is_resume_allowed %}Yes{% else %}No{% endif %}
+                  </div>
+                </td>
                 <td>{{ test.duration_minutes }} min</td>
                 <td>{{ test.test_questions|length }}</td>
                 <td>{{ test.total_marks }}</td>
@@ -273,4 +432,49 @@
     {% endif %}
   </section>
 </section>
+
+<script>
+  (function () {
+    const scheduleType = document.getElementById("schedule_type");
+    const testMode = document.getElementById("test_mode");
+    const testModeHelp = document.getElementById("test-mode-help");
+    const fixedFields = document.getElementById("schedule-fields-fixed");
+    const windowFields = document.getElementById("schedule-fields-window");
+
+    function updateScheduleFields() {
+      const value = scheduleType.value;
+
+      fixedFields.classList.remove("active");
+      windowFields.classList.remove("active");
+
+      if (value === "fixed_start") {
+        fixedFields.classList.add("active");
+      } else if (value === "window") {
+        windowFields.classList.add("active");
+      }
+    }
+
+    function updateModeHelp() {
+      const value = testMode.value;
+
+      if (value === "neet_full") {
+        testModeHelp.textContent = "NEET Full Test: publish only when Physics 45, Chemistry 45, and Biology 90 questions are linked.";
+      } else if (value === "quick_test") {
+        testModeHelp.textContent = "Quick Test: publish with any positive number of linked questions.";
+      } else {
+        testModeHelp.textContent = "Custom Test: publish with at least 1 linked question.";
+      }
+    }
+
+    if (scheduleType) {
+      scheduleType.addEventListener("change", updateScheduleFields);
+      updateScheduleFields();
+    }
+
+    if (testMode) {
+      testMode.addEventListener("change", updateModeHelp);
+      updateModeHelp();
+    }
+  })();
+</script>
 {% endblock %}
