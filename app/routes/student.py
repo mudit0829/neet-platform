@@ -98,6 +98,40 @@ def finalize_attempt(attempt):
     attempt.wrong_count = wrong_count
     attempt.skipped_count = skipped_count
 
+@student_bp.route("/dashboard")
+@login_required
+def dashboard():
+    student_required()
+
+    available_tests = Test.query.filter_by(status="published").count()
+    ongoing_tests = TestAttempt.query.filter_by(
+        student_id=current_user.id,
+        status="ongoing"
+    ).count()
+    completed_tests = TestAttempt.query.filter_by(
+        student_id=current_user.id,
+        status="submitted"
+    ).count()
+
+    latest_attempts = TestAttempt.query.filter_by(
+        student_id=current_user.id
+    ).order_by(TestAttempt.id.desc()).limit(5).all()
+
+    ongoing_attempts = TestAttempt.query.filter_by(
+        student_id=current_user.id,
+        status="ongoing"
+    ).order_by(TestAttempt.id.desc()).limit(5).all()
+
+    return render_template(
+        "student_dashboard.html",
+        available_tests=available_tests,
+        ongoing_tests=ongoing_tests,
+        completed_tests=completed_tests,
+        latest_attempts=latest_attempts,
+        ongoing_attempts=ongoing_attempts,
+    )
+
+
 
 @student_bp.route("/tests")
 @login_required
