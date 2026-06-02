@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 
@@ -7,6 +7,10 @@ from ..extensions import db
 from ..models import Test, TestQuestion, TestAttempt, AttemptAnswer
 
 student_bp = Blueprint("student", __name__, url_prefix="/student")
+
+
+def utc_now():
+    return datetime.utcnow()
 
 
 def student_required():
@@ -17,8 +21,15 @@ def student_required():
 
 
 def get_attempt_remaining_seconds(attempt):
+    now = utc_now()
+
+    if getattr(attempt, "expires_at", None):
+        remaining = int((attempt.expires_at - now).total_seconds())
+        return max(0, remaining)
+
+    start_base = attempt.started_at or attempt.created_at
     duration_seconds = int((attempt.test.duration_minutes or 0) * 60)
-    elapsed = int((datetime.utcnow() - attempt.created_at).total_seconds())
+    elapsed = int((now - start_base).total_seconds())
     remaining = duration_seconds - elapsed
     return max(0, remaining)
 
@@ -43,6 +54,78 @@ def get_or_create_answer(attempt_id, question_id):
     return answer
 
 
+def can_student_start_test(test, student_id):
+    now = utc_now()
+
+    if test.status != "published":
+        return False, "This test is not available."
+
+    question_count = TestQuestion.query.filter_by(test_id=test.id).count()
+    if question_count <= 0:
+        return False, "This test has no questions yet."
+
+    if getattr(test, "schedule_type", "instant") == "fixed_start":
+        if not getattr(test, "start_at", None):
+            return False, "This test start time is not configured."
+        if now < test.start_at:
+            return False, "This test has not started yet."
+        if getattr(test, "end_at", None) and now > test.end_at:
+            return False, "This test time window has closed."
+
+    elif getattr(test, "schedule_type", "instant") == "window":
+        if not getattr(test, "start_at", None) or not getattr(test, "end_at", None):
+            return False, "This test window is not configured."
+        if now < test.start_at:
+            return False, "This test window has not opened yet."
+        if now > test.end_at:
+            return False, "This test window has closed."
+
+    max_attempts = getattr(test, "max_attempts", 1) or 1
+    previous_attempts_count = TestAttempt.query.filter(
+        TestAttempt.test_id == test.id,
+        TestAttempt.student_id == student_id,
+        TestAttempt.status.in_(["submitted", "ongoing"])
+    ).count()
+
+    if previous_attempts_count >= max_attempts:
+        ongoing_attempt = TestAttempt.query.filter_by(
+            test_id=test.id,
+            student_id=student_id,
+            status="ongoing"
+        ).order_by(TestAttempt.id.desc()).first()
+
+        if ongoing_attempt:
+            return True, ongoing_attempt
+
+        return False, "Maximum allowed attempts reached."
+
+    return True, None
+
+
+def calculate_attempt_expiry(test, started_at):
+    duration_minutes = int(test.duration_minutes or 0)
+    duration_delta = timedelta(minutes=duration_minutes)
+
+    schedule_type = getattr(test, "schedule_type", "instant")
+
+    if schedule_type == "fixed_start":
+        fixed_start = test.start_at or started_at
+        fixed_end = fixed_start + duration_delta
+
+        if getattr(test, "end_at", None):
+            return min(fixed_end, test.end_at)
+
+        return fixed_end
+
+    if schedule_type == "window":
+        rolling_end = started_at + duration_delta
+        if getattr(test, "end_at", None):
+            return min(rolling_end, test.end_at)
+        return rolling_end
+
+    return started_at + duration_delta
+
+
 def auto_submit_if_time_over(attempt):
     if attempt.status != "ongoing":
         return False
@@ -51,12 +134,12 @@ def auto_submit_if_time_over(attempt):
     if remaining > 0:
         return False
 
-    finalize_attempt(attempt)
+    finalize_attempt(attempt, auto_submitted=True)
     db.session.commit()
     return True
 
 
-def finalize_attempt(attempt):
+def finalize_attempt(attempt, auto_submitted=False):
     if attempt.status == "submitted":
         return
 
@@ -98,16 +181,27 @@ def finalize_attempt(attempt):
     attempt.wrong_count = wrong_count
     attempt.skipped_count = skipped_count
 
+    if hasattr(attempt, "submitted_at"):
+        attempt.submitted_at = utc_now()
+
+    if hasattr(attempt, "is_abandoned") and auto_submitted:
+        attempt.is_abandoned = False
+
+
 @student_bp.route("/dashboard")
 @login_required
 def dashboard():
     student_required()
 
+    now = utc_now()
+
     available_tests = Test.query.filter_by(status="published").count()
+
     ongoing_tests = TestAttempt.query.filter_by(
         student_id=current_user.id,
         status="ongoing"
     ).count()
+
     completed_tests = TestAttempt.query.filter_by(
         student_id=current_user.id,
         status="submitted"
@@ -116,6 +210,17 @@ def dashboard():
     latest_attempts = TestAttempt.query.filter_by(
         student_id=current_user.id
     ).order_by(TestAttempt.id.desc()).limit(5).all()
+
+    ongoing_attempts = TestAttempt.query.filter_by(
+        student_id=current_user.id,
+        status="ongoing"
+    ).order_by(TestAttempt.id.desc()).limit(5).all()
+
+    for attempt in ongoing_attempts:
+        if getattr(attempt, "expires_at", None) and now >= attempt.expires_at:
+            finalize_attempt(attempt, auto_submitted=True)
+
+    db.session.commit()
 
     ongoing_attempts = TestAttempt.query.filter_by(
         student_id=current_user.id,
@@ -132,13 +237,26 @@ def dashboard():
     )
 
 
-
 @student_bp.route("/tests")
 @login_required
 def tests_page():
     student_required()
 
+    now = utc_now()
     tests = Test.query.filter_by(status="published").order_by(Test.id.desc()).all()
+
+    visible_tests = []
+    for test in tests:
+        schedule_type = getattr(test, "schedule_type", "instant")
+
+        if schedule_type == "fixed_start":
+            if getattr(test, "end_at", None) and now > test.end_at:
+                continue
+        elif schedule_type == "window":
+            if getattr(test, "end_at", None) and now > test.end_at:
+                continue
+
+        visible_tests.append(test)
 
     ongoing_attempts = {
         a.test_id: a
@@ -160,7 +278,7 @@ def tests_page():
 
     return render_template(
         "student_tests.html",
-        tests=tests,
+        tests=visible_tests,
         ongoing_attempts=ongoing_attempts,
         submitted_attempts=submitted_attempts,
     )
@@ -191,12 +309,16 @@ def test_instructions_page(test_id):
         status="submitted"
     ).order_by(TestAttempt.id.desc()).first()
 
+    can_start, reason = can_student_start_test(test, current_user.id)
+
     return render_template(
         "student_test_instructions.html",
         test=test,
         question_count=question_count,
         ongoing_attempt=ongoing_attempt,
         submitted_attempt=submitted_attempt,
+        can_start=can_start if isinstance(can_start, bool) else True,
+        start_message=reason if isinstance(reason, str) else None,
     )
 
 
@@ -207,23 +329,24 @@ def start_test_attempt(test_id):
 
     test = Test.query.get_or_404(test_id)
 
-    if test.status != "published":
-        flash("This test is not available.", "danger")
-        return redirect(url_for("student.tests_page"))
+    can_start, result = can_student_start_test(test, current_user.id)
 
-    question_count = TestQuestion.query.filter_by(test_id=test.id).count()
-    if question_count == 0:
-        flash("This test has no questions yet.", "danger")
-        return redirect(url_for("student.tests_page"))
+    if not can_start:
+        flash(result, "danger")
+        return redirect(url_for("student.test_instructions_page", test_id=test.id))
 
-    ongoing_attempt = TestAttempt.query.filter_by(
-        test_id=test.id,
-        student_id=current_user.id,
-        status="ongoing"
-    ).order_by(TestAttempt.id.desc()).first()
+    if isinstance(result, TestAttempt):
+        if auto_submit_if_time_over(result):
+            flash("Previous attempt expired and was auto-submitted.", "info")
+            return redirect(url_for("student.result_page", attempt_id=result.id))
+        return redirect(url_for("student.attempt_page", attempt_id=result.id))
 
-    if ongoing_attempt:
-        return redirect(url_for("student.attempt_page", attempt_id=ongoing_attempt.id))
+    now = utc_now()
+    expires_at = calculate_attempt_expiry(test, now)
+
+    if expires_at <= now:
+        flash("This test can no longer be started because its allowed time is over.", "danger")
+        return redirect(url_for("student.test_instructions_page", test_id=test.id))
 
     attempt = TestAttempt(
         test_id=test.id,
@@ -233,7 +356,10 @@ def start_test_attempt(test_id):
         correct_count=0,
         wrong_count=0,
         skipped_count=0,
+        started_at=now if hasattr(TestAttempt, "started_at") else None,
+        expires_at=expires_at if hasattr(TestAttempt, "expires_at") else None,
     )
+
     db.session.add(attempt)
     db.session.commit()
 
@@ -256,6 +382,11 @@ def attempt_page(attempt_id):
 
     if attempt.status == "submitted":
         return redirect(url_for("student.result_page", attempt_id=attempt.id))
+
+    if hasattr(attempt.test, "is_resume_allowed") and attempt.test.is_resume_allowed is False:
+        if request.args.get("resume") == "blocked":
+            flash("Resume is not allowed for this test.", "danger")
+            return redirect(url_for("student.tests_page"))
 
     question_number = request.args.get("q", type=int, default=1)
 
@@ -485,8 +616,10 @@ def result_page(attempt_id):
     remaining_seconds = get_attempt_remaining_seconds(attempt)
     time_taken_seconds = max(0, duration_seconds - remaining_seconds)
 
-    if attempt.status == "submitted" and attempt.created_at:
-        raw_taken = int((datetime.utcnow() - attempt.created_at).total_seconds())
+    start_base = attempt.started_at or attempt.created_at
+    if attempt.status == "submitted" and start_base:
+        end_base = attempt.submitted_at or utc_now()
+        raw_taken = int((end_base - start_base).total_seconds())
         time_taken_seconds = min(duration_seconds, max(0, raw_taken))
 
     return render_template(
