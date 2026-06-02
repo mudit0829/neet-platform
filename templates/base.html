@@ -13,6 +13,79 @@
   {% block head_extra %}{% endblock %}
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: 'Inter', sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 26%),
+        linear-gradient(135deg, #071225 0%, #0a1730 45%, #0b1d3f 100%);
+      color: #e2e8f0;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    .sidebar {
+      width: 270px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 16px;
+      background: rgba(7, 18, 37, 0.88);
+      border-right: 1px solid rgba(148, 163, 184, 0.14);
+      backdrop-filter: blur(16px);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 8px 18px;
+    }
+
+    .logo-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, #2563eb, #059669);
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #f8fafc;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
     .sidebar-group-label {
       padding: 14px 14px 6px;
       font-size: 11px;
@@ -26,6 +99,7 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      flex: 1;
     }
 
     .sidebar-group {
@@ -66,6 +140,26 @@
       opacity: 0.95;
     }
 
+    .sidebar-footer {
+      padding-top: 14px;
+    }
+
+    .main-panel,
+    .landing-page {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      padding: 28px;
+    }
+
+    .main-panel {
+      overflow-x: hidden;
+    }
+
+    .landing-page {
+      overflow-x: hidden;
+    }
+
     .topbar {
       display: flex;
       justify-content: space-between;
@@ -74,9 +168,9 @@
       margin-bottom: 22px;
       padding: 18px 22px;
       border-radius: 18px;
-      background: #ffffff;
+      background: rgba(255, 255, 255, 0.96);
       border: 1px solid #e2e8f0;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
     }
 
     .topbar-title {
@@ -131,55 +225,207 @@
       line-height: 1.2;
     }
 
+    .dashboard-wrap {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(320px, 1fr));
+      gap: 24px;
+      width: 100%;
+      align-items: stretch;
+    }
+
+    .panel-card {
+      width: 100%;
+      min-width: 0;
+      padding: 22px;
+      border-radius: 22px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 12px 30px rgba(2, 6, 23, 0.22);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+
+    .panel-card h3,
+    .panel-card h4,
+    .panel-card p,
+    .panel-card div,
+    .panel-card span,
+    .panel-card label,
+    .panel-card td,
+    .panel-card th {
+      word-break: break-word;
+    }
+
+    .panel-card.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .topbar-chip,
+    .module-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(96, 165, 250, 0.16);
+      border: 1px solid rgba(96, 165, 250, 0.18);
+      color: #bfdbfe;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .panel-text {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .module-list {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 0;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(59, 130, 246, 0.28);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      margin-top: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(15, 23, 42, 0.72);
+      color: #e2e8f0;
+      outline: none;
+    }
+
+    .form-control::placeholder {
+      color: #94a3b8;
+    }
+
+    .flash {
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .flash-danger {
+      background: rgba(239, 68, 68, 0.14);
+      color: #fecaca;
+      border: 1px solid rgba(239, 68, 68, 0.20);
+    }
+
+    .flash-success {
+      background: rgba(34, 197, 94, 0.14);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.20);
+    }
+
+    @media (max-width: 1100px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 900px) {
+      .app-shell {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      }
+
       .topbar {
         flex-direction: column;
         align-items: flex-start;
       }
+
+      .main-panel,
+      .landing-page {
+        padding: 18px;
+      }
     }
 
-    .dashboard-wrap {
-    width: 100%;
-    max-width: 100%;
-    padding: 24px;
-    margin: 0;
-}
+    @media (max-width: 640px) {
+      .dashboard-wrap {
+        max-width: 100%;
+      }
 
-.topbar {
-    width: 100%;
-    margin-bottom: 24px;
-}
-
-.content-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-    width: 100%;
-    align-items: stretch;
-}
-
-.panel-card {
-    width: 100%;
-    min-width: 0;
-    padding: 20px;
-    border-radius: 20px;
-    background: rgba(17, 25, 40, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-@media (max-width: 992px) {
-    .content-grid {
+      .content-grid {
         grid-template-columns: 1fr;
-    }
+        gap: 16px;
+      }
 
-    .dashboard-wrap {
+      .panel-card {
         padding: 16px;
+        border-radius: 18px;
+      }
+
+      .main-panel,
+      .landing-page {
+        padding: 14px;
+      }
+
+      .topbar {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .topbar-title {
+        font-size: 20px;
+      }
+
+      .topbar-user {
+        width: 100%;
+      }
     }
-}
   </style>
 </head>
 <body>
   {% set is_admin = current_user.is_authenticated and request.path.startswith('/admin') %}
+  {% set is_student = current_user.is_authenticated and request.path.startswith('/student') %}
 
   <div class="app-shell">
     {% if is_admin %}
@@ -248,7 +494,37 @@
     </aside>
     {% endif %}
 
-    <main class="{% if is_admin %}main-panel{% else %}landing-page{% endif %}">
+    {% if is_student %}
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-mark">NP</div>
+        <div>
+          <div class="brand-title">NEET Platform</div>
+          <div class="brand-subtitle">Student Portal</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Student</div>
+          <a class="nav-item {% if request.path == '/student/dashboard' %}active{% endif %}" href="{{ url_for('student.dashboard') }}">
+            <span class="nav-bullet"></span>
+            <span>Dashboard</span>
+          </a>
+          <a class="nav-item {% if '/student/tests' in request.path %}active{% endif %}" href="{{ url_for('student.tests_page') }}">
+            <span class="nav-bullet"></span>
+            <span>Tests</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a class="btn btn-secondary btn-block" href="{{ url_for('auth.logout') }}">Logout</a>
+      </div>
+    </aside>
+    {% endif %}
+
+    <main class="{% if is_admin or is_student %}main-panel{% else %}landing-page{% endif %}">
       {% if is_admin %}
       <div class="topbar">
         <div>
@@ -292,6 +568,37 @@
             </div>
             <div class="topbar-user-role">
               {{ current_user.role if current_user.role else 'admin' }}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if is_student %}
+      <div class="topbar">
+        <div>
+          <h1 class="topbar-title">Student Dashboard</h1>
+          <p class="topbar-subtitle">
+            Access your tests, continue attempts, and review your recent performance from one place.
+          </p>
+        </div>
+
+        <div class="topbar-user">
+          <div class="topbar-avatar">
+            {% if current_user.full_name %}
+              {{ current_user.full_name[:1] }}
+            {% elif current_user.username %}
+              {{ current_user.username[:1] }}
+            {% else %}
+              S
+            {% endif %}
+          </div>
+          <div>
+            <div class="topbar-user-name">
+              {{ current_user.full_name if current_user.full_name else 'Student User' }}
+            </div>
+            <div class="topbar-user-role">
+              {{ current_user.role if current_user.role else 'student' }}
             </div>
           </div>
         </div>
