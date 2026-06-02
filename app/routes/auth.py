@@ -1,24 +1,61 @@
 from flask import Blueprint, request, redirect, url_for, flash, render_template
-from flask_login import login_user, logout_user, login_required
-from ..extensions import db
+from flask_login import login_user, logout_user, login_required, current_user
+from sqlalchemy import or_
+
+from ..extensions import db, login_manager
 from ..models import User
 
 auth_bp = Blueprint("auth", __name__)
 
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    flash("Please login to continue.", "warning")
+    return redirect(url_for("auth.login"))
+
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        if current_user.role == "admin":
+            return redirect(url_for("admin.dashboard"))
+        if current_user.role == "student":
+            return redirect(url_for("student.dashboard"))
+        return redirect(url_for("auth.logout"))
+
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
+        login_input = (request.form.get("login", "") or "").strip()
         password = request.form.get("password", "")
 
-        user = User.query.filter_by(email=email).first()
+        if not login_input or not password:
+            flash("Username/email and password are required.", "danger")
+            return render_template("login.html")
 
-        if user and user.check_password(password):
-            login_user(user)
+        user = User.query.filter(
+            or_(
+                User.email == login_input.lower(),
+                User.username == login_input
+            )
+        ).first()
+
+        if not user or not user.check_password(password):
+            flash("Invalid login credentials.", "danger")
+            return render_template("login.html")
+
+        if not user.is_active_user:
+            flash("This account is inactive. Please contact admin.", "danger")
+            return render_template("login.html")
+
+        login_user(user)
+
+        if user.role == "admin":
             return redirect(url_for("admin.dashboard"))
+        if user.role == "student":
+            return redirect(url_for("student.dashboard"))
 
-        flash("Invalid email or password", "danger")
+        flash("Unknown role assigned to this account.", "danger")
+        logout_user()
+        return render_template("login.html")
 
     return render_template("login.html")
 
@@ -49,6 +86,7 @@ def setup():
             user = User(
                 full_name=full_name,
                 email=email,
+                username=None,
                 role="admin",
                 institute_id=None
             )
