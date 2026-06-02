@@ -1,10 +1,22 @@
 import os
 import uuid
+from datetime import datetime
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, abort
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
-from ..models import Question, Test, TestQuestion, User, Batch, Subject, Chapter
+from ..models import (
+    Question,
+    Test,
+    TestQuestion,
+    User,
+    Batch,
+    Subject,
+    Chapter,
+    StudentProfile,
+    TestAttempt,
+)
 from ..extensions import db
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -112,10 +124,10 @@ def batches_page():
                 return redirect(url_for("admin.batches_page"))
 
             batch = Batch(
-            institute_id=current_user.institute_id,
-            name=name,
-            academic_year=academic_year,
-            status=status,
+                institute_id=current_user.institute_id,
+                name=name,
+                academic_year=academic_year,
+                status=status,
             )
 
             db.session.add(batch)
@@ -213,13 +225,230 @@ def chapters_page():
     return render_template("admin_chapters.html", subjects=subjects, chapters=chapters)
 
 
-@admin_bp.route("/students")
+@admin_bp.route("/students", methods=["GET", "POST"])
 @login_required
 def students_page():
     admin_required()
+
+    if request.method == "POST":
+        try:
+            if not getattr(current_user, "institute_id", None):
+                flash("Your admin account is not linked to any institute.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            full_name = (request.form.get("full_name") or "").strip()
+            username = (request.form.get("username") or "").strip()
+            password = request.form.get("password") or ""
+            admission_no = (request.form.get("admission_no") or "").strip()
+            admission_session = (request.form.get("admission_session") or "").strip()
+            course_applied = (request.form.get("course_applied") or "").strip()
+            target_exam = (request.form.get("target_exam") or "").strip()
+            current_class = (request.form.get("current_class") or "").strip()
+
+            batch_id = request.form.get("batch_id", type=int)
+
+            student_mobile = (request.form.get("student_mobile") or "").strip()
+            student_email = (request.form.get("student_email") or "").strip().lower() or None
+            father_name = (request.form.get("father_name") or "").strip()
+            mother_name = (request.form.get("mother_name") or "").strip() or None
+            father_mobile = (request.form.get("father_mobile") or "").strip()
+            mother_mobile = (request.form.get("mother_mobile") or "").strip() or None
+            parent_email = (request.form.get("parent_email") or "").strip().lower() or None
+
+            dob_raw = (request.form.get("dob") or "").strip()
+            gender = (request.form.get("gender") or "").strip()
+            category = (request.form.get("category") or "").strip() or None
+
+            address = (request.form.get("address") or "").strip()
+            city = (request.form.get("city") or "").strip()
+            district = (request.form.get("district") or "").strip() or None
+            state = (request.form.get("state") or "").strip()
+            pincode = (request.form.get("pincode") or "").strip() or None
+
+            school_name = (request.form.get("school_name") or "").strip() or None
+            board_name = (request.form.get("board_name") or "").strip() or None
+            remarks = (request.form.get("remarks") or "").strip() or None
+            status = (request.form.get("status") or "active").strip().lower()
+
+            photo_file = request.files.get("photograph")
+
+            if not full_name:
+                flash("Student full name is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not username:
+                flash("Username is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if len(username) < 4:
+                flash("Username must be at least 4 characters.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not password or len(password) < 6:
+                flash("Password must be at least 6 characters.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not admission_no:
+                flash("Admission number is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not admission_session:
+                flash("Admission session is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not course_applied:
+                flash("Course applied is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not batch_id:
+                flash("Batch is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            batch = Batch.query.get(batch_id)
+            if not batch:
+                flash("Selected batch does not exist.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if batch.institute_id != current_user.institute_id:
+                flash("You can only assign students to your own institute batch.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not student_mobile:
+                flash("Student mobile is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not father_name:
+                flash("Father name is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not father_mobile:
+                flash("Parent mobile is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not dob_raw:
+                flash("Date of birth is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            try:
+                dob = datetime.strptime(dob_raw, "%Y-%m-%d").date()
+            except ValueError:
+                flash("Invalid date of birth format.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if gender not in ["Male", "Female", "Other"]:
+                flash("Please select a valid gender.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not address:
+                flash("Address is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not city:
+                flash("City is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not state:
+                flash("State is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if status not in ["active", "inactive"]:
+                status = "active"
+
+            if not photo_file or not photo_file.filename:
+                flash("Student photograph is required.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if not allowed_image_file(photo_file.filename):
+                flash("Photograph must be png, jpg, jpeg, gif, or webp.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if User.query.filter(db.func.lower(User.username) == username.lower()).first():
+                flash("Username already exists.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if student_email and User.query.filter(db.func.lower(User.email) == student_email.lower()).first():
+                flash("Student email is already used by another account.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if StudentProfile.query.filter_by(admission_no=admission_no).first():
+                flash("Admission number already exists.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            photograph = save_uploaded_image(photo_file, "students")
+            if not photograph:
+                flash("Unable to upload photograph.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            student_user = User(
+                institute_id=current_user.institute_id,
+                batch_id=batch.id,
+                full_name=full_name,
+                username=username,
+                email=student_email,
+                role="student",
+                is_active_user=(status == "active"),
+            )
+            student_user.set_password(password)
+
+            db.session.add(student_user)
+            db.session.flush()
+
+            student_profile = StudentProfile(
+                user_id=student_user.id,
+                admission_no=admission_no,
+                admission_session=admission_session,
+                course_applied=course_applied,
+                target_exam=target_exam or None,
+                current_class=current_class or None,
+                student_mobile=student_mobile,
+                student_email=student_email,
+                father_name=father_name,
+                mother_name=mother_name,
+                father_mobile=father_mobile,
+                mother_mobile=mother_mobile,
+                parent_email=parent_email,
+                dob=dob,
+                gender=gender,
+                category=category,
+                address=address,
+                city=city,
+                district=district,
+                state=state,
+                pincode=pincode,
+                school_name=school_name,
+                board_name=board_name,
+                remarks=remarks,
+                photograph=photograph,
+                status=status,
+            )
+
+            db.session.add(student_profile)
+            db.session.commit()
+            flash("Student created successfully.", "success")
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating student: {str(e)}", "danger")
+
+        return redirect(url_for("admin.students_page"))
+
     students = User.query.filter_by(role="student").order_by(User.id.desc()).all()
-    batches = Batch.query.order_by(Batch.id.desc()).all()
-    return render_template("admin_students.html", students=students, batches=batches)
+    batches = Batch.query.filter_by(institute_id=current_user.institute_id).order_by(Batch.id.desc()).all()
+
+    student_attempt_counts = {
+        row[0]: row[1]
+        for row in db.session.query(
+            TestAttempt.student_id,
+            db.func.count(TestAttempt.id)
+        ).group_by(TestAttempt.student_id).all()
+    }
+
+    return render_template(
+        "admin_students.html",
+        students=students,
+        batches=batches,
+        student_attempt_counts=student_attempt_counts,
+    )
 
 
 @admin_bp.route("/questions", methods=["GET", "POST"])
