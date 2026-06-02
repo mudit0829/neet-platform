@@ -17,26 +17,85 @@
     border-radius:18px;
     padding:18px;
   }
+  .meta-row {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+  .meta-chip {
+    display:inline-flex;
+    align-items:center;
+    padding:6px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.15);
+    border:1px solid rgba(255,255,255,0.15);
+    font-size:12px;
+    font-weight:700;
+  }
   .stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
   .stat-card, .panel-card2 {
-    background:#fff; border:1px solid #e5e7eb; border-radius:20px; padding:20px;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:20px;
+    padding:20px;
   }
   .subject-row { margin-top:18px; }
   .bar {
-    width:100%; height:14px; border-radius:999px; background:#e2e8f0; overflow:hidden; margin-top:8px;
+    width:100%;
+    height:14px;
+    border-radius:999px;
+    background:#e2e8f0;
+    overflow:hidden;
+    margin-top:8px;
   }
   .bar-fill {
-    height:100%; background:#3b82f6;
+    height:100%;
+    background:#3b82f6;
   }
   .detail-item {
-    background:#fff; border:1px solid #e5e7eb; border-radius:18px; padding:18px; margin-top:14px;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:18px;
+    padding:18px;
+    margin-top:14px;
   }
   .status-chip {
-    display:inline-flex; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700;
+    display:inline-flex;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
   }
   .correct { background:#dcfce7; color:#166534; }
   .wrong { background:#fee2e2; color:#b91c1c; }
   .skipped { background:#e2e8f0; color:#475569; }
+  .summary-note {
+    margin-top:18px;
+    padding:14px 16px;
+    border-radius:16px;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    color:#334155;
+    line-height:1.6;
+  }
+  .action-row {
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:18px;
+  }
+  .btn-main,.btn-light {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:700;
+  }
+  .btn-main { background:#2563eb; color:#fff; }
+  .btn-light { background:#fff; color:#0f172a; border:1px solid #cbd5e1; }
   @media (max-width: 1100px) {
     .hero-grid, .stat-grid { grid-template-columns:1fr; }
   }
@@ -46,7 +105,14 @@
   <div class="result-wrap">
     <div class="hero">
       <h1 style="margin:0 0 6px;">Test Completed!</h1>
-      <p style="margin:0; opacity:0.95;">Here's your detailed performance analysis.</p>
+      <p style="margin:0; opacity:0.95;">Here is your detailed performance analysis.</p>
+
+      <div class="meta-row">
+        <span class="meta-chip">{{ test.title }}</span>
+        <span class="meta-chip">{{ test.test_type|replace('_', ' ')|title }}</span>
+        <span class="meta-chip">{{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}</span>
+        <span class="meta-chip">{{ attempt.status|title }}</span>
+      </div>
 
       <div class="hero-grid">
         <div class="hero-card">
@@ -65,6 +131,15 @@
           <div style="font-size:42px; font-weight:800;" id="time-taken" data-seconds="{{ time_taken_seconds }}">{{ time_taken_seconds }}</div>
           <div>Time Taken</div>
         </div>
+      </div>
+
+      <div class="summary-note">
+        Auto-submitted or timed submissions should still reflect the final saved answers captured before expiry, which is why time taken and attempt completion status are important context on result pages. [web:934][web:935]
+      </div>
+
+      <div class="action-row">
+        <a href="{{ url_for('student.tests_page') }}" class="btn-main">Back to Tests</a>
+        <a href="{{ url_for('student.dashboard') }}" class="btn-light">Dashboard</a>
       </div>
     </div>
 
@@ -148,9 +223,15 @@
     if (!timeEl) return;
 
     const totalSeconds = parseInt(timeEl.dataset.seconds || "0", 10);
-    const mins = Math.floor(totalSeconds / 60);
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
     const secs = totalSeconds % 60;
-    timeEl.textContent = mins + "m " + secs + "s";
+
+    if (hrs > 0) {
+      timeEl.textContent = hrs + "h " + mins + "m " + secs + "s";
+    } else {
+      timeEl.textContent = mins + "m " + secs + "s";
+    }
   })();
 </script>
 {% endblock %}
