@@ -53,29 +53,169 @@ def dashboard():
         "tests": Test.query.count(),
         "students": User.query.filter_by(role="student").count(),
         "batches": Batch.query.count(),
+        "subjects": Subject.query.count(),
+        "chapters": Chapter.query.count(),
     }
 
     recent_activity = [
-        "New admin workspace initialized",
-        "Core NEET subjects seeded",
-        "Database schema created successfully",
-        "Platform ready for question bank module",
+        "Admin workspace loaded successfully",
+        "Question bank module is active",
+        "Test builder is available",
+        "Academic setup can be expanded from sidebar",
     ]
 
-    upcoming_modules = [
-        "Question Bank",
-        "Test Builder",
-        "Student Panel",
-        "Analytics",
+    quick_actions = [
+        {"label": "Add Batch", "url": url_for("admin.batches_page")},
+        {"label": "Add Subject", "url": url_for("admin.subjects_page")},
+        {"label": "Add Chapter", "url": url_for("admin.chapters_page")},
+        {"label": "Create Test", "url": url_for("admin.tests_page")},
     ]
+
+    latest_tests = Test.query.order_by(Test.id.desc()).limit(5).all()
+    latest_questions = Question.query.order_by(Question.id.desc()).limit(5).all()
 
     return render_template(
         "admin_dashboard.html",
         current_user=current_user,
         stats=stats,
         recent_activity=recent_activity,
-        upcoming_modules=upcoming_modules,
+        quick_actions=quick_actions,
+        latest_tests=latest_tests,
+        latest_questions=latest_questions,
     )
+
+
+@admin_bp.route("/batches", methods=["GET", "POST"])
+@login_required
+def batches_page():
+    admin_required()
+
+    if request.method == "POST":
+        try:
+            name = (request.form.get("name") or "").strip()
+            academic_year = (request.form.get("academic_year") or "").strip()
+            status = (request.form.get("status") or "active").strip().lower()
+
+            if not name:
+                flash("Batch name is required.", "danger")
+                return redirect(url_for("admin.batches_page"))
+
+            if not academic_year:
+                flash("Academic year is required.", "danger")
+                return redirect(url_for("admin.batches_page"))
+
+            if status not in ["active", "inactive"]:
+                status = "active"
+
+            batch = Batch(
+                institute_id=current_user.institute_id or 1,
+                name=name,
+                academic_year=academic_year,
+                status=status,
+            )
+
+            db.session.add(batch)
+            db.session.commit()
+            flash("Batch created successfully.", "success")
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating batch: {str(e)}", "danger")
+
+        return redirect(url_for("admin.batches_page"))
+
+    batches = Batch.query.order_by(Batch.id.desc()).all()
+    return render_template("admin_batches.html", batches=batches)
+
+
+@admin_bp.route("/subjects", methods=["GET", "POST"])
+@login_required
+def subjects_page():
+    admin_required()
+
+    if request.method == "POST":
+        try:
+            name = (request.form.get("name") or "").strip()
+
+            if not name:
+                flash("Subject name is required.", "danger")
+                return redirect(url_for("admin.subjects_page"))
+
+            existing = Subject.query.filter(db.func.lower(Subject.name) == name.lower()).first()
+            if existing:
+                flash("Subject already exists.", "danger")
+                return redirect(url_for("admin.subjects_page"))
+
+            subject = Subject(name=name)
+            db.session.add(subject)
+            db.session.commit()
+            flash("Subject created successfully.", "success")
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating subject: {str(e)}", "danger")
+
+        return redirect(url_for("admin.subjects_page"))
+
+    subjects = Subject.query.order_by(Subject.name.asc()).all()
+    return render_template("admin_subjects.html", subjects=subjects)
+
+
+@admin_bp.route("/chapters", methods=["GET", "POST"])
+@login_required
+def chapters_page():
+    admin_required()
+
+    if request.method == "POST":
+        try:
+            subject_id = request.form.get("subject_id", type=int)
+            name = (request.form.get("name") or "").strip()
+
+            if not subject_id:
+                flash("Subject is required.", "danger")
+                return redirect(url_for("admin.chapters_page"))
+
+            if not name:
+                flash("Chapter name is required.", "danger")
+                return redirect(url_for("admin.chapters_page"))
+
+            subject = Subject.query.get(subject_id)
+            if not subject:
+                flash("Selected subject does not exist.", "danger")
+                return redirect(url_for("admin.chapters_page"))
+
+            existing = Chapter.query.filter(
+                Chapter.subject_id == subject_id,
+                db.func.lower(Chapter.name) == name.lower()
+            ).first()
+
+            if existing:
+                flash("Chapter already exists under this subject.", "danger")
+                return redirect(url_for("admin.chapters_page"))
+
+            chapter = Chapter(subject_id=subject_id, name=name)
+            db.session.add(chapter)
+            db.session.commit()
+            flash("Chapter created successfully.", "success")
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating chapter: {str(e)}", "danger")
+
+        return redirect(url_for("admin.chapters_page"))
+
+    subjects = Subject.query.order_by(Subject.name.asc()).all()
+    chapters = Chapter.query.order_by(Chapter.id.desc()).all()
+    return render_template("admin_chapters.html", subjects=subjects, chapters=chapters)
+
+
+@admin_bp.route("/students")
+@login_required
+def students_page():
+    admin_required()
+    students = User.query.filter_by(role="student").order_by(User.id.desc()).all()
+    batches = Batch.query.order_by(Batch.id.desc()).all()
+    return render_template("admin_students.html", students=students, batches=batches)
 
 
 @admin_bp.route("/questions", methods=["GET", "POST"])
@@ -188,14 +328,6 @@ def questions_page():
         chapters=chapters,
         questions=questions,
     )
-
-
-@admin_bp.route("/students")
-@login_required
-def students_page():
-    admin_required()
-    students = User.query.filter_by(role="student").order_by(User.id.desc()).all()
-    return render_template("admin_students.html", students=students)
 
 
 @admin_bp.route("/tests", methods=["GET", "POST"])
