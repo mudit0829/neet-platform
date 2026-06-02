@@ -60,9 +60,9 @@ def finalize_attempt(attempt):
     if attempt.status == "submitted":
         return
 
-    test_questions = TestQuestion.query.filter_by(test_id=attempt.test_id).order_by(
-        TestQuestion.display_order.asc()
-    ).all()
+    test_questions = TestQuestion.query.filter_by(
+        test_id=attempt.test_id
+    ).order_by(TestQuestion.display_order.asc()).all()
 
     answer_map = {
         answer.question_id: answer
@@ -77,8 +77,8 @@ def finalize_attempt(attempt):
     for tq in test_questions:
         answer = answer_map.get(tq.question_id)
 
-        selected_option = None
-        if answer:
+        selected_option = ""
+        if answer and answer.selected_option:
             selected_option = (answer.selected_option or "").strip().upper()
 
         correct_option = (tq.question.correct_option or "").strip().upper()
@@ -108,11 +108,18 @@ def tests_page():
 
     ongoing_attempts = {
         a.test_id: a
-        for a in TestAttempt.query.filter_by(student_id=current_user.id, status="ongoing").all()
+        for a in TestAttempt.query.filter_by(
+            student_id=current_user.id,
+            status="ongoing"
+        ).all()
     }
 
     submitted_attempts = {}
-    all_submitted = TestAttempt.query.filter_by(student_id=current_user.id, status="submitted").all()
+    all_submitted = TestAttempt.query.filter_by(
+        student_id=current_user.id,
+        status="submitted"
+    ).order_by(TestAttempt.id.desc()).all()
+
     for att in all_submitted:
         if att.test_id not in submitted_attempts:
             submitted_attempts[att.test_id] = att
@@ -131,6 +138,7 @@ def test_instructions_page(test_id):
     student_required()
 
     test = Test.query.get_or_404(test_id)
+
     if test.status != "published":
         flash("This test is not available.", "danger")
         return redirect(url_for("student.tests_page"))
@@ -164,8 +172,14 @@ def start_test_attempt(test_id):
     student_required()
 
     test = Test.query.get_or_404(test_id)
+
     if test.status != "published":
         flash("This test is not available.", "danger")
+        return redirect(url_for("student.tests_page"))
+
+    question_count = TestQuestion.query.filter_by(test_id=test.id).count()
+    if question_count == 0:
+        flash("This test has no questions yet.", "danger")
         return redirect(url_for("student.tests_page"))
 
     ongoing_attempt = TestAttempt.query.filter_by(
@@ -211,9 +225,9 @@ def attempt_page(attempt_id):
 
     question_number = request.args.get("q", type=int, default=1)
 
-    test_questions = TestQuestion.query.filter_by(test_id=attempt.test_id).order_by(
-        TestQuestion.display_order.asc()
-    ).all()
+    test_questions = TestQuestion.query.filter_by(
+        test_id=attempt.test_id
+    ).order_by(TestQuestion.display_order.asc()).all()
 
     if not test_questions:
         flash("This test has no questions.", "danger")
@@ -250,7 +264,6 @@ def attempt_page(attempt_id):
         if selected_option:
             answered_count += 1
 
-        state = "not_visited"
         if marked_for_review and selected_option:
             state = "review_answered"
         elif marked_for_review and not selected_option:
@@ -292,6 +305,7 @@ def save_answer(attempt_id):
     student_required()
 
     attempt = TestAttempt.query.get_or_404(attempt_id)
+
     if attempt.student_id != current_user.id:
         abort(403)
 
@@ -344,6 +358,7 @@ def submit_attempt(attempt_id):
     student_required()
 
     attempt = TestAttempt.query.get_or_404(attempt_id)
+
     if attempt.student_id != current_user.id:
         abort(403)
 
@@ -363,6 +378,7 @@ def result_page(attempt_id):
     student_required()
 
     attempt = TestAttempt.query.get_or_404(attempt_id)
+
     if attempt.student_id != current_user.id:
         abort(403)
 
@@ -373,9 +389,9 @@ def result_page(attempt_id):
             flash("Complete and submit your test first.", "danger")
             return redirect(url_for("student.attempt_page", attempt_id=attempt.id))
 
-    test_questions = TestQuestion.query.filter_by(test_id=attempt.test_id).order_by(
-        TestQuestion.display_order.asc()
-    ).all()
+    test_questions = TestQuestion.query.filter_by(
+        test_id=attempt.test_id
+    ).order_by(TestQuestion.display_order.asc()).all()
 
     answer_map = {
         answer.question_id: answer
@@ -431,7 +447,13 @@ def result_page(attempt_id):
     if total_questions > 0:
         accuracy = round((attempt.correct_count / total_questions) * 100, 2)
 
-    time_taken_seconds = int((attempt.updated_at - attempt.created_at).total_seconds()) if attempt.updated_at and attempt.created_at else 0
+    duration_seconds = int((attempt.test.duration_minutes or 0) * 60)
+    remaining_seconds = get_attempt_remaining_seconds(attempt)
+    time_taken_seconds = max(0, duration_seconds - remaining_seconds)
+
+    if attempt.status == "submitted" and attempt.created_at:
+        raw_taken = int((datetime.utcnow() - attempt.created_at).total_seconds())
+        time_taken_seconds = min(duration_seconds, max(0, raw_taken))
 
     return render_template(
         "student_test_result.html",
