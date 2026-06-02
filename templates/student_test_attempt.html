@@ -77,10 +77,37 @@
     color: #475569;
   }
 
+  .chip.mode {
+    background: #ecfeff;
+    color: #155e75;
+  }
+
   .question-text {
     font-size: 18px;
     line-height: 1.7;
     color: #0f172a;
+  }
+
+  .attempt-warning {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .attempt-info {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+    line-height: 1.6;
+    font-size: 14px;
   }
 
   .option-list {
@@ -264,6 +291,11 @@
     font-weight: 800;
   }
 
+  .timer-box.warning {
+    background: #fff7ed;
+    color: #9a3412;
+  }
+
   .submit-modal {
     display: none;
     position: fixed;
@@ -365,7 +397,7 @@
       </div>
 
       <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-        <div class="timer-box">
+        <div class="timer-box" id="timer-box">
           ⏰
           <span id="time-remaining" data-seconds="{{ remaining_seconds }}">00:00:00</span>
         </div>
@@ -381,6 +413,7 @@
             <span class="chip subject">{{ current_question.subject.name if current_question.subject else 'Subject' }}</span>
             <span class="chip difficulty">{{ current_question.difficulty_level|title }}</span>
             <span class="chip chapter">{{ current_question.chapter.name if current_question.chapter else 'Chapter' }}</span>
+            <span class="chip mode">{{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}</span>
           </div>
         </div>
 
@@ -394,6 +427,20 @@
                 alt="Question image"
                 style="max-width:100%; border-radius:16px; border:1px solid #e5e7eb;"
               >
+            </div>
+          {% endif %}
+
+          <div class="attempt-warning">
+            The timer is running continuously and this attempt will auto-submit when time ends. Do not leave this test unless you are ready to finish within the remaining time. [web:877][web:882][web:896]
+          </div>
+
+          {% if test.schedule_type == 'fixed_start' %}
+            <div class="attempt-info">
+              This is a fixed start test. Your remaining time is being calculated from the scheduled rules for this exam. [web:885]
+            </div>
+          {% elif test.schedule_type == 'window' %}
+            <div class="attempt-info">
+              This attempt started inside an allowed time window. Your submission must still happen before the valid expiry time. [web:876][web:882]
             </div>
           {% endif %}
 
@@ -458,6 +505,10 @@
           <div class="legend-item"><span class="legend-dot" style="background:#9333ea;"></span> Review</div>
         </div>
 
+        <div class="attempt-info" style="margin-top:0;">
+          Use the navigator to move between questions. Your answer sheet flow and question numbering stay available throughout the attempt. [cite:888]
+        </div>
+
         {% for subject_name, questions in subject_groups.items() %}
           <div class="palette-subject">
             <div style="font-weight:800; color:#0f172a;">{{ subject_name }} ({{ questions|length }})</div>
@@ -501,6 +552,10 @@
       </div>
     </div>
 
+    <div class="attempt-warning" style="margin:0 0 18px;">
+      Once submitted, this attempt cannot be edited. If time reaches zero, the system will submit automatically. [web:877][web:882]
+    </div>
+
     <div style="display:flex; justify-content:flex-end; gap:12px; flex-wrap:wrap;">
       <button type="button" class="btn-light" id="close-submit-modal">Continue Test</button>
 
@@ -516,6 +571,7 @@
 <script>
   (function () {
     const timerEl = document.getElementById("time-remaining");
+    const timerBox = document.getElementById("timer-box");
     const submitModal = document.getElementById("submitModal");
     const openSubmitModal = document.getElementById("open-submit-modal");
     const closeSubmitModal = document.getElementById("close-submit-modal");
@@ -534,7 +590,18 @@
       let seconds = parseInt(timerEl.dataset.seconds || "0", 10);
       let timerRef = null;
 
+      function syncTimerStyle() {
+        if (!timerBox) return;
+        if (seconds <= 300) {
+          timerBox.classList.add("warning");
+        } else {
+          timerBox.classList.remove("warning");
+        }
+      }
+
       function tick() {
+        syncTimerStyle();
+
         if (seconds <= 0) {
           timerEl.textContent = "00:00:00";
           if (timerRef) {
