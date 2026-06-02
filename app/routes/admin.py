@@ -55,6 +55,84 @@ def save_uploaded_image(file_storage, subfolder="questions"):
     return f"uploads/{subfolder}/{new_filename}"
 
 
+def utc_now():
+    return datetime.utcnow()
+
+
+def parse_datetime_local(value):
+    value = (value or "").strip()
+    if not value:
+        return None
+
+    for fmt in ["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"]:
+        try:
+            return datetime.strptime(value, fmt)
+        except ValueError:
+            continue
+
+    return None
+
+
+def get_test_subject_counts(test):
+    subject_counts = {
+        "Physics": 0,
+        "Chemistry": 0,
+        "Biology": 0,
+    }
+
+    total_questions = 0
+    total_selected_marks = 0.0
+
+    for item in test.test_questions:
+        total_questions += 1
+        total_selected_marks += float(item.marks or 0)
+
+        if item.question and item.question.subject:
+            subject_name = (item.question.subject.name or "").strip()
+            if subject_name in subject_counts:
+                subject_counts[subject_name] += 1
+
+    return subject_counts, total_questions, total_selected_marks
+
+
+def validate_test_publishable(test):
+    subject_counts, total_questions, _ = get_test_subject_counts(test)
+
+    test_mode = (getattr(test, "test_mode", "custom") or "custom").strip().lower()
+    schedule_type = (getattr(test, "schedule_type", "instant") or "instant").strip().lower()
+
+    if total_questions <= 0:
+        return False, "Cannot publish. Add at least 1 question first."
+
+    if test_mode == "neet_full":
+        if (
+            subject_counts["Physics"] < 45 or
+            subject_counts["Chemistry"] < 45 or
+            subject_counts["Biology"] < 90
+        ):
+            return False, "Cannot publish. Required minimum: Physics 45, Chemistry 45, Biology 90."
+
+    if schedule_type == "fixed_start":
+        if not getattr(test, "start_at", None):
+            return False, "Cannot publish. Start time is required for fixed start tests."
+        if getattr(test, "end_at", None) and test.end_at <= test.start_at:
+            return False, "Cannot publish. End time must be after start time."
+
+    elif schedule_type == "window":
+        if not getattr(test, "start_at", None) or not getattr(test, "end_at", None):
+            return False, "Cannot publish. Start time and end time are required for window tests."
+        if test.end_at <= test.start_at:
+            return False, "Cannot publish. End time must be after start time."
+        exam_duration_seconds = int((test.duration_minutes or 0) * 60)
+        window_seconds = int((test.end_at - test.start_at).total_seconds())
+        if window_seconds <= 0:
+            return False, "Cannot publish. Invalid test window."
+        if exam_duration_seconds > window_seconds:
+            return False, "Cannot publish. Duration cannot be longer than the available window."
+
+    return True, "Test is publishable."
+
+
 @admin_bp.route("/")
 @login_required
 def dashboard():
@@ -572,11 +650,18 @@ def tests_page():
         try:
             title = (request.form.get("title") or "").strip()
             test_type = (request.form.get("test_type") or "mock").strip().lower()
+            test_mode = (request.form.get("test_mode") or "custom").strip().lower()
             instructions = (request.form.get("description") or "").strip()
             duration_minutes = request.form.get("duration_minutes", type=int)
             total_marks = request.form.get("total_marks", type=int)
             negative_marks = request.form.get("negative_marks", type=float)
             batch_id = request.form.get("batch_id", type=int)
+
+            schedule_type = (request.form.get("schedule_type") or "instant").strip().lower()
+            start_at_raw = request.form.get("start_at")
+            end_at_raw = request.form.get("end_at")
+            max_attempts = request.form.get("max_attempts", type=int)
+            is_resume_allowed = (request.form.get("is_resume_allowed") or "").strip() in ["1", "true", "on", "yes"]
 
             if not title:
                 flash("Test name is required.", "danger")
@@ -584,6 +669,12 @@ def tests_page():
 
             if test_type not in ["chapter", "subject", "monthly", "mock", "full_syllabus"]:
                 test_type = "mock"
+
+            if test_mode not in ["neet_full", "quick_test", "custom"]:
+                test_mode = "custom"
+
+            if schedule_type not in ["instant", "fixed_start", "window"]:
+                schedule_type = "instant"
 
             if not duration_minutes or duration_minutes < 1:
                 flash("Duration must be at least 1 minute.", "danger")
@@ -596,6 +687,28 @@ def tests_page():
             if negative_marks is None or negative_marks < 0:
                 flash("Negative marks cannot be negative.", "danger")
                 return redirect(url_for("admin.tests_page"))
+
+            if not max_attempts or max_attempts < 1:
+                max_attempts = 1
+
+            start_at = parse_datetime_local(start_at_raw)
+            end_at = parse_datetime_local(end_at_raw)
+
+            if schedule_type == "fixed_start":
+                if not start_at:
+                    flash("Start time is required for fixed start tests.", "danger")
+                    return redirect(url_for("admin.tests_page"))
+                if end_at and end_at <= start_at:
+                    flash("End time must be after start time.", "danger")
+                    return redirect(url_for("admin.tests_page"))
+
+            if schedule_type == "window":
+                if not start_at or not end_at:
+                    flash("Start time and end time are required for window tests.", "danger")
+                    return redirect(url_for("admin.tests_page"))
+                if end_at <= start_at:
+                    flash("End time must be after start time.", "danger")
+                    return redirect(url_for("admin.tests_page"))
 
             selected_batch = None
             if batch_id:
@@ -621,6 +734,27 @@ def tests_page():
 
             if hasattr(Test, "institute_id"):
                 test.institute_id = getattr(current_user, "institute_id", None)
+
+            if hasattr(Test, "test_mode"):
+                test.test_mode = test_mode
+
+            if hasattr(Test, "schedule_type"):
+                test.schedule_type = schedule_type
+
+            if hasattr(Test, "start_at"):
+                test.start_at = start_at
+
+            if hasattr(Test, "end_at"):
+                test.end_at = end_at
+
+            if hasattr(Test, "max_attempts"):
+                test.max_attempts = max_attempts
+
+            if hasattr(Test, "is_resume_allowed"):
+                test.is_resume_allowed = is_resume_allowed
+
+            if hasattr(Test, "auto_submit_on_expiry"):
+                test.auto_submit_on_expiry = True
 
             db.session.add(test)
             db.session.commit()
@@ -652,22 +786,7 @@ def test_builder_page(test_id):
         "Biology": 90,
     }
 
-    subject_counts = {
-        "Physics": 0,
-        "Chemistry": 0,
-        "Biology": 0,
-    }
-
-    total_selected_marks = 0.0
-
-    for item in linked_questions:
-        if item.question and item.question.subject:
-            subject_name = (item.question.subject.name or "").strip()
-            if subject_name in subject_counts:
-                subject_counts[subject_name] += 1
-        total_selected_marks += float(item.marks or 0)
-
-    total_selected_questions = sum(subject_counts.values())
+    subject_counts, total_selected_questions, total_selected_marks = get_test_subject_counts(test)
 
     return render_template(
         "admin_test_builder.html",
@@ -862,17 +981,7 @@ def test_builder_subject_page(test_id, subject_name):
         "Biology": 90,
     }
 
-    subject_counts = {
-        "Physics": 0,
-        "Chemistry": 0,
-        "Biology": 0,
-    }
-
-    for item in linked_questions:
-        if item.question and item.question.subject:
-            q_subject_name = (item.question.subject.name or "").strip()
-            if q_subject_name in subject_counts:
-                subject_counts[q_subject_name] += 1
+    subject_counts, _, _ = get_test_subject_counts(test)
 
     current_subject_selected = subject_counts.get(selected_subject_name, 0)
     current_subject_target = subject_targets.get(selected_subject_name, 0)
@@ -905,23 +1014,16 @@ def publish_test(test_id):
     admin_required()
     test = Test.query.get_or_404(test_id)
 
-    subject_counts = {
-        "Physics": 0,
-        "Chemistry": 0,
-        "Biology": 0,
-    }
-
-    for item in test.test_questions:
-        if item.question and item.question.subject:
-            subject_name = (item.question.subject.name or "").strip()
-            if subject_name in subject_counts:
-                subject_counts[subject_name] += 1
-
-    if subject_counts["Physics"] < 45 or subject_counts["Chemistry"] < 45 or subject_counts["Biology"] < 90:
-        flash("Cannot publish. Required minimum: Physics 45, Chemistry 45, Biology 90.", "danger")
+    is_valid, message = validate_test_publishable(test)
+    if not is_valid:
+        flash(message, "danger")
         return redirect(url_for("admin.test_builder_page", test_id=test.id))
 
     test.status = "published"
+
+    if hasattr(test, "published_at"):
+        test.published_at = utc_now()
+
     db.session.commit()
     flash("Test published successfully.", "success")
     return redirect(url_for("admin.tests_page"))
@@ -949,22 +1051,11 @@ def delete_test_question(test_id, link_id):
 
     test = Test.query.get(test_id)
     if test and test.status == "published":
-        subject_counts = {
-            "Physics": 0,
-            "Chemistry": 0,
-            "Biology": 0,
-        }
-
-        for item in test.test_questions:
-            if item.question and item.question.subject:
-                subject_name = (item.question.subject.name or "").strip()
-                if subject_name in subject_counts:
-                    subject_counts[subject_name] += 1
-
-        if subject_counts["Physics"] < 45 or subject_counts["Chemistry"] < 45 or subject_counts["Biology"] < 90:
+        is_valid, message = validate_test_publishable(test)
+        if not is_valid:
             test.status = "draft"
             db.session.commit()
-            flash("Question removed. Test moved back to draft because NEET subject requirement is no longer complete.", "success")
+            flash(f"Question removed. Test moved back to draft. {message}", "success")
             return redirect(url_for("admin.test_builder_page", test_id=test_id))
 
     flash("Question removed from test.", "success")
