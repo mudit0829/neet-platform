@@ -10,6 +10,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]'], ['$$', '$$']],
+        processEscapes: true,
+        packages: {'[+]': ['noerrors', 'noundefined']}
+      },
+      svg: {
+        fontCache: 'global'
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
   {% block head_extra %}{% endblock %}
 
   <style>
@@ -484,6 +502,34 @@
     font-size: 14px;
   }
 
+  .math-content {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .math-content mjx-container {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .math-input-help {
+    margin-top: 6px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .math-preview-box {
+    margin-top: 8px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border-soft);
+    background: #f8fbff;
+    color: var(--text);
+  }
+
   @media (max-width: 1100px) {
     .content-grid {
       grid-template-columns: 1fr;
@@ -545,7 +591,7 @@
       width: 100%;
     }
   }
-</style>
+  </style>
 </head>
 <body>
   {% set is_admin = current_user.is_authenticated and request.path.startswith('/admin') %}
@@ -610,18 +656,15 @@
             <span>Tests</span>
           </a>
         </div>
+
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Analytics</div>
+          <a class="nav-item {% if '/admin/analytics' in request.path %}active{% endif %}" href="{{ url_for('admin.analytics_overview_page') }}">
+            <span class="nav-bullet"></span>
+            <span>Analytics</span>
+          </a>
+        </div>
       </nav>
-
-      <div class="sidebar-group">
-        <div class="sidebar-group-label">Analytics</div>
-        <a class="nav-item {% if '/admin/analytics' in request.path %}active{% endif %}" href="{{ url_for('admin.analytics_overview_page') }}">
-          <span class="nav-bullet"></span>
-          <span>Analytics</span>
-        </a>
-     </div>
-     </nav>
-
-<div class="sidebar-footer">
 
       <div class="sidebar-footer">
         <a class="btn btn-secondary btn-block" href="{{ url_for('auth.logout') }}">Logout</a>
@@ -678,6 +721,8 @@
               Question Bank
             {% elif '/admin/tests' in request.path %}
               Tests
+            {% elif '/admin/analytics' in request.path %}
+              Analytics
             {% else %}
               Admin Panel
             {% endif %}
@@ -755,6 +800,62 @@
       {% block content %}{% endblock %}
     </main>
   </div>
+
+  <script>
+    window.renderMathIn = function(target) {
+      if (!target || !window.MathJax || !window.MathJax.typesetPromise) return;
+      window.MathJax.typesetClear && window.MathJax.typesetClear([target]);
+      window.MathJax.typesetPromise([target]).catch(function (err) {
+        console.error('MathJax rendering error:', err);
+      });
+    };
+
+    window.renderMathEverywhere = function() {
+      if (!window.MathJax || !window.MathJax.typesetPromise) return;
+      window.MathJax.typesetPromise().catch(function (err) {
+        console.error('MathJax rendering error:', err);
+      });
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      window.renderMathEverywhere();
+
+      document.querySelectorAll('[data-math-source][data-math-preview]').forEach(function (input) {
+        var previewSelector = input.getAttribute('data-math-preview');
+        var preview = document.querySelector(previewSelector);
+        if (!preview) return;
+
+        var syncPreview = function () {
+          var value = input.value || '';
+          preview.innerHTML = value
+            ? value.replace(/\n/g, '<br>')
+            : '<span style="color:#94a3b8;">Live preview for formulas will appear here.</span>';
+          window.renderMathIn(preview);
+        };
+
+        input.addEventListener('input', syncPreview);
+        input.addEventListener('change', syncPreview);
+        syncPreview();
+      });
+
+      var observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+          mutation.addedNodes.forEach(function (node) {
+            if (node.nodeType === 1) {
+              if (
+                node.matches('.modal, .modal-content, .question-preview-modal, [data-render-math]') ||
+                node.querySelector('.math-content, [data-render-math], .modal, .modal-content, .question-preview-modal')
+              ) {
+                window.renderMathIn(node);
+              }
+            }
+          });
+        });
+      });
+
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  </script>
 
   {% block scripts %}{% endblock %}
 </body>
