@@ -1,50 +1,502 @@
 {% extends "base.html" %}
 {% block title %}{{ test.title }} Analytics{% endblock %}
+
 {% block content %}
-<section class="dashboard-wrap">
-  <div class="dashboard-header-card">
-    <h1>{{ test.title }}</h1>
-    <p class="text-muted">Participants: {{ participants_count }} | Average Score: {{ avg_score }}</p>
+<section class="dashboard-wrap analytics-test-detail-page">
+  <style>
+    .analytics-test-detail-page {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .test-analytics-hero {
+      background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
+      border: 1px solid #e5edf6;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .test-analytics-hero-main h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.03em;
+    }
+
+    .test-analytics-hero-sub {
+      margin-top: 10px;
+      color: #64748b;
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: #eef4ff;
+      border: 1px solid #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .test-analytics-hero-side {
+      min-width: 260px;
+      max-width: 350px;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #e5edf6;
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .hero-side-label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .hero-side-value {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .hero-side-sub {
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .test-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .test-kpi-card {
+      background: #ffffff;
+      border: 1px solid #e8eef7;
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+    }
+
+    .test-kpi-label {
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .test-kpi-value {
+      color: #0f172a;
+      font-size: 1.9rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .test-kpi-sub {
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .test-panel {
+      background: #ffffff;
+      border: 1px solid #e8eef7;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+    }
+
+    .test-panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .test-panel-head h3 {
+      margin: 0;
+      color: #0f172a;
+      font-size: 1.12rem;
+      font-weight: 800;
+    }
+
+    .test-panel-head p {
+      margin: 6px 0 0;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .soft-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .attempt-table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e8eef7;
+      border-radius: 18px;
+    }
+
+    .attempt-table {
+      width: 100%;
+      min-width: 1260px;
+      border-collapse: collapse;
+      background: #ffffff;
+    }
+
+    .attempt-table thead th {
+      text-align: left;
+      background: #f8fbff;
+      color: #64748b;
+      padding: 14px 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.78rem;
+      font-weight: 800;
+      border-bottom: 1px solid #e5edf6;
+      white-space: nowrap;
+    }
+
+    .attempt-table tbody td {
+      padding: 16px;
+      border-bottom: 1px solid #eef2f7;
+      vertical-align: middle;
+      color: #0f172a;
+      font-size: 0.94rem;
+    }
+
+    .attempt-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .attempt-table tbody tr:hover {
+      background: #fbfdff;
+    }
+
+    .metric-main {
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .metric-muted {
+      color: #64748b;
+      font-size: 0.86rem;
+      margin-top: 4px;
+    }
+
+    .leader-rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 46px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .batch-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .score-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 11px;
+      border-radius: 12px;
+      background: #ecfeff;
+      color: #0f766e;
+      font-weight: 800;
+      font-size: 0.86rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px;
+      border-radius: 18px;
+      border: 1px dashed #dbe4ef;
+      background: #fbfdff;
+      color: #64748b;
+      font-size: 0.96rem;
+    }
+
+    @media (max-width: 1200px) {
+      .test-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .test-analytics-hero,
+      .test-kpi-card,
+      .test-panel {
+        padding: 18px;
+      }
+
+      .test-kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .test-analytics-hero-main h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+
+  {% set total_attempts = total_attempts|default(attempts|length) %}
+  {% set avg_score = avg_score|default(0) %}
+  {% set highest_score = highest_score|default(0) %}
+  {% set lowest_score = lowest_score|default(0) %}
+  {% set avg_accuracy = avg_accuracy|default(0) %}
+  {% set avg_percentile = avg_percentile|default(0) %}
+  {% set best_rank = best_rank|default(None) %}
+  {% set avg_time_taken_seconds = avg_time_taken_seconds|default(0) %}
+
+  <div class="test-analytics-hero">
+    <div class="test-analytics-hero-main">
+      <h1>{{ test.title }}</h1>
+      <div class="test-analytics-hero-sub">
+        Detailed assessment analytics for leaderboard review, student comparison, and result interpretation.
+      </div>
+
+      <div class="hero-tags">
+        <span class="hero-tag">Leaderboard</span>
+        <span class="hero-tag">Score visibility</span>
+        <span class="hero-tag">Percentile view</span>
+        <span class="hero-tag">Attempt insights</span>
+      </div>
+    </div>
+
+    <div class="test-analytics-hero-side">
+      <div class="hero-side-label">Participation</div>
+      <div class="hero-side-value">{{ total_attempts }}</div>
+      <div class="hero-side-sub">
+        Submitted participant attempts recorded for this test.
+      </div>
+    </div>
   </div>
 
-  <div class="panel-card-soft">
-    <h3 style="margin-top:0;">Leaderboard</h3>
-    <div style="overflow-x:auto; margin-top:16px;">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Student</th>
-            <th>Batch</th>
-            <th>Score</th>
-            <th>Correct</th>
-            <th>Wrong</th>
-            <th>Skipped</th>
-            <th>Percentile</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for attempt in attempts %}
-            <tr>
-              <td>#{{ attempt.rank_overall or '-' }}</td>
-              <td>{{ attempt.student.full_name if attempt.student else '-' }}</td>
-              <td>{{ attempt.student.batch.name if attempt.student and attempt.student.batch else '-' }}</td>
-              <td>{{ attempt.total_score }}</td>
-              <td>{{ attempt.correct_count }}</td>
-              <td>{{ attempt.wrong_count }}</td>
-              <td>{{ attempt.skipped_count }}</td>
-              <td>{{ attempt.percentile_overall if attempt.percentile_overall is not none else '-' }}</td>
-              <td>{{ attempt.time_taken_seconds or 0 }}s</td>
-            </tr>
-          {% else %}
-            <tr>
-              <td colspan="9">No submitted attempts yet.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="test-kpi-grid">
+    <div class="test-kpi-card">
+      <div class="test-kpi-label">Average Score</div>
+      <div class="test-kpi-value">{{ avg_score }}</div>
+      <div class="test-kpi-sub">Mean score across submitted attempts.</div>
     </div>
+
+    <div class="test-kpi-card">
+      <div class="test-kpi-label">Highest Score</div>
+      <div class="test-kpi-value">{{ highest_score }}</div>
+      <div class="test-kpi-sub">Best score achieved in this test.</div>
+    </div>
+
+    <div class="test-kpi-card">
+      <div class="test-kpi-label">Lowest Score</div>
+      <div class="test-kpi-value">{{ lowest_score }}</div>
+      <div class="test-kpi-sub">Lowest recorded submitted score.</div>
+    </div>
+
+    <div class="test-kpi-card">
+      <div class="test-kpi-label">Average Accuracy</div>
+      <div class="test-kpi-value">{{ avg_accuracy }}%</div>
+      <div class="test-kpi-sub">Correct answers as a share of evaluated responses.</div>
+    </div>
+
+    <div class="test-kpi-card">
+      <div class="test-kpi-label">Best Rank</div>
+      <div class="test-kpi-value">
+        {% if best_rank is not none %}#{{ best_rank }}{% else %}-{% endif %}
+      </div>
+      <div class="test-kpi-sub">Best overall rank present in available submitted records.</div>
+    </div>
+  </div>
+
+  <div class="test-panel">
+    <div class="test-panel-head">
+      <div>
+        <h3>Leaderboard</h3>
+        <p>Ranked participant-level attempt records with batch, score, accuracy, percentile, and time taken.</p>
+      </div>
+      <span class="soft-chip">
+        Avg percentile:
+        {% if avg_percentile is not none %}
+          {{ avg_percentile }}
+        {% else %}
+          -
+        {% endif %}
+      </span>
+    </div>
+
+    {% if attempts %}
+      <div class="attempt-table-wrap">
+        <table class="attempt-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Student</th>
+              <th>Batch</th>
+              <th>Score</th>
+              <th>Correct</th>
+              <th>Wrong</th>
+              <th>Skipped</th>
+              <th>Accuracy</th>
+              <th>Percentile</th>
+              <th>Batch Rank</th>
+              <th>Time</th>
+              <th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for attempt in attempts %}
+              <tr>
+                <td>
+                  {% if attempt.safe_rank_overall is not none %}
+                    <span class="leader-rank">#{{ attempt.safe_rank_overall }}</span>
+                  {% else %}
+                    <span class="metric-main">-</span>
+                  {% endif %}
+                </td>
+
+                <td>
+                  <div class="metric-main">
+                    {{ attempt.student.full_name if attempt.student else '-' }}
+                  </div>
+                  <div class="metric-muted">
+                    Attempt ID: {{ attempt.id }}
+                  </div>
+                </td>
+
+                <td>
+                  {% if attempt.student and attempt.student.batch %}
+                    <span class="batch-pill">{{ attempt.student.batch.name }}</span>
+                  {% else %}
+                    <span class="metric-main">-</span>
+                  {% endif %}
+                </td>
+
+                <td>
+                  <span class="score-pill">{{ attempt.total_score|default(0) }}</span>
+                </td>
+
+                <td>
+                  <div class="metric-main">{{ attempt.correct_count|default(0) }}</div>
+                  <div class="metric-muted">Correct</div>
+                </td>
+
+                <td>
+                  <div class="metric-main">{{ attempt.wrong_count|default(0) }}</div>
+                  <div class="metric-muted">Wrong</div>
+                </td>
+
+                <td>
+                  <div class="metric-main">{{ attempt.skipped_count|default(0) }}</div>
+                  <div class="metric-muted">Skipped</div>
+                </td>
+
+                <td>
+                  <div class="metric-main">{{ attempt.safe_accuracy|default(0) }}%</div>
+                  <div class="metric-muted">Accuracy</div>
+                </td>
+
+                <td>
+                  <div class="metric-main">
+                    {% if attempt.safe_percentile_overall is not none %}
+                      {{ attempt.safe_percentile_overall }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </div>
+                  <div class="metric-muted">Overall percentile</div>
+                </td>
+
+                <td>
+                  <div class="metric-main">
+                    {% if attempt.safe_rank_batch is not none %}
+                      #{{ attempt.safe_rank_batch }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </div>
+                  <div class="metric-muted">Batch rank</div>
+                </td>
+
+                <td>
+                  <div class="metric-main">{{ attempt.safe_time_taken_seconds|default(0) }}s</div>
+                  <div class="metric-muted">
+                    Avg test time: {{ avg_time_taken_seconds }}s
+                  </div>
+                </td>
+
+                <td>
+                  <div class="metric-main">
+                    {{ attempt.submitted_at.strftime('%d %b %Y') if attempt.submitted_at else '-' }}
+                  </div>
+                  <div class="metric-muted">
+                    {{ attempt.submitted_at.strftime('%I:%M %p') if attempt.submitted_at else '' }}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        No submitted attempts are available for this test yet.
+      </div>
+    {% endif %}
   </div>
 </section>
 {% endblock %}
