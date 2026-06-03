@@ -415,18 +415,18 @@ def build_student_overview(student_id):
     percentile_values = []
     rank_history = []
 
-   for attempt in attempts:
-       if attempt.percentile_overall is not None:
-           percentile_values.append(float(attempt.percentile_overall))
+    for attempt in attempts:
+        if attempt.percentile_overall is not None:
+            percentile_values.append(float(attempt.percentile_overall))
 
-       rank_history.append({
-           "attempt_id": attempt.id,
-           "test_title": attempt.test.title if attempt.test else "Test",
-           "rank_overall": attempt.rank_overall,
-           "percentile_overall": attempt.percentile_overall,
-           "score": float(attempt.total_score or 0),
-           "submitted_at": attempt.submitted_at,
-       })
+        rank_history.append({
+            "attempt_id": attempt.id,
+            "test_title": attempt.test.title if attempt.test else "Test",
+            "rank_overall": attempt.rank_overall,
+            "percentile_overall": attempt.percentile_overall,
+            "score": float(attempt.total_score or 0),
+            "submitted_at": attempt.submitted_at,
+        })
 
     for attempt in attempts:
         test_questions, subject_stats, _, _ = build_attempt_analytics(attempt)
@@ -471,8 +471,13 @@ def build_student_overview(student_id):
         overview["strongest_subject"] = strongest
         overview["weakest_subject"] = weakest
 
-    return overview
+    valid_ranks = [a.rank_overall for a in attempts if a.rank_overall is not None]
+    overview["best_rank"] = min(valid_ranks) if valid_ranks else None
+    overview["latest_rank"] = attempts[0].rank_overall if attempts and attempts[0].rank_overall is not None else None
+    overview["avg_percentile"] = round(sum(percentile_values) / len(percentile_values), 2) if percentile_values else 0.0
+    overview["rank_history"] = rank_history[:10]
 
+    return overview
 
 @student_bp.route("/dashboard")
 @login_required
