@@ -1066,32 +1066,320 @@ def delete_test_question(test_id, link_id):
 def analytics_overview_page():
     admin_required()
 
-    total_submitted = TestAttempt.query.filter_by(status="submitted").count()
-    total_tests = Test.query.count()
+    institute_id = getattr(current_user, "institute_id", None)
 
-    avg_score = db.session.query(db.func.avg(TestAttempt.total_score)).filter(
-        TestAttempt.status == "submitted"
-    ).scalar() or 0
+    student_query = User.query.filter_by(role="student")
+    batch_query = Batch.query
+    test_query = Test.query
+    attempt_query = TestAttempt.query.filter_by(status="submitted")
 
-    avg_accuracy = 0
-    submitted_attempts = TestAttempt.query.filter_by(status="submitted").all()
-    if submitted_attempts:
-        total_correct = sum(int(a.correct_count or 0) for a in submitted_attempts)
-        total_answered_plus_skipped = sum(
-            int((a.correct_count or 0) + (a.wrong_count or 0) + (a.skipped_count or 0))
-            for a in submitted_attempts
+    if institute_id:
+        if hasattr(User, "institute_id"):
+            student_query = student_query.filter(User.institute_id == institute_id)
+        if hasattr(Batch, "institute_id"):
+            batch_query = batch_query.filter(Batch.institute_id == institute_id)
+        if hasattr(Test, "institute_id"):
+            test_query = test_query.filter(Test.institute_id == institute_id)
+
+    students = student_query.all()
+    batches = batch_query.order_by(Batch.id.desc()).all()
+    tests = test_query.order_by(Test.id.desc()).all()
+
+    test_ids = [t.id for t in tests]
+    student_ids = [s.id for s in students]
+    batch_map = {b.id: b for b in batches}
+
+    if test_ids:
+        attempts = attempt_query.filter(TestAttempt.test_id.in_(test_ids)).all()
+    else:
+        attempts = []
+
+    if institute_id and not test_ids and student_ids:
+        attempts = attempt_query.filter(TestAttempt.student_id.in_(student_ids)).all()
+
+    total_students = len(students)
+    active_students = sum(1 for s in students if bool(getattr(s, "is_active_user", False)))
+    total_batches = len(batches)
+    total_tests = len(tests)
+    total_submitted = len(attempts)
+
+    avg_score = round(
+        sum(float(getattr(a, "total_score", 0) or 0) for a in attempts) / total_submitted,
+        2
+    ) if total_submitted else 0
+
+    total_correct = sum(int(getattr(a, "correct_count", 0) or 0) for a in attempts)
+    total_questions_seen = sum(
+        int(getattr(a, "correct_count", 0) or 0) +
+        int(getattr(a, "wrong_count", 0) or 0) +
+        int(getattr(a, "skipped_count", 0) or 0)
+        for a in attempts
+    )
+    avg_accuracy = round((total_correct / total_questions_seen) * 100, 2) if total_questions_seen else 0
+
+    percentile_values = []
+    for a in attempts:
+        percentile_overall = getattr(a, "percentile_overall", None)
+        if percentile_overall is not None:
+            try:
+                percentile_values.append(float(percentile_overall))
+            except (TypeError, ValueError):
+                pass
+    avg_percentile = round(sum(percentile_values) / len(percentile_values), 2) if percentile_values else 0
+
+    students_with_attempts = {getattr(a, "student_id", None) for a in attempts if getattr(a, "student_id", None)}
+    participation_rate = round((len(students_with_attempts) / total_students) * 100, 2) if total_students else 0
+
+    student_summary = {}
+    for student in students:
+        student_summary[student.id] = {
+            "student": student,
+            "attempts": [],
+            "scores": [],
+            "accuracies": [],
+            "percentiles": [],
+        }
+
+    for a in attempts:
+        sid = getattr(a, "student_id", None)
+        if sid not in student_summary:
+            continue
+
+        score = float(getattr(a, "total_score", 0) or 0)
+        correct = int(getattr(a, "correct_count", 0) or 0)
+        wrong = int(getattr(a, "wrong_count", 0) or 0)
+        skipped = int(getattr(a, "skipped_count", 0) or 0)
+        total = correct + wrong + skipped
+        accuracy = round((correct / total) * 100, 2) if total else 0
+
+        student_summary[sid]["attempts"].append(a)
+        student_summary[sid]["scores"].append(score)
+        student_summary[sid]["accuracies"].append(accuracy)
+
+        percentile_overall = getattr(a, "percentile_overall", None)
+        if percentile_overall is not None:
+            try:
+                student_summary[sid]["percentiles"].append(float(percentile_overall))
+            except (TypeError, ValueError):
+                pass
+
+    center_top_student = None
+    center_risk_student = None
+    risk_students = []
+
+    ranked_students = []
+
+    for sid, data in student_summary.items():
+        student = data["student"]
+        attempt_count = len(data["attempts"])
+        avg_student_score = round(sum(data["scores"]) / len(data["scores"]), 2) if data["scores"] else 0
+        avg_student_accuracy = round(sum(data["accuracies"]) / len(data["accuracies"]), 2) if data["accuracies"] else 0
+        avg_student_percentile = round(sum(data["percentiles"]) / len(data["percentiles"]), 2) if data["percentiles"] else 0
+
+        latest_score = data["scores"][-1] if data["scores"] else 0
+        recent_scores = data["scores"][-3:] if len(data["scores"]) >= 3 else data["scores"]
+        score_trend_down = False
+        if len(recent_scores) >= 2 and recent_scores[-1] < recent_scores[0]:
+            score_trend_down = True
+
+        batch_name = "Unassigned"
+        student_batch_id = getattr(student, "batch_id", None)
+        if student_batch_id in batch_map:
+            batch_name = batch_map[student_batch_id].name
+
+        ranked_students.append({
+            "student_id": student.id,
+            "full_name": getattr(student, "full_name", "Student"),
+            "batch_name": batch_name,
+            "attempt_count": attempt_count,
+            "avg_score": avg_student_score,
+            "avg_accuracy": avg_student_accuracy,
+            "avg_percentile": avg_student_percentile,
+            "latest_score": latest_score,
+            "score_trend_down": score_trend_down,
+            "is_active_user": bool(getattr(student, "is_active_user", False)),
+        })
+
+    ranked_students.sort(key=lambda x: (x["avg_score"], x["avg_accuracy"], x["attempt_count"]), reverse=True)
+
+    if ranked_students:
+        top_item = ranked_students[0]
+        center_top_student = {
+            "student_id": top_item["student_id"],
+            "full_name": top_item["full_name"],
+            "latest_score": top_item["latest_score"],
+            "percentile_overall": top_item["avg_percentile"],
+        }
+
+    risk_candidates = []
+    for item in ranked_students:
+        risk_level = "low"
+        if item["attempt_count"] == 0:
+            risk_level = "high"
+        elif item["avg_accuracy"] < 35 or item["avg_score"] < 120:
+            risk_level = "high"
+        elif item["avg_accuracy"] < 50 or item["score_trend_down"]:
+            risk_level = "medium"
+
+        enriched = {
+            **item,
+            "risk_level": risk_level,
+        }
+
+        if risk_level in ["high", "medium"]:
+            risk_candidates.append(enriched)
+
+    risk_order = {"high": 0, "medium": 1, "low": 2}
+    risk_candidates.sort(key=lambda x: (risk_order.get(x["risk_level"], 9), x["avg_accuracy"], x["avg_score"]))
+
+    risk_students = risk_candidates[:6]
+    if risk_students:
+        center_risk_student = risk_students[0]
+
+    batch_rows = []
+    best_batch = None
+    weakest_batch = None
+
+    for batch in batches:
+        batch_students = [s for s in students if getattr(s, "batch_id", None) == batch.id]
+        batch_student_ids = {s.id for s in batch_students}
+        batch_attempts = [a for a in attempts if getattr(a, "student_id", None) in batch_student_ids]
+
+        attempt_count = len(batch_attempts)
+        student_count = len(batch_students)
+
+        batch_avg_score = round(
+            sum(float(getattr(a, "total_score", 0) or 0) for a in batch_attempts) / attempt_count,
+            2
+        ) if attempt_count else 0
+
+        batch_correct = sum(int(getattr(a, "correct_count", 0) or 0) for a in batch_attempts)
+        batch_total_q = sum(
+            int(getattr(a, "correct_count", 0) or 0) +
+            int(getattr(a, "wrong_count", 0) or 0) +
+            int(getattr(a, "skipped_count", 0) or 0)
+            for a in batch_attempts
         )
-        if total_answered_plus_skipped > 0:
-            avg_accuracy = round((total_correct / total_answered_plus_skipped) * 100, 2)
+        batch_avg_accuracy = round((batch_correct / batch_total_q) * 100, 2) if batch_total_q else 0
 
-    recent_tests = Test.query.order_by(Test.id.desc()).limit(10).all()
+        batch_percentiles = []
+        for a in batch_attempts:
+            p = getattr(a, "percentile_overall", None)
+            if p is not None:
+                try:
+                    batch_percentiles.append(float(p))
+                except (TypeError, ValueError):
+                    pass
+        batch_avg_percentile = round(sum(batch_percentiles) / len(batch_percentiles), 2) if batch_percentiles else 0
+
+        participated_students = {getattr(a, "student_id", None) for a in batch_attempts if getattr(a, "student_id", None)}
+        batch_participation_rate = round((len(participated_students) / student_count) * 100, 2) if student_count else 0
+
+        row = {
+            "id": batch.id,
+            "name": getattr(batch, "name", "Unnamed Batch"),
+            "academic_year": getattr(batch, "academic_year", ""),
+            "student_count": student_count,
+            "attempt_count": attempt_count,
+            "avg_score": batch_avg_score,
+            "avg_accuracy": batch_avg_accuracy,
+            "avg_percentile": batch_avg_percentile,
+            "participation_rate": batch_participation_rate,
+        }
+        batch_rows.append(row)
+
+    batch_rows.sort(key=lambda x: (x["avg_score"], x["avg_accuracy"], x["participation_rate"]), reverse=True)
+
+    if batch_rows:
+        best_batch = batch_rows[0]
+        weakest_batch = sorted(
+            batch_rows,
+            key=lambda x: (x["avg_score"], x["avg_accuracy"], x["participation_rate"])
+        )[0]
+
+    weak_subject = "Not enough data"
+    subject_stats = {"Physics": [], "Chemistry": [], "Biology": []}
+
+    for a in attempts:
+        physics_score = getattr(a, "physics_score", None)
+        chemistry_score = getattr(a, "chemistry_score", None)
+        biology_score = getattr(a, "biology_score", None)
+
+        if physics_score is not None:
+            try:
+                subject_stats["Physics"].append(float(physics_score))
+            except (TypeError, ValueError):
+                pass
+
+        if chemistry_score is not None:
+            try:
+                subject_stats["Chemistry"].append(float(chemistry_score))
+            except (TypeError, ValueError):
+                pass
+
+        if biology_score is not None:
+            try:
+                subject_stats["Biology"].append(float(biology_score))
+            except (TypeError, ValueError):
+                pass
+
+    subject_avgs = []
+    for subject_name, values in subject_stats.items():
+        if values:
+            subject_avgs.append((subject_name, round(sum(values) / len(values), 2)))
+
+    if subject_avgs:
+        subject_avgs.sort(key=lambda x: x[1])
+        weak_subject = subject_avgs[0][0]
+
+    recent_test_rows = []
+    for test in tests[:8]:
+        test_attempts = [a for a in attempts if getattr(a, "test_id", None) == test.id]
+        participants_count = len(test_attempts)
+
+        test_avg_score = round(
+            sum(float(getattr(a, "total_score", 0) or 0) for a in test_attempts) / participants_count,
+            2
+        ) if participants_count else 0
+
+        test_correct = sum(int(getattr(a, "correct_count", 0) or 0) for a in test_attempts)
+        test_total_q = sum(
+            int(getattr(a, "correct_count", 0) or 0) +
+            int(getattr(a, "wrong_count", 0) or 0) +
+            int(getattr(a, "skipped_count", 0) or 0)
+            for a in test_attempts
+        )
+        test_avg_accuracy = round((test_correct / test_total_q) * 100, 2) if test_total_q else 0
+
+        recent_test_rows.append({
+            "id": test.id,
+            "title": getattr(test, "title", "Untitled Test"),
+            "participants_count": participants_count,
+            "avg_score": test_avg_score,
+            "avg_accuracy": test_avg_accuracy,
+        })
+
+    recent_tests = tests[:10]
 
     return render_template(
         "admin_analytics_overview.html",
-        total_submitted=total_submitted,
+        total_students=total_students,
+        active_students=active_students,
+        total_batches=total_batches,
         total_tests=total_tests,
-        avg_score=round(avg_score, 2),
+        total_submitted=total_submitted,
+        avg_score=avg_score,
         avg_accuracy=avg_accuracy,
+        avg_percentile=avg_percentile,
+        participation_rate=participation_rate,
+        best_batch=best_batch,
+        weakest_batch=weakest_batch,
+        center_top_student=center_top_student,
+        center_risk_student=center_risk_student,
+        weak_subject=weak_subject,
+        risk_students=risk_students,
+        batch_rows=batch_rows,
+        recent_test_rows=recent_test_rows,
         recent_tests=recent_tests,
     )
 
