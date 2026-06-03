@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+{% block title %}Performance Review{% endblock %}
+
+{% block content %}
+<style>
+  .perf-wrap {
+    display: grid;
+    gap: 20px;
+  }
+
+  .perf-hero {
+    background: linear-gradient(135deg, #0f766e 0%, #059669 48%, #2563eb 100%);
+    color: #ffffff;
+    border-radius: 28px;
+    padding: 28px;
+    box-shadow: 0 18px 40px rgba(5, 150, 105, 0.14);
+  }
+
+  .hero-title {
+    margin: 10px 0 6px;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+
+  .hero-subtitle {
+    margin: 0;
+    max-width: 780px;
+    line-height: 1.7;
+    opacity: 0.96;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+  }
+
+  .btn-main,
+  .btn-light {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: all 0.18s ease;
+  }
+
+  .btn-main {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  .btn-light {
+    background: rgba(255,255,255,0.14);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.18);
+  }
+
+  .btn-main:hover,
+  .btn-light:hover {
+    transform: translateY(-1px);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .stat-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  }
+
+  .stat-value {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    color: #0f172a;
+  }
+
+  .stat-label {
+    color: #64748b;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .layout-2 {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .panel-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  }
+
+  .panel-title {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .panel-subtitle {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.7;
+  }
+
+  .subject-row {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #eef2f7;
+  }
+
+  .subject-row:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .subject-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .subject-title {
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .subject-meta {
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  .bar {
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #059669, #2563eb);
+  }
+
+  .subject-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    color: #475569;
+    font-size: 14px;
+  }
+
+  .insight-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .insight-item {
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    line-height: 1.7;
+  }
+
+  .insight-good {
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+
+  .insight-warn {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #9a3412;
+  }
+
+  .attempt-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .attempt-item {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 16px 18px;
+  }
+
+  .attempt-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .attempt-title {
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .attempt-meta {
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .attempt-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .attempt-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+
+  .empty-box {
+    padding: 18px;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    line-height: 1.7;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 1100px) {
+    .stats-grid,
+    .layout-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .perf-hero,
+    .stat-card,
+    .panel-card,
+    .attempt-item {
+      padding: 18px;
+      border-radius: 18px;
+    }
+
+    .hero-title {
+      font-size: 26px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+    }
+  }
+</style>
+
+<section class="dashboard-wrap">
+  <div class="perf-wrap">
+    <div class="perf-hero">
+      <div class="topbar-chip" style="background:rgba(255,255,255,0.14); color:#ffffff; border:none;">Performance Review</div>
+      <h1 class="hero-title">Your Progress Overview</h1>
+      <p class="hero-subtitle">
+        This page brings together your completed test history, subject-wise accuracy, and time patterns so you can decide what to practice next. Learning analytics are most useful when they help students monitor progress and act on weak areas, not just view raw scores. [web:1014][web:1060]
+      </p>
+
+      <div class="hero-actions">
+        <a href="{{ url_for('student.dashboard') }}" class="btn-main">Back to Dashboard</a>
+        <a href="{{ url_for('student.tests_page') }}" class="btn-light">All Tests</a>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ overview.total_attempts }}</div>
+        <div class="stat-label">Completed submitted attempts in your account.</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">{{ overview.avg_score }}</div>
+        <div class="stat-label">Average score across completed attempts.</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">{{ overview.avg_accuracy }}%</div>
+        <div class="stat-label">Average accuracy across all evaluated questions.</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">{{ overview.total_time_spent_human }}</div>
+        <div class="stat-label">Total tracked time spent across reviewed attempts.</div>
+      </div>
+    </div>
+
+    <div class="layout-2">
+      <div class="panel-card">
+        <h2 class="panel-title">Subject Trends</h2>
+        <p class="panel-subtitle">Track long-term strengths and weak areas by subject. Clear subject-level summaries help learners prioritize revision and self-monitoring. [web:1014][web:1066]</p>
+
+        {% if overview.subject_rollup %}
+          {% for subject_name, stat in overview.subject_rollup.items() %}
+            <div class="subject-row">
+              <div class="subject-head">
+                <div class="subject-title">{{ subject_name }}</div>
+                <div class="subject-meta">{{ "%.0f"|format(stat.score) }} pts • {{ stat.correct }}/{{ stat.total }} correct</div>
+              </div>
+
+              <div class="bar">
+                <div class="bar-fill" style="width: {{ stat.accuracy }}%;"></div>
+              </div>
+
+              <div class="subject-foot">
+                <span>Accuracy: {{ stat.accuracy }}%</span>
+                <span>Time: {{ stat.time_spent_human }}</span>
+                <span>Avg / Question: {{ stat.avg_time_per_question }} sec</span>
+              </div>
+
+              <div class="subject-foot">
+                <span>✓ {{ stat.correct }} correct</span>
+                <span>✗ {{ stat.wrong }} wrong</span>
+                <span>- {{ stat.skipped }} skipped</span>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-box">
+            No completed attempts are available yet. Finish a test first to unlock subject-wise performance insights.
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="panel-card">
+        <h2 class="panel-title">Key Insights</h2>
+        <p class="panel-subtitle">Use these signals to decide what to revise next.</p>
+
+        <div class="insight-list">
+          <div class="insight-item">
+            <strong>Strongest subject:</strong>
+            {% if overview.strongest_subject %}
+              {{ overview.strongest_subject[0] }} with {{ overview.strongest_subject[1].accuracy }}% accuracy.
+            {% else %}
+              Not enough data yet.
+            {% endif %}
+          </div>
+
+          <div class="insight-item">
+            <strong>Weakest subject:</strong>
+            {% if overview.weakest_subject %}
+              {{ overview.weakest_subject[0] }} with {{ overview.weakest_subject[1].accuracy }}% accuracy.
+            {% else %}
+              Not enough data yet.
+            {% endif %}
+          </div>
+
+          <div class="insight-item insight-good">
+            <strong>Best next move:</strong>
+            {% if overview.strongest_subject %}
+              Keep your confidence high by maintaining performance in {{ overview.strongest_subject[0] }} while revising lower-scoring subjects.
+            {% else %}
+              Build your first baseline by completing one full test and reviewing the result.
+            {% endif %}
+          </div>
+
+          <div class="insight-item insight-warn">
+            <strong>Primary focus area:</strong>
+            {% if overview.weakest_subject %}
+              Spend more review time on {{ overview.weakest_subject[0] }}, especially questions where accuracy is low and time spent is high.
+            {% else %}
+              Once more attempts are available, this panel will point to your weakest subject automatically.
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <h2 class="panel-title">Recent Completed Tests</h2>
+      <p class="panel-subtitle">Open any attempt to revisit its result summary or question review.</p>
+
+      {% if attempts %}
+        <div class="attempt-list">
+          {% for attempt in attempts %}
+            <div class="attempt-item">
+              <div class="attempt-head">
+                <div class="attempt-title">{{ attempt.test.title if attempt.test else 'Test' }}</div>
+                <div class="topbar-chip">Score: {{ "%.0f"|format(attempt.total_score or 0) }}</div>
+              </div>
+
+              <div class="attempt-meta">
+                Correct: {{ attempt.correct_count or 0 }} • Wrong: {{ attempt.wrong_count or 0 }} •
+                Skipped: {{ attempt.skipped_count or 0 }} • Status: {{ attempt.status|title }}
+                {% if attempt.submitted_at %} • Submitted: {{ attempt.submitted_at.strftime('%d %b %Y %I:%M %p') }}{% endif %}
+              </div>
+
+              <div class="attempt-actions">
+                <a href="{{ url_for('student.result_page', attempt_id=attempt.id) }}" class="attempt-link">View Result</a>
+                <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="attempt-link">Open Review</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-box">
+          You do not have any submitted attempts yet, so there is no long-term performance history to show.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
