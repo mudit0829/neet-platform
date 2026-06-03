@@ -1,45 +1,798 @@
 {% extends "base.html" %}
-{% block title %}Admin Analytics{% endblock %}
+{% block title %}Admin Analytics Overview{% endblock %}
+
 {% block content %}
-<section class="dashboard-wrap">
-  <div class="dashboard-header-card">
-    <h1>Analytics Overview</h1>
-    <p class="text-muted">Review test performance, rankings, and student outcomes from one place.</p>
+<section class="dashboard-wrap analytics-overview-page">
+  <style>
+    .analytics-overview-page {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .analytics-hero {
+      background: linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
+      border: 1px solid #e4ebf5;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .analytics-hero h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.03em;
+    }
+
+    .analytics-hero p {
+      margin: 10px 0 0;
+      color: #64748b;
+      max-width: 760px;
+      line-height: 1.6;
+      font-size: 0.98rem;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #1e3a8a;
+      font-size: 0.86rem;
+      font-weight: 700;
+      border: 1px solid #dbe7ff;
+    }
+
+    .analytics-hero-side {
+      min-width: 260px;
+      max-width: 340px;
+      background: #ffffff;
+      border: 1px solid #e5edf6;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    .mini-meta-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .mini-meta-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .mini-meta-sub {
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .analytics-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .analytics-kpi-card {
+      background: #ffffff;
+      border: 1px solid #e7edf6;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .analytics-kpi-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 90px;
+      height: 90px;
+      background: radial-gradient(circle at top right, rgba(59,130,246,0.10), transparent 70%);
+      pointer-events: none;
+    }
+
+    .analytics-kpi-label {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .analytics-kpi-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .analytics-kpi-sub {
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .analytics-layout-two {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+    }
+
+    .analytics-card {
+      background: #ffffff;
+      border: 1px solid #e8eef7;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+    }
+
+    .analytics-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .analytics-card-head h3 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .analytics-card-head p {
+      margin: 6px 0 0;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .analytics-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .health-tile {
+      border: 1px solid #e6edf6;
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .health-label {
+      color: #94a3b8;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .health-value {
+      color: #0f172a;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .health-sub {
+      color: #64748b;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .attention-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .attention-item {
+      border: 1px solid #e7edf6;
+      border-radius: 18px;
+      padding: 16px;
+      background: #fcfdff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .attention-name {
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .attention-meta {
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      min-width: 92px;
+    }
+
+    .status-high {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .status-medium {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .status-low {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .analytics-table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e8eef7;
+      border-radius: 18px;
+    }
+
+    .analytics-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+      background: #ffffff;
+    }
+
+    .analytics-table thead th {
+      text-align: left;
+      padding: 14px 16px;
+      background: #f8fbff;
+      color: #64748b;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #e5edf6;
+      font-weight: 800;
+    }
+
+    .analytics-table tbody td {
+      padding: 16px;
+      border-bottom: 1px solid #eef2f7;
+      color: #0f172a;
+      font-size: 0.94rem;
+      vertical-align: middle;
+    }
+
+    .analytics-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .analytics-table tbody tr:hover {
+      background: #fbfdff;
+    }
+
+    .metric-strong {
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .metric-soft {
+      color: #64748b;
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .table-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 0.86rem;
+      border: 1px solid #dbeafe;
+    }
+
+    .table-link:hover {
+      background: #dbeafe;
+      text-decoration: none;
+    }
+
+    .empty-state {
+      padding: 24px;
+      border: 1px dashed #dbe4ef;
+      border-radius: 18px;
+      background: #fbfdff;
+      color: #64748b;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .recent-test-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .recent-test-card {
+      border: 1px solid #e7edf6;
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .recent-test-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .recent-test-meta {
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .recent-test-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-main-soft {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 0.86rem;
+      border: 1px solid #0f172a;
+    }
+
+    .btn-main-soft:hover {
+      color: #ffffff;
+      text-decoration: none;
+      background: #1e293b;
+      border-color: #1e293b;
+    }
+
+    .btn-lite {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #1e293b;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 0.86rem;
+      border: 1px solid #dbe4ef;
+    }
+
+    .btn-lite:hover {
+      text-decoration: none;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    @media (max-width: 1200px) {
+      .analytics-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .analytics-layout-two {
+        grid-template-columns: 1fr;
+      }
+
+      .recent-test-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .analytics-hero,
+      .analytics-card,
+      .analytics-kpi-card {
+        padding: 18px;
+      }
+
+      .analytics-kpi-grid,
+      .health-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analytics-hero h1 {
+        font-size: 1.6rem;
+      }
+
+      .analytics-table {
+        min-width: 760px;
+      }
+    }
+  </style>
+
+  {% set total_students = total_students|default(0) %}
+  {% set active_students = active_students|default(0) %}
+  {% set total_batches = total_batches|default(0) %}
+  {% set total_tests = total_tests|default(0) %}
+  {% set total_submitted = total_submitted|default(0) %}
+  {% set avg_score = avg_score|default(0) %}
+  {% set avg_accuracy = avg_accuracy|default(0) %}
+  {% set avg_percentile = avg_percentile|default(0) %}
+  {% set participation_rate = participation_rate|default(0) %}
+  {% set best_batch = best_batch|default(None) %}
+  {% set weakest_batch = weakest_batch|default(None) %}
+  {% set center_top_student = center_top_student|default(None) %}
+  {% set center_risk_student = center_risk_student|default(None) %}
+  {% set weak_subject = weak_subject|default('Not enough data') %}
+  {% set risk_students = risk_students|default([]) %}
+  {% set batch_rows = batch_rows|default([]) %}
+  {% set recent_test_rows = recent_test_rows|default([]) %}
+  {% set recent_tests = recent_tests|default([]) %}
+
+  <div class="analytics-hero">
+    <div>
+      <h1>Analytics Overview</h1>
+      <p>
+        Track center-wide academic health, identify weak batches, review at-risk students,
+        and drill into performance trends from one professional command center.
+      </p>
+
+      <div class="hero-badges">
+        <span class="hero-badge">Center-wide monitoring</span>
+        <span class="hero-badge">Batch comparison</span>
+        <span class="hero-badge">At-risk detection</span>
+        <span class="hero-badge">Test drilldowns</span>
+      </div>
+    </div>
+
+    <div class="analytics-hero-side">
+      <div class="mini-meta-label">Quick snapshot</div>
+      <div class="mini-meta-value">{{ participation_rate }}%</div>
+      <div class="mini-meta-sub">
+        Participation rate across submitted attempts. Use this page to identify low-engagement
+        students, weak cohorts, and tests needing review.
+      </div>
+    </div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-value">{{ total_tests }}</div>
-      <div class="stat-label">Total Tests</div>
+  <div class="analytics-kpi-grid">
+    <div class="analytics-kpi-card">
+      <div class="analytics-kpi-label">Total Students</div>
+      <div class="analytics-kpi-value">{{ total_students }}</div>
+      <div class="analytics-kpi-sub">All registered students mapped to the platform.</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ total_submitted }}</div>
-      <div class="stat-label">Submitted Attempts</div>
+
+    <div class="analytics-kpi-card">
+      <div class="analytics-kpi-label">Active Students</div>
+      <div class="analytics-kpi-value">{{ active_students }}</div>
+      <div class="analytics-kpi-sub">Students currently marked active in the institute.</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ avg_score }}</div>
-      <div class="stat-label">Average Score</div>
+
+    <div class="analytics-kpi-card">
+      <div class="analytics-kpi-label">Total Batches</div>
+      <div class="analytics-kpi-value">{{ total_batches }}</div>
+      <div class="analytics-kpi-sub">Current academic groups available for comparison.</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-value">{{ avg_accuracy }}%</div>
-      <div class="stat-label">Average Accuracy</div>
+
+    <div class="analytics-kpi-card">
+      <div class="analytics-kpi-label">Published Tests</div>
+      <div class="analytics-kpi-value">{{ total_tests }}</div>
+      <div class="analytics-kpi-sub">Tests available in the published analytics pool.</div>
+    </div>
+
+    <div class="analytics-kpi-card">
+      <div class="analytics-kpi-label">Submitted Attempts</div>
+      <div class="analytics-kpi-value">{{ total_submitted }}</div>
+      <div class="analytics-kpi-sub">Completed attempts included in performance analysis.</div>
+    </div>
+
+    <div class="analytics-kpi-card">
+      <div class="analytics-kpi-label">Average Score</div>
+      <div class="analytics-kpi-value">{{ avg_score }}</div>
+      <div class="analytics-kpi-sub">Mean score across all submitted attempts.</div>
+    </div>
+
+    <div class="analytics-kpi-card">
+      <div class="analytics-kpi-label">Average Accuracy</div>
+      <div class="analytics-kpi-value">{{ avg_accuracy }}%</div>
+      <div class="analytics-kpi-sub">Correct answers as a share of attempted question outcomes.</div>
+    </div>
+
+    <div class="analytics-kpi-card">
+      <div class="analytics-kpi-label">Average Percentile</div>
+      <div class="analytics-kpi-value">{{ avg_percentile }}</div>
+      <div class="analytics-kpi-sub">Overall percentile benchmark across scored attempts.</div>
     </div>
   </div>
 
-  <div class="panel-card-soft" style="margin-top:20px;">
-    <h3 style="margin-top:0;">Recent Tests</h3>
-    <div style="margin-top:16px;">
-      {% for test in recent_tests %}
-        <div class="list-item">
-          <div style="font-weight:700;">{{ test.title }}</div>
-          <div style="margin-top:10px;">
-            <a href="{{ url_for('admin.analytics_test_detail_page', test_id=test.id) }}" class="btn-main">View Analytics</a>
+  <div class="analytics-layout-two">
+    <div class="analytics-card">
+      <div class="analytics-card-head">
+        <div>
+          <h3>Center Health</h3>
+          <p>See top and weak performance signals across the whole institute.</p>
+        </div>
+        <span class="analytics-chip">Leadership snapshot</span>
+      </div>
+
+      <div class="health-grid">
+        <div class="health-tile">
+          <div class="health-label">Best Batch</div>
+          <div class="health-value">
+            {{ best_batch.name if best_batch and best_batch.name else 'Not available yet' }}
+          </div>
+          <div class="health-sub">
+            {% if best_batch %}
+              Avg score: {{ best_batch.avg_score|default(0) }},
+              accuracy: {{ best_batch.avg_accuracy|default(0) }}%
+            {% else %}
+              Add more submitted attempts to identify the strongest cohort.
+            {% endif %}
           </div>
         </div>
-      {% else %}
-        <p class="subtle">No tests found.</p>
-      {% endfor %}
+
+        <div class="health-tile">
+          <div class="health-label">Weakest Batch</div>
+          <div class="health-value">
+            {{ weakest_batch.name if weakest_batch and weakest_batch.name else 'Not available yet' }}
+          </div>
+          <div class="health-sub">
+            {% if weakest_batch %}
+              Avg score: {{ weakest_batch.avg_score|default(0) }},
+              accuracy: {{ weakest_batch.avg_accuracy|default(0) }}%
+            {% else %}
+              Batch comparison will appear once enough attempts are available.
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="health-tile">
+          <div class="health-label">Top Student</div>
+          <div class="health-value">
+            {{ center_top_student.full_name if center_top_student and center_top_student.full_name else 'Not available yet' }}
+          </div>
+          <div class="health-sub">
+            {% if center_top_student %}
+              Latest score: {{ center_top_student.latest_score|default(0) }},
+              percentile: {{ center_top_student.percentile_overall|default(0) }}
+            {% else %}
+              Top performer will be highlighted once recent scoring data is available.
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="health-tile">
+          <div class="health-label">Weak Subject</div>
+          <div class="health-value">{{ weak_subject }}</div>
+          <div class="health-sub">
+            Use this as a cue for teacher review, revision scheduling, and focused remedial planning.
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div class="analytics-card">
+      <div class="analytics-card-head">
+        <div>
+          <h3>Students Needing Attention</h3>
+          <p>Flag learners with risk patterns like low accuracy, decline, or weak participation.</p>
+        </div>
+        <span class="analytics-chip">Intervention queue</span>
+      </div>
+
+      {% if risk_students %}
+        <div class="attention-list">
+          {% for item in risk_students %}
+            {% set risk_level = (item.risk_level|default('medium')) %}
+            <div class="attention-item">
+              <div>
+                <div class="attention-name">{{ item.full_name|default('Student') }}</div>
+                <div class="attention-meta">
+                  Batch: {{ item.batch_name|default('Unassigned') }}<br>
+                  Avg score: {{ item.avg_score|default(0) }},
+                  accuracy: {{ item.avg_accuracy|default(0) }}%,
+                  attempts: {{ item.attempt_count|default(0) }}
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span class="status-pill {% if risk_level == 'high' %}status-high{% elif risk_level == 'low' %}status-low{% else %}status-medium{% endif %}">
+                  {{ risk_level|title }} Risk
+                </span>
+                {% if item.student_id %}
+                  <a href="{{ url_for('admin.analytics_student_detail_page', student_id=item.student_id) }}" class="btn-lite">
+                    Open Profile
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          No at-risk students are highlighted yet. Once trend and risk logic is added in backend,
+          this section will become your live intervention queue.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="analytics-card">
+    <div class="analytics-card-head">
+      <div>
+        <h3>Batch Performance Leaderboard</h3>
+        <p>Compare cohorts on score, accuracy, percentile, and participation from one table.</p>
+      </div>
+      <a href="{{ url_for('admin.analytics_tests_page') if false else '#' }}" class="analytics-chip" style="text-decoration:none;">
+        Cohort view
+      </a>
+    </div>
+
+    {% if batch_rows %}
+      <div class="analytics-table-wrap">
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th>Batch</th>
+              <th>Students</th>
+              <th>Attempts</th>
+              <th>Avg Score</th>
+              <th>Accuracy</th>
+              <th>Percentile</th>
+              <th>Participation</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for batch in batch_rows %}
+              <tr>
+                <td>
+                  <div class="metric-strong">{{ batch.name|default('Unnamed Batch') }}</div>
+                  <div class="metric-soft">{{ batch.academic_year|default('') }}</div>
+                </td>
+                <td>{{ batch.student_count|default(0) }}</td>
+                <td>{{ batch.attempt_count|default(0) }}</td>
+                <td>{{ batch.avg_score|default(0) }}</td>
+                <td>{{ batch.avg_accuracy|default(0) }}%</td>
+                <td>{{ batch.avg_percentile|default(0) }}</td>
+                <td>{{ batch.participation_rate|default(0) }}%</td>
+                <td>
+                  {% if batch.id %}
+                    <a href="{{ url_for('admin.analytics_students_page') }}?batch_id={{ batch.id }}" class="table-link">
+                      View Students
+                    </a>
+                  {% else %}
+                    <span class="analytics-chip">Pending</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        Batch leaderboard data is not available yet. Once backend sends `batch_rows`, this section
+        will show full cohort comparison.
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="analytics-card">
+    <div class="analytics-card-head">
+      <div>
+        <h3>Recent Tests</h3>
+        <p>Review newly created or recently active tests and open detailed analytics quickly.</p>
+      </div>
+      <span class="analytics-chip">Assessment monitoring</span>
+    </div>
+
+    {% if recent_test_rows %}
+      <div class="recent-test-grid">
+        {% for test in recent_test_rows %}
+          <div class="recent-test-card">
+            <div class="recent-test-title">{{ test.title|default('Untitled Test') }}</div>
+            <div class="recent-test-meta">
+              Participants: {{ test.participants_count|default(0) }}<br>
+              Average score: {{ test.avg_score|default(0) }}<br>
+              Accuracy: {{ test.avg_accuracy|default(0) }}%
+            </div>
+            <div class="recent-test-actions">
+              {% if test.id %}
+                <a href="{{ url_for('admin.analytics_test_detail_page', test_id=test.id) }}" class="btn-main-soft">
+                  View Analytics
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% elif recent_tests %}
+      <div class="recent-test-grid">
+        {% for test in recent_tests %}
+          <div class="recent-test-card">
+            <div class="recent-test-title">{{ test.title }}</div>
+            <div class="recent-test-meta">
+              Test ID: {{ test.id }}<br>
+              Status: {{ test.status|default('draft') }}<br>
+              Duration: {{ test.duration_minutes|default(0) }} min
+            </div>
+            <div class="recent-test-actions">
+              <a href="{{ url_for('admin.analytics_test_detail_page', test_id=test.id) }}" class="btn-main-soft">
+                View Analytics
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        No recent tests available yet.
+      </div>
+    {% endif %}
   </div>
 </section>
 {% endblock %}
