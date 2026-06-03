@@ -1,6 +1,8 @@
 from datetime import datetime
+
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+
 from .extensions import db, login_manager
 
 
@@ -118,12 +120,15 @@ class Question(TimestampMixin, db.Model):
     institute_id = db.Column(db.Integer, db.ForeignKey("institute.id"), nullable=True)
     subject_id = db.Column(db.Integer, db.ForeignKey("subject.id"), nullable=False)
     chapter_id = db.Column(db.Integer, db.ForeignKey("chapter.id"), nullable=False)
+
     stem = db.Column(db.Text, nullable=False)
     question_image = db.Column(db.String(255), nullable=True)
+
     option_a = db.Column(db.String(255), nullable=False)
     option_b = db.Column(db.String(255), nullable=False)
     option_c = db.Column(db.String(255), nullable=False)
     option_d = db.Column(db.String(255), nullable=False)
+
     correct_option = db.Column(db.String(1), nullable=False)
     explanation = db.Column(db.Text, nullable=True)
     explanation_image = db.Column(db.String(255), nullable=True)
@@ -205,6 +210,17 @@ class TestAttempt(TimestampMixin, db.Model):
     expires_at = db.Column(db.DateTime, nullable=True)
     submitted_at = db.Column(db.DateTime, nullable=True)
     is_abandoned = db.Column(db.Boolean, default=False)
+
+    rank_overall = db.Column(db.Integer, nullable=True, index=True)
+    rank_batch = db.Column(db.Integer, nullable=True, index=True)
+    rank_institute = db.Column(db.Integer, nullable=True, index=True)
+
+    percentile_overall = db.Column(db.Float, nullable=True)
+    percentile_batch = db.Column(db.Float, nullable=True)
+    percentile_institute = db.Column(db.Float, nullable=True)
+
+    time_taken_seconds = db.Column(db.Integer, nullable=False, default=0)
+    analytics_processed_at = db.Column(db.DateTime, nullable=True)
 
     test = db.relationship("Test", backref=db.backref("attempts", lazy=True))
     student = db.relationship("User", backref=db.backref("attempts", lazy=True))
