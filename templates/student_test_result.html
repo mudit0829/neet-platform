@@ -3,216 +3,525 @@
 
 {% block content %}
 <style>
-  .result-wrap { display:grid; gap:20px; }
-  .hero {
-    background:linear-gradient(135deg,#2563eb,#059669);
-    color:#fff;
-    border-radius:28px;
-    padding:28px;
+  .result-wrap {
+    display: grid;
+    gap: 20px;
   }
-  .hero-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-top:20px; }
-  .hero-card {
-    background:rgba(255,255,255,0.12);
-    border:1px solid rgba(255,255,255,0.15);
-    border-radius:18px;
-    padding:18px;
+
+  .result-hero {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 52%, #0f766e 100%);
+    color: #ffffff;
+    border-radius: 28px;
+    padding: 28px;
+    box-shadow: 0 18px 40px rgba(37, 99, 235, 0.14);
   }
+
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .hero-title {
+    margin: 10px 0 6px;
+    font-size: 32px;
+    line-height: 1.15;
+    font-weight: 800;
+  }
+
+  .hero-subtitle {
+    margin: 0;
+    opacity: 0.96;
+    max-width: 720px;
+    line-height: 1.7;
+  }
+
   .meta-row {
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-top:12px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
   }
+
   .meta-chip {
-    display:inline-flex;
-    align-items:center;
-    padding:6px 10px;
-    border-radius:999px;
-    background:rgba(255,255,255,0.15);
-    border:1px solid rgba(255,255,255,0.15);
-    font-size:12px;
-    font-weight:700;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 12px;
+    font-weight: 700;
   }
-  .stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
-  .stat-card, .panel-card2 {
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:20px;
-    padding:20px;
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 22px;
   }
-  .subject-row { margin-top:18px; }
-  .bar {
-    width:100%;
-    height:14px;
-    border-radius:999px;
-    background:#e2e8f0;
-    overflow:hidden;
-    margin-top:8px;
+
+  .hero-card {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 18px;
+    padding: 18px;
   }
-  .bar-fill {
-    height:100%;
-    background:#3b82f6;
+
+  .hero-value {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 6px;
   }
-  .detail-item {
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:18px;
-    padding:18px;
-    margin-top:14px;
+
+  .hero-label {
+    font-size: 14px;
+    opacity: 0.92;
   }
-  .status-chip {
-    display:inline-flex;
-    padding:6px 10px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
-  }
-  .correct { background:#dcfce7; color:#166534; }
-  .wrong { background:#fee2e2; color:#b91c1c; }
-  .skipped { background:#e2e8f0; color:#475569; }
-  .summary-note {
-    margin-top:18px;
-    padding:14px 16px;
-    border-radius:16px;
-    background:#f8fafc;
-    border:1px solid #e2e8f0;
-    color:#334155;
-    line-height:1.6;
-  }
+
   .action-row {
-    display:flex;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-top:18px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 22px;
   }
-  .btn-main,.btn-light {
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    text-decoration:none;
-    padding:12px 18px;
-    border-radius:12px;
-    font-weight:700;
+
+  .btn-main,
+  .btn-light {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: all 0.18s ease;
   }
-  .btn-main { background:#2563eb; color:#fff; }
-  .btn-light { background:#fff; color:#0f172a; border:1px solid #cbd5e1; }
+
+  .btn-main {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  .btn-light {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+  }
+
+  .btn-light:hover,
+  .btn-main:hover {
+    transform: translateY(-1px);
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: 20px;
+  }
+
+  .card-soft {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  }
+
+  .stat-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  .stat-value {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .stat-value.green { color: #166534; }
+  .stat-value.red { color: #b91c1c; }
+  .stat-value.gray { color: #475569; }
+
+  .stat-label {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .summary-note,
+  .insight-note,
+  .weak-note {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    line-height: 1.7;
+    font-size: 14px;
+  }
+
+  .summary-note {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+  }
+
+  .insight-note {
+    background: #ecfdf3;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+  }
+
+  .weak-note {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+  }
+
+  .subject-row {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #eef2f7;
+  }
+
+  .subject-row:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .subject-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .subject-title {
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .subject-meta {
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  .bar {
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb, #0f766e);
+  }
+
+  .subject-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    color: #475569;
+    font-size: 14px;
+  }
+
+  .insight-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .insight-item {
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  .insight-item strong {
+    color: #0f172a;
+  }
+
+  .section-title {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .section-subtitle {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.7;
+  }
+
+  .chapter-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .chapter-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #f8fafc;
+    padding: 14px 16px;
+  }
+
+  .chapter-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .chapter-meta {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
   @media (max-width: 1100px) {
-    .hero-grid, .stat-grid { grid-template-columns:1fr; }
+    .hero-grid,
+    .grid-3,
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .result-hero,
+    .card-soft,
+    .stat-card {
+      padding: 18px;
+      border-radius: 18px;
+    }
+
+    .hero-title {
+      font-size: 26px;
+    }
+
+    .hero-value,
+    .stat-value {
+      font-size: 30px;
+    }
   }
 </style>
 
+{% set top_chapters = chapter_stats[:3] if chapter_stats else [] %}
+
 <section class="dashboard-wrap">
   <div class="result-wrap">
-    <div class="hero">
-      <h1 style="margin:0 0 6px;">Test Completed!</h1>
-      <p style="margin:0; opacity:0.95;">Here is your detailed performance analysis.</p>
+    <div class="result-hero">
+      <div class="hero-top">
+        <div>
+          <div class="topbar-chip" style="background:rgba(255,255,255,0.16); color:#ffffff; border:none;">Result Summary</div>
+          <h1 class="hero-title">Test Completed</h1>
+          <p class="hero-subtitle">
+            Your test has been evaluated successfully. Review your outcome, check subject-level performance, and move into detailed review only where needed.
+          </p>
 
-      <div class="meta-row">
-        <span class="meta-chip">{{ test.title }}</span>
-        <span class="meta-chip">{{ test.test_type|replace('_', ' ')|title }}</span>
-        <span class="meta-chip">{{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}</span>
-        <span class="meta-chip">{{ attempt.status|title }}</span>
+          <div class="meta-row">
+            <span class="meta-chip">{{ test.title }}</span>
+            <span class="meta-chip">{{ test.test_type|replace('_', ' ')|title }}</span>
+            <span class="meta-chip">{{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}</span>
+            <span class="meta-chip">{{ attempt.status|title }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="hero-grid">
         <div class="hero-card">
-          <div style="font-size:42px; font-weight:800;">{{ "%.0f"|format(attempt.total_score) }}</div>
-          <div>Score / {{ test.total_marks }}</div>
+          <div class="hero-value">{{ "%.0f"|format(attempt.total_score) }}</div>
+          <div class="hero-label">Score / {{ test.total_marks }}</div>
         </div>
-        <div class="hero-card">
-          <div style="font-size:42px; font-weight:800;">{{ accuracy }}%</div>
-          <div>Accuracy</div>
-        </div>
-        <div class="hero-card">
-          <div style="font-size:42px; font-weight:800;">{{ attempt.correct_count }}</div>
-          <div>Correct</div>
-        </div>
-        <div class="hero-card">
-          <div style="font-size:42px; font-weight:800;" id="time-taken" data-seconds="{{ time_taken_seconds }}">{{ time_taken_seconds }}</div>
-          <div>Time Taken</div>
-        </div>
-      </div>
 
-      <div class="summary-note">
-        Auto-submitted or timed submissions should still reflect the final saved answers captured before expiry, which is why time taken and attempt completion status are important context on result pages. [web:934][web:935]
+        <div class="hero-card">
+          <div class="hero-value">{{ accuracy }}%</div>
+          <div class="hero-label">Accuracy</div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-value">{{ attempt.correct_count }}</div>
+          <div class="hero-label">Correct Answers</div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-value" id="time-taken" data-seconds="{{ time_taken_seconds }}">{{ time_taken_seconds }}</div>
+          <div class="hero-label">Time Taken</div>
+        </div>
       </div>
 
       <div class="action-row">
-        <a href="{{ url_for('student.tests_page') }}" class="btn-main">Back to Tests</a>
+        <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="btn-main">Open Test Review</a>
+        <a href="{{ url_for('student.performance_review_page') }}" class="btn-light">Performance Review</a>
         <a href="{{ url_for('student.dashboard') }}" class="btn-light">Dashboard</a>
       </div>
     </div>
 
-    <div class="stat-grid">
+    <div class="grid-3">
       <div class="stat-card">
-        <div style="font-size:36px; font-weight:800; color:#166534;">{{ attempt.correct_count }}</div>
-        <div class="panel-text">Correct (+{{ attempt.correct_count * 4 }})</div>
+        <div class="stat-value green">{{ attempt.correct_count }}</div>
+        <div class="stat-label">Correct responses contributing positive marks.</div>
       </div>
+
       <div class="stat-card">
-        <div style="font-size:36px; font-weight:800; color:#b91c1c;">{{ attempt.wrong_count }}</div>
-        <div class="panel-text">Incorrect (-{{ attempt.wrong_count * test.negative_marks }})</div>
+        <div class="stat-value red">{{ attempt.wrong_count }}</div>
+        <div class="stat-label">Incorrect responses with negative marking impact of {{ attempt.wrong_count * test.negative_marks }}.</div>
       </div>
+
       <div class="stat-card">
-        <div style="font-size:36px; font-weight:800; color:#475569;">{{ attempt.skipped_count }}</div>
-        <div class="panel-text">Unattempted</div>
+        <div class="stat-value gray">{{ attempt.skipped_count }}</div>
+        <div class="stat-label">Questions left unanswered at submission time.</div>
       </div>
     </div>
 
-    <div class="panel-card2">
-      <h2 style="margin-top:0;">Subject-wise Performance</h2>
+    <div class="grid-2">
+      <div class="card-soft">
+        <h2 class="section-title">Subject Performance</h2>
+        <p class="section-subtitle">This view shows where your score came from and where time and accuracy need attention.</p>
 
-      {% for subject_name, stat in subject_stats.items() %}
-        {% set percent = 0 %}
-        {% if stat.total > 0 %}
-          {% set percent = ((stat.correct / stat.total) * 100)|round(2) %}
+        {% for subject_name, stat in subject_stats.items() %}
+          {% set percent = stat.accuracy if stat.accuracy is defined else 0 %}
+          <div class="subject-row">
+            <div class="subject-head">
+              <div class="subject-title">{{ subject_name }}</div>
+              <div class="subject-meta">{{ "%.0f"|format(stat.score) }} pts • {{ stat.correct }}/{{ stat.total }} correct</div>
+            </div>
+
+            <div class="bar">
+              <div class="bar-fill" style="width: {{ percent }}%;"></div>
+            </div>
+
+            <div class="subject-foot">
+              <span>Accuracy: {{ percent }}%</span>
+              <span>Time: {{ stat.time_spent_human if stat.time_spent_human is defined else '-' }}</span>
+              <span>Avg / Question: {{ stat.avg_time_per_question if stat.avg_time_per_question is defined else 0 }} sec</span>
+            </div>
+
+            <div class="subject-foot">
+              <span>✓ {{ stat.correct }} correct</span>
+              <span>✗ {{ stat.wrong }} wrong</span>
+              <span>- {{ stat.skipped }} skipped</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="card-soft">
+        <h2 class="section-title">Performance Insights</h2>
+        <p class="section-subtitle">Use these highlights to decide what to review first.</p>
+
+        <div class="insight-list">
+          <div class="insight-item">
+            <strong>Strongest subject:</strong>
+            {% if strongest_subject %}
+              {{ strongest_subject[0] }} with {{ strongest_subject[1].accuracy }}% accuracy and {{ "%.0f"|format(strongest_subject[1].score) }} points.
+            {% else %}
+              Not enough data yet.
+            {% endif %}
+          </div>
+
+          <div class="insight-item">
+            <strong>Weakest subject:</strong>
+            {% if weakest_subject %}
+              {{ weakest_subject[0] }} with {{ weakest_subject[1].accuracy }}% accuracy and {{ "%.0f"|format(weakest_subject[1].score) }} points.
+            {% else %}
+              Not enough data yet.
+            {% endif %}
+          </div>
+
+          <div class="insight-item">
+            <strong>Total attempt status:</strong>
+            You answered {{ attempt.correct_count + attempt.wrong_count }} out of {{ total_questions }} questions and left {{ attempt.skipped_count }} unanswered.
+          </div>
+        </div>
+
+        {% if strongest_subject %}
+          <div class="insight-note">
+            Strong zone: Your best performance came in {{ strongest_subject[0] }}. Use this as a confidence anchor while reviewing weaker sections.
+          </div>
         {% endif %}
 
-        <div class="subject-row">
-          <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-            <strong>{{ subject_name }}</strong>
-            <span>{{ "%.0f"|format(stat.score) }} pts • {{ stat.correct }}/{{ stat.total }} correct</span>
+        {% if weakest_subject %}
+          <div class="weak-note">
+            Focus next: Start review with {{ weakest_subject[0] }}, especially the questions where you spent more time but still lost marks.
           </div>
-          <div class="bar">
-            <div class="bar-fill" style="width: {{ percent }}%;"></div>
-          </div>
-          <div class="panel-text" style="margin-top:8px;">
-            ✓ {{ stat.correct }} correct &nbsp;&nbsp; ✗ {{ stat.wrong }} wrong &nbsp;&nbsp; - {{ stat.skipped }} skipped
-          </div>
-        </div>
-      {% endfor %}
+        {% endif %}
+      </div>
     </div>
 
-    <div class="panel-card2">
-      <h2 style="margin-top:0;">Detailed Solutions</h2>
+    <div class="grid-2">
+      <div class="card-soft">
+        <h2 class="section-title">Chapter Signals</h2>
+        <p class="section-subtitle">These chapter-level metrics help identify specific weak areas hidden inside broader subject scores.</p>
 
-      {% for row in detailed_rows %}
-        <div class="detail-item">
-          <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-            <div>
-              <strong>Q{{ row.index }}. {{ row.question.stem }}</strong>
-              <div class="panel-text" style="margin-top:6px;">
-                {{ row.question.subject.name if row.question.subject else 'Subject' }} • {{ row.chapter_name }}
+        <div class="chapter-list">
+          {% for row in top_chapters %}
+            <div class="chapter-item">
+              <div class="chapter-title">
+                <span>{{ row.chapter_name }}</span>
+                <span>{{ row.subject_name }}</span>
+              </div>
+              <div class="chapter-meta">
+                Accuracy: {{ row.accuracy }}% • Score: {{ "%.0f"|format(row.score) }} • Time: {{ row.time_spent_human }} •
+                Correct: {{ row.correct }} • Wrong: {{ row.wrong }} • Skipped: {{ row.skipped }}
               </div>
             </div>
-            <span class="status-chip {{ row.status }}">
-              {% if row.status == 'correct' %}Correct{% elif row.status == 'wrong' %}Incorrect{% else %}Skipped{% endif %}
-            </span>
+          {% else %}
+            <div class="chapter-item">
+              <div class="chapter-meta">No chapter breakdown available for this attempt.</div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card-soft">
+        <h2 class="section-title">Next Actions</h2>
+        <p class="section-subtitle">Move to the next page based on what you want to do now.</p>
+
+        <div class="insight-list">
+          <div class="insight-item">
+            <strong>Open Test Review</strong><br>
+            Check every question, answer, explanation, and timing signal in one place.
           </div>
 
-          <div style="margin-top:14px; display:grid; gap:8px;">
-            <div><strong>Your Answer:</strong> {{ row.selected_option or 'Not Answered' }}</div>
-            <div><strong>Correct Answer:</strong> {{ row.correct_option }}</div>
-            {% if row.question.explanation %}
-              <div><strong>Explanation:</strong> {{ row.question.explanation }}</div>
-            {% endif %}
-            {% if row.question.explanation_image %}
-              <div style="margin-top:8px;">
-                <img src="{{ url_for('static', filename=row.question.explanation_image) }}" alt="Explanation image" style="max-width:100%; border-radius:14px; border:1px solid #e5e7eb;">
-              </div>
-            {% endif %}
+          <div class="insight-item">
+            <strong>Open Performance Review</strong><br>
+            Compare this attempt with your broader trend across completed tests.
+          </div>
+
+          <div class="insight-item">
+            <strong>Return to Dashboard</strong><br>
+            Continue with upcoming tests or resume your broader preparation flow.
           </div>
         </div>
-      {% endfor %}
+
+        <div class="summary-note">
+          A result page should focus on outcome, key strengths, weak zones, and the next decision instead of mixing full question review into the same screen. [web:1036][web:1048]
+        </div>
+      </div>
     </div>
   </div>
 </section>
