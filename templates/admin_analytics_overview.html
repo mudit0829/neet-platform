@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Admin Analytics{% endblock %}
+{% block content %}
+<section class="dashboard-wrap">
+  <div class="dashboard-header-card">
+    <h1>Analytics Overview</h1>
+    <p class="text-muted">Review test performance, rankings, and student outcomes from one place.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ total_tests }}</div>
+      <div class="stat-label">Total Tests</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ total_submitted }}</div>
+      <div class="stat-label">Submitted Attempts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ avg_score }}</div>
+      <div class="stat-label">Average Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ avg_accuracy }}%</div>
+      <div class="stat-label">Average Accuracy</div>
+    </div>
+  </div>
+
+  <div class="panel-card-soft" style="margin-top:20px;">
+    <h3 style="margin-top:0;">Recent Tests</h3>
+    <div style="margin-top:16px;">
+      {% for test in recent_tests %}
+        <div class="list-item">
+          <div style="font-weight:700;">{{ test.title }}</div>
+          <div style="margin-top:10px;">
+            <a href="{{ url_for('admin.analytics_test_detail_page', test_id=test.id) }}" class="btn-main">View Analytics</a>
+          </div>
+        </div>
+      {% else %}
+        <p class="subtle">No tests found.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
