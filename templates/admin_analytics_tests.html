@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Test Analytics{% endblock %}
+{% block content %}
+<section class="dashboard-wrap">
+  <div class="dashboard-header-card">
+    <h1>Test Analytics</h1>
+    <p class="text-muted">Open a test to review leaderboard and performance details.</p>
+  </div>
+
+  <div class="panel-card-soft">
+    {% for test in tests %}
+      <div class="list-item">
+        <div style="font-weight:700;">{{ test.title }}</div>
+        <div class="subtle">Status: {{ test.status|title }}</div>
+        <div style="margin-top:10px;">
+          <a href="{{ url_for('admin.analytics_test_detail_page', test_id=test.id) }}" class="btn-main">Open Analytics</a>
+        </div>
+      </div>
+    {% else %}
+      <p class="subtle">No tests available.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
