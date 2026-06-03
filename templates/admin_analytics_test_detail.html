@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ test.title }} Analytics{% endblock %}
+{% block content %}
+<section class="dashboard-wrap">
+  <div class="dashboard-header-card">
+    <h1>{{ test.title }}</h1>
+    <p class="text-muted">Participants: {{ participants_count }} | Average Score: {{ avg_score }}</p>
+  </div>
+
+  <div class="panel-card-soft">
+    <h3 style="margin-top:0;">Leaderboard</h3>
+    <div style="overflow-x:auto; margin-top:16px;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Student</th>
+            <th>Batch</th>
+            <th>Score</th>
+            <th>Correct</th>
+            <th>Wrong</th>
+            <th>Skipped</th>
+            <th>Percentile</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for attempt in attempts %}
+            <tr>
+              <td>#{{ attempt.rank_overall or '-' }}</td>
+              <td>{{ attempt.student.full_name if attempt.student else '-' }}</td>
+              <td>{{ attempt.student.batch.name if attempt.student and attempt.student.batch else '-' }}</td>
+              <td>{{ attempt.total_score }}</td>
+              <td>{{ attempt.correct_count }}</td>
+              <td>{{ attempt.wrong_count }}</td>
+              <td>{{ attempt.skipped_count }}</td>
+              <td>{{ attempt.percentile_overall if attempt.percentile_overall is not none else '-' }}</td>
+              <td>{{ attempt.time_taken_seconds or 0 }}s</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="9">No submitted attempts yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
