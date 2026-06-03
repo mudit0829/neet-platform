@@ -1060,3 +1060,98 @@ def delete_test_question(test_id, link_id):
 
     flash("Question removed from test.", "success")
     return redirect(request.referrer or url_for("admin.test_builder_page", test_id=test_id))
+
+@admin_bp.route("/analytics")
+@login_required
+def analytics_overview_page():
+    admin_required()
+
+    total_submitted = TestAttempt.query.filter_by(status="submitted").count()
+    total_tests = Test.query.count()
+
+    avg_score = db.session.query(func.avg(TestAttempt.total_score)).filter(
+        TestAttempt.status == "submitted"
+    ).scalar() or 0
+
+    avg_accuracy = 0
+    submitted_attempts = TestAttempt.query.filter_by(status="submitted").all()
+    if submitted_attempts:
+        total_correct = sum(int(a.correct_count or 0) for a in submitted_attempts)
+        total_answered_plus_skipped = sum(
+            int((a.correct_count or 0) + (a.wrong_count or 0) + (a.skipped_count or 0))
+            for a in submitted_attempts
+        )
+        if total_answered_plus_skipped > 0:
+            avg_accuracy = round((total_correct / total_answered_plus_skipped) * 100, 2)
+
+    recent_tests = Test.query.order_by(Test.id.desc()).limit(10).all()
+
+    return render_template(
+        "admin_analytics_overview.html",
+        total_submitted=total_submitted,
+        total_tests=total_tests,
+        avg_score=round(avg_score, 2),
+        avg_accuracy=avg_accuracy,
+        recent_tests=recent_tests,
+    )
+
+@admin_bp.route("/analytics/tests")
+@login_required
+def analytics_tests_page():
+    admin_required()
+
+    tests = Test.query.order_by(Test.id.desc()).all()
+    return render_template("admin_analytics_tests.html", tests=tests)
+
+@admin_bp.route("/analytics/tests/<int:test_id>")
+@login_required
+def analytics_test_detail_page(test_id):
+    admin_required()
+
+    test = Test.query.get_or_404(test_id)
+
+    attempts = TestAttempt.query.filter_by(
+        test_id=test.id,
+        status="submitted"
+    ).order_by(
+        TestAttempt.rank_overall.asc(),
+        TestAttempt.id.asc()
+    ).all()
+
+    participants_count = len(attempts)
+    avg_score = round(sum(float(a.total_score or 0) for a in attempts) / participants_count, 2) if participants_count else 0
+
+    return render_template(
+        "admin_analytics_test_detail.html",
+        test=test,
+        attempts=attempts,
+        participants_count=participants_count,
+        avg_score=avg_score,
+    )
+
+@admin_bp.route("/analytics/students")
+@login_required
+def analytics_students_page():
+    admin_required()
+
+    students = User.query.filter_by(role="student").order_by(User.id.desc()).all()
+    return render_template("admin_analytics_students.html", students=students)
+
+@admin_bp.route("/analytics/students/<int:student_id>")
+@login_required
+def analytics_student_detail_page(student_id):
+    admin_required()
+
+    student = User.query.get_or_404(student_id)
+    attempts = TestAttempt.query.filter_by(
+        student_id=student.id,
+        status="submitted"
+    ).order_by(TestAttempt.id.desc()).all()
+
+    return render_template(
+        "admin_analytics_student_detail.html",
+        student=student,
+        attempts=attempts,
+    )
+
+
