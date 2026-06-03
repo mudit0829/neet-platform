@@ -10,6 +10,7 @@
     border:1px solid #e5e7eb;
     border-radius:24px;
     padding:24px;
+    box-shadow:0 8px 24px rgba(15,23,42,0.04);
   }
   .hero-row {
     display:flex;
@@ -31,6 +32,13 @@
     border-radius:18px;
     border:1px solid #e5e7eb;
     background:#f8fafc;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    color:#475569;
+    font-size:28px;
   }
   .hero-actions {
     display:flex;
@@ -45,6 +53,7 @@
     padding:12px 18px;
     border-radius:12px;
     font-weight:700;
+    transition:all .18s ease;
   }
   .btn-main {
     background:#2563eb;
@@ -54,6 +63,9 @@
     background:#ffffff;
     color:#0f172a;
     border:1px solid #cbd5e1;
+  }
+  .btn-main:hover,.btn-light:hover {
+    transform:translateY(-1px);
   }
   .stats-grid {
     display:grid;
@@ -65,16 +77,19 @@
     border:1px solid #e5e7eb;
     border-radius:20px;
     padding:20px;
+    box-shadow:0 8px 24px rgba(15,23,42,0.04);
   }
   .stat-value {
     font-size:32px;
     font-weight:800;
     color:#0f172a;
     margin-bottom:6px;
+    line-height:1.1;
   }
   .stat-label {
     color:#64748b;
     font-size:14px;
+    line-height:1.6;
   }
   .dashboard-grid {
     display:grid;
@@ -86,6 +101,7 @@
     border:1px solid #e5e7eb;
     border-radius:22px;
     padding:22px;
+    box-shadow:0 8px 24px rgba(15,23,42,0.04);
   }
   .list-item {
     padding:14px 0;
@@ -117,6 +133,82 @@
     font-size:14px;
     line-height:1.6;
   }
+  .metric-note {
+    margin-top:16px;
+    padding:14px 16px;
+    border-radius:16px;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    color:#334155;
+    line-height:1.7;
+    font-size:14px;
+  }
+  .insight-good {
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:16px;
+    background:#ecfdf3;
+    border:1px solid #bbf7d0;
+    color:#166534;
+    line-height:1.7;
+    font-size:14px;
+  }
+  .insight-warn {
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:16px;
+    background:#fff7ed;
+    border:1px solid #fed7aa;
+    color:#9a3412;
+    line-height:1.7;
+    font-size:14px;
+  }
+  .subject-row {
+    margin-top:18px;
+    padding-top:18px;
+    border-top:1px solid #eef2f7;
+  }
+  .subject-row:first-child {
+    margin-top:0;
+    padding-top:0;
+    border-top:none;
+  }
+  .subject-head {
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .subject-title {
+    font-weight:800;
+    color:#0f172a;
+  }
+  .subject-meta {
+    color:#64748b;
+    font-size:14px;
+  }
+  .bar {
+    width:100%;
+    height:12px;
+    border-radius:999px;
+    background:#e2e8f0;
+    overflow:hidden;
+    margin-top:10px;
+  }
+  .bar-fill {
+    height:100%;
+    background:linear-gradient(90deg,#2563eb,#059669);
+  }
+  .subject-foot {
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:8px;
+    color:#475569;
+    font-size:14px;
+  }
   @media (max-width: 1100px) {
     .stats-grid,
     .dashboard-grid {
@@ -130,14 +222,20 @@
     <div class="hero-card">
       <div class="hero-row">
         <div class="hero-user">
-          {% if current_user.student_profile and current_user.student_profile.photograph %}
-            <img
-              src="{{ url_for('static', filename=current_user.student_profile.photograph) }}"
-              alt="{{ current_user.full_name }}"
-              class="hero-avatar"
-            >
+          {% if current_user.student_profile %}
+            {% if current_user.student_profile.photograph %}
+              <img
+                src="{{ url_for('static', filename=current_user.student_profile.photograph) }}"
+                alt="{{ current_user.full_name }}"
+                class="hero-avatar"
+              >
+            {% else %}
+              <div class="hero-avatar">
+                {{ current_user.full_name[:1] }}
+              </div>
+            {% endif %}
           {% else %}
-            <div class="hero-avatar" style="display:flex; align-items:center; justify-content:center; font-weight:800; color:#475569;">
+            <div class="hero-avatar">
               {{ current_user.full_name[:1] }}
             </div>
           {% endif %}
@@ -162,10 +260,9 @@
 
         <div class="hero-actions">
           <a href="{{ url_for('student.tests_page') }}" class="btn-main">Open Tests</a>
+          <a href="{{ url_for('student.performance_review_page') }}" class="btn-light">Performance Review</a>
           {% if ongoing_attempts %}
             <a href="{{ url_for('student.attempt_page', attempt_id=ongoing_attempts[0].id) }}" class="btn-light">Continue Ongoing Test</a>
-          {% else %}
-            <a href="{{ url_for('student.tests_page') }}" class="btn-light">View Results</a>
           {% endif %}
         </div>
       </div>
@@ -185,8 +282,8 @@
         <div class="stat-label">Completed Tests</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">{{ latest_attempts|length }}</div>
-        <div class="stat-label">Recent Activities</div>
+        <div class="stat-value">{{ overview.avg_accuracy if overview else 0 }}%</div>
+        <div class="stat-label">Average Accuracy</div>
       </div>
     </div>
 
@@ -216,17 +313,90 @@
           <div class="subtle"><strong style="color:#0f172a;">Username:</strong> {{ current_user.username or '-' }}</div>
           <div class="subtle">
             <strong style="color:#0f172a;">Admission No:</strong>
-            {% if current_user.student_profile %}{{ current_user.student_profile.admission_no }}{% else %}-{% endif %}
+            {% if current_user.student_profile and current_user.student_profile.admission_no %}
+              {{ current_user.student_profile.admission_no }}
+            {% else %}
+              -
+            {% endif %}
           </div>
           <div class="subtle">
             <strong style="color:#0f172a;">Course:</strong>
-            {% if current_user.student_profile %}{{ current_user.student_profile.course_applied }}{% else %}-{% endif %}
+            {% if current_user.student_profile and current_user.student_profile.course_applied %}
+              {{ current_user.student_profile.course_applied }}
+            {% else %}
+              -
+            {% endif %}
           </div>
           <div class="subtle">
             <strong style="color:#0f172a;">Batch:</strong>
             {% if current_user.batch %}{{ current_user.batch.name }}{% else %}Not assigned{% endif %}
           </div>
         </div>
+
+        <div class="metric-note">
+          Dashboards are most useful when they surface quick progress indicators and direct the student to the next meaningful action. [web:1036][web:1080]
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="panel-card-soft">
+        <h3 style="margin-top:0;">Performance Snapshot</h3>
+        <p class="subtle">A quick summary of your overall learning trend.</p>
+
+        {% if overview and overview.total_attempts > 0 %}
+          <div style="display:grid; gap:14px; margin-top:16px;">
+            <div class="subtle"><strong style="color:#0f172a;">Total Attempts:</strong> {{ overview.total_attempts }}</div>
+            <div class="subtle"><strong style="color:#0f172a;">Average Score:</strong> {{ overview.avg_score }}</div>
+            <div class="subtle"><strong style="color:#0f172a;">Average Accuracy:</strong> {{ overview.avg_accuracy }}%</div>
+            <div class="subtle"><strong style="color:#0f172a;">Total Time Spent:</strong> {{ overview.total_time_spent_human }}</div>
+          </div>
+
+          {% if overview.strongest_subject %}
+            <div class="insight-good">
+              <strong>Strongest Subject:</strong>
+              {{ overview.strongest_subject[0] }} with {{ overview.strongest_subject[1].accuracy }}% accuracy.
+            </div>
+          {% endif %}
+
+          {% if overview.weakest_subject %}
+            <div class="insight-warn">
+              <strong>Focus Next:</strong>
+              Spend more time on {{ overview.weakest_subject[0] }}, where your current accuracy is {{ overview.weakest_subject[1].accuracy }}%.
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="metric-note">
+            Complete your first test to unlock performance trends, strongest subject insights, and weakness tracking. Learning dashboards help most when they support self-monitoring over time. [web:1014][web:1083]
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="panel-card-soft">
+        <h3 style="margin-top:0;">Subject-wise Progress</h3>
+        <p class="subtle">See how you are doing across subjects.</p>
+
+        {% if overview and overview.subject_rollup %}
+          {% for subject_name, stat in overview.subject_rollup.items() %}
+            <div class="subject-row">
+              <div class="subject-head">
+                <div class="subject-title">{{ subject_name }}</div>
+                <div class="subject-meta">{{ "%.0f"|format(stat.score) }} pts • {{ stat.correct }}/{{ stat.total }} correct</div>
+              </div>
+
+              <div class="bar">
+                <div class="bar-fill" style="width: {{ stat.accuracy }}%;"></div>
+              </div>
+
+              <div class="subject-foot">
+                <span>Accuracy: {{ stat.accuracy }}%</span>
+                <span>Time: {{ stat.time_spent_human }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="subtle" style="margin-top:16px;">No subject performance data available yet.</p>
+        {% endif %}
       </div>
     </div>
 
@@ -241,11 +411,15 @@
               Status: {{ attempt.status|title }} |
               Score: {{ attempt.total_score }}
             </div>
-            {% if attempt.status == 'submitted' %}
-              <div style="margin-top:10px;">
+
+            <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+              {% if attempt.status == 'submitted' %}
                 <a href="{{ url_for('student.result_page', attempt_id=attempt.id) }}" class="btn-light">View Result</a>
-              </div>
-            {% endif %}
+                <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="btn-light">Review Test</a>
+              {% else %}
+                <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="btn-main">Continue Attempt</a>
+              {% endif %}
+            </div>
           </div>
         {% else %}
           <p class="subtle" style="margin-top:10px;">No attempts yet.</p>
