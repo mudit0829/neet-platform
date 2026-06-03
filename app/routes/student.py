@@ -44,6 +44,73 @@ def format_seconds_human(total_seconds):
         return f"{hrs}h {mins}m {secs}s"
     return f"{mins}m {secs}s"
 
+def compute_attempt_time_taken_seconds(attempt):
+    duration_seconds = int((attempt.test.duration_minutes or 0) * 60)
+
+    start_base = attempt.started_at or attempt.created_at
+    if not start_base:
+        return 0
+
+    if attempt.status == "submitted":
+        end_base = attempt.submitted_at or utc_now()
+        raw_taken = int((end_base - start_base).total_seconds())
+        return min(duration_seconds, max(0, raw_taken))
+
+    remaining_seconds = get_attempt_remaining_seconds(attempt)
+    return max(0, duration_seconds - remaining_seconds)
+
+def recompute_test_rankings(test_id):
+    attempts = (
+        TestAttempt.query
+        .filter_by(test_id=test_id, status="submitted")
+        .order_by(
+            TestAttempt.total_score.desc(),
+            TestAttempt.correct_count.desc(),
+            TestAttempt.wrong_count.asc(),
+            TestAttempt.time_taken_seconds.asc(),
+            TestAttempt.submitted_at.asc(),
+            TestAttempt.id.asc(),
+        )
+        .all()
+    )
+
+    total_participants = len(attempts)
+    if total_participants == 0:
+        return
+
+    for idx, attempt in enumerate(attempts, start=1):
+        attempt.rank_overall = idx
+        attempt.percentile_overall = round(((total_participants - idx + 1) / total_participants) * 100, 2)
+
+    batch_groups = defaultdict(list)
+    institute_groups = defaultdict(list)
+
+    for attempt in attempts:
+        student = getattr(attempt, "student", None)
+
+        batch_id = getattr(student, "batch_id", None)
+        institute_id = getattr(student, "institute_id", None)
+
+        if batch_id:
+            batch_groups[batch_id].append(attempt)
+        if institute_id:
+            institute_groups[institute_id].append(attempt)
+
+    for batch_id, batch_attempts in batch_groups.items():
+        for idx, attempt in enumerate(batch_attempts, start=1):
+            total = len(batch_attempts)
+            attempt.rank_batch = idx
+            attempt.percentile_batch = round(((total - idx + 1) / total) * 100, 2)
+
+    for institute_id, institute_attempts in institute_groups.items():
+        for idx, attempt in enumerate(institute_attempts, start=1):
+            total = len(institute_attempts)
+            attempt.rank_institute = idx
+            attempt.percentile_institute = round(((total - idx + 1) / total) * 100, 2)
+
+    for attempt in attempts:
+        attempt.analytics_processed_at = utc_now()
+
 
 def get_or_create_answer(attempt_id, question_id):
     answer = AttemptAnswer.query.filter_by(
@@ -179,6 +246,7 @@ def finalize_attempt(attempt, auto_submitted=False):
     attempt.wrong_count = wrong_count
     attempt.skipped_count = skipped_count
     attempt.submitted_at = utc_now()
+    attempt.time_taken_seconds = compute_attempt_time_taken_seconds(attempt)
 
     if auto_submitted and hasattr(attempt, "is_abandoned"):
         attempt.is_abandoned = False
@@ -193,6 +261,8 @@ def auto_submit_if_time_over(attempt):
         return False
 
     finalize_attempt(attempt, auto_submitted=True)
+    db.session.flush()
+    recompute_test_rankings(attempt.test_id)
     db.session.commit()
     return True
 
@@ -329,6 +399,10 @@ def build_student_overview(student_id):
         "strongest_subject": None,
         "weakest_subject": None,
         "subject_rollup": {},
+        "best_rank": None,
+        "latest_rank": None,
+        "avg_percentile": 0.0,
+        "rank_history": [],
     }
 
     if not attempts:
@@ -338,6 +412,21 @@ def build_student_overview(student_id):
     total_questions = 0
     total_correct = 0
     subject_rollup = {}
+    percentile_values = []
+    rank_history = []
+
+   for attempt in attempts:
+       if attempt.percentile_overall is not None:
+           percentile_values.append(float(attempt.percentile_overall))
+
+       rank_history.append({
+           "attempt_id": attempt.id,
+           "test_title": attempt.test.title if attempt.test else "Test",
+           "rank_overall": attempt.rank_overall,
+           "percentile_overall": attempt.percentile_overall,
+           "score": float(attempt.total_score or 0),
+           "submitted_at": attempt.submitted_at,
+       })
 
     for attempt in attempts:
         test_questions, subject_stats, _, _ = build_attempt_analytics(attempt)
@@ -735,6 +824,8 @@ def submit_attempt(attempt_id):
         return redirect(url_for("student.result_page", attempt_id=attempt.id))
 
     finalize_attempt(attempt)
+    db.session.flush()
+    recompute_test_rankings(attempt.test_id)
     db.session.commit()
 
     flash("Test submitted successfully.", "success")
@@ -779,6 +870,11 @@ def result_page(attempt_id):
         strongest_subject = max(subject_stats.items(), key=lambda x: (x[1]["accuracy"], x[1]["score"]))
         weakest_subject = min(subject_stats.items(), key=lambda x: (x[1]["accuracy"], x[1]["score"]))
 
+    participants_count = TestAttempt.query.filter_by(
+        test_id=attempt.test_id,
+        status="submitted"
+    ).count()
+
     return render_template(
         "student_test_result.html",
         attempt=attempt,
@@ -791,6 +887,13 @@ def result_page(attempt_id):
         time_taken_seconds=time_taken_seconds,
         strongest_subject=strongest_subject,
         weakest_subject=weakest_subject,
+        participants_count=participants_count,
+        rank_overall=attempt.rank_overall,
+        rank_batch=attempt.rank_batch,
+        rank_institute=attempt.rank_institute,
+        percentile_overall=attempt.percentile_overall,
+        percentile_batch=attempt.percentile_batch,
+        percentile_institute=attempt.percentile_institute,
     )
 
 
