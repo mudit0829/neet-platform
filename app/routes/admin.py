@@ -1422,8 +1422,137 @@ def analytics_test_detail_page(test_id):
 def analytics_students_page():
     admin_required()
 
-    students = User.query.filter_by(role="student").order_by(User.id.desc()).all()
-    return render_template("admin_analytics_students.html", students=students)
+    institute_id = getattr(current_user, "institute_id", None)
+
+    q = (request.args.get("q") or "").strip()
+    batch_id = request.args.get("batch_id", type=int)
+    status_filter = (request.args.get("status") or "").strip().lower()
+    risk_filter = (request.args.get("risk") or "").strip().lower()
+
+    students_query = User.query.filter_by(role="student")
+    batches_query = Batch.query
+
+    if institute_id:
+        if hasattr(User, "institute_id"):
+            students_query = students_query.filter(User.institute_id == institute_id)
+        if hasattr(Batch, "institute_id"):
+            batches_query = batches_query.filter(Batch.institute_id == institute_id)
+
+    if q:
+        students_query = students_query.filter(User.full_name.ilike(f"%{q}%"))
+
+    if batch_id:
+        students_query = students_query.filter(User.batch_id == batch_id)
+
+    if status_filter == "active":
+        students_query = students_query.filter(User.is_active_user.is_(True))
+    elif status_filter == "inactive":
+        students_query = students_query.filter(User.is_active_user.is_(False))
+
+    students = students_query.order_by(User.id.desc()).all()
+    batches = batches_query.order_by(Batch.id.desc()).all()
+
+    student_ids = [student.id for student in students]
+    batch_map = {batch.id: batch for batch in batches}
+
+    attempts = []
+    if student_ids:
+        attempts = TestAttempt.query.filter(
+            TestAttempt.student_id.in_(student_ids),
+            TestAttempt.status == "submitted"
+        ).all()
+
+    attempt_map = {}
+    for student in students:
+        attempt_map[student.id] = []
+
+    for attempt in attempts:
+        sid = getattr(attempt, "student_id", None)
+        if sid in attempt_map:
+            attempt_map[sid].append(attempt)
+
+    enriched_students = []
+    high_risk_count = 0
+    medium_risk_count = 0
+
+    for student in students:
+        student_attempts = attempt_map.get(student.id, [])
+
+        scores = []
+        accuracies = []
+        percentiles = []
+
+        for attempt in student_attempts:
+            score = float(getattr(attempt, "total_score", 0) or 0)
+            correct = int(getattr(attempt, "correct_count", 0) or 0)
+            wrong = int(getattr(attempt, "wrong_count", 0) or 0)
+            skipped = int(getattr(attempt, "skipped_count", 0) or 0)
+            total_questions = correct + wrong + skipped
+
+            accuracy = round((correct / total_questions) * 100, 2) if total_questions else 0
+
+            scores.append(score)
+            accuracies.append(accuracy)
+
+            percentile_overall = getattr(attempt, "percentile_overall", None)
+            if percentile_overall is not None:
+                try:
+                    percentiles.append(float(percentile_overall))
+                except (TypeError, ValueError):
+                    pass
+
+        attempt_count = len(student_attempts)
+        avg_score = round(sum(scores) / len(scores), 2) if scores else 0
+        avg_accuracy = round(sum(accuracies) / len(accuracies), 2) if accuracies else 0
+        avg_percentile = round(sum(percentiles) / len(percentiles), 2) if percentiles else 0
+
+        score_trend_down = False
+        if len(scores) >= 2 and scores[-1] < scores[0]:
+            score_trend_down = True
+
+        risk_level = "low"
+        if attempt_count == 0:
+            risk_level = "high"
+        elif avg_accuracy < 35 or avg_score < 120:
+            risk_level = "high"
+        elif avg_accuracy < 50 or score_trend_down:
+            risk_level = "medium"
+
+        if risk_level == "high":
+            high_risk_count += 1
+        elif risk_level == "medium":
+            medium_risk_count += 1
+
+        if risk_filter and risk_level != risk_filter:
+            continue
+
+        setattr(student, "attempt_count", attempt_count)
+        setattr(student, "avg_score", avg_score)
+        setattr(student, "avg_accuracy", avg_accuracy)
+        setattr(student, "avg_percentile", avg_percentile)
+        setattr(student, "risk_level", risk_level)
+
+        batch_name = "Not assigned"
+        if getattr(student, "batch_id", None) in batch_map:
+            batch_name = getattr(batch_map[student.batch_id], "name", "Not assigned")
+        setattr(student, "batch_name", batch_name)
+
+        enriched_students.append(student)
+
+    total_students = len(enriched_students)
+    active_students = sum(1 for student in enriched_students if bool(getattr(student, "is_active_user", False)))
+    inactive_students = total_students - active_students
+
+    return render_template(
+        "admin_analytics_students.html",
+        students=enriched_students,
+        batches=batches,
+        total_students=total_students,
+        active_students=active_students,
+        inactive_students=inactive_students,
+        high_risk_count=high_risk_count,
+        medium_risk_count=medium_risk_count,
+    )
 
 @admin_bp.route("/analytics/students/<int:student_id>")
 @login_required
