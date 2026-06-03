@@ -808,7 +808,20 @@ def review_page(attempt_id):
         flash("Submit the test before opening review.", "danger")
         return redirect(url_for("student.attempt_page", attempt_id=attempt.id))
 
-    _, subject_stats, chapter_stats, detailed_rows = build_attempt_analytics(attempt)
+    test_questions, subject_stats, chapter_stats, detailed_rows = build_attempt_analytics(attempt)
+
+    total_questions = len(test_questions)
+    accuracy = round((attempt.correct_count / total_questions) * 100, 2) if total_questions > 0 else 0.0
+
+    duration_seconds = int((attempt.test.duration_minutes or 0) * 60)
+    remaining_seconds = get_attempt_remaining_seconds(attempt)
+    time_taken_seconds = max(0, duration_seconds - remaining_seconds)
+
+    start_base = attempt.started_at or attempt.created_at
+    if attempt.status == "submitted" and start_base:
+        end_base = attempt.submitted_at or utc_now()
+        raw_taken = int((end_base - start_base).total_seconds())
+        time_taken_seconds = min(duration_seconds, max(0, raw_taken))
 
     status_filter = (request.args.get("status") or "all").strip().lower()
     if status_filter in ["correct", "wrong", "skipped"]:
@@ -822,6 +835,10 @@ def review_page(attempt_id):
         chapter_stats=chapter_stats,
         detailed_rows=detailed_rows,
         status_filter=status_filter,
+        total_questions=total_questions,
+        accuracy=accuracy,
+        time_taken_seconds=time_taken_seconds,
+        time_taken_human=format_seconds_human(time_taken_seconds),
     )
 
 
