@@ -1559,16 +1559,93 @@ def analytics_students_page():
 def analytics_student_detail_page(student_id):
     admin_required()
 
-    student = User.query.get_or_404(student_id)
+    institute_id = getattr(current_user, "institute_id", None)
+
+    student_query = User.query.filter(
+        User.id == student_id,
+        User.role == "student"
+    )
+
+    if institute_id and hasattr(User, "institute_id"):
+        student_query = student_query.filter(User.institute_id == institute_id)
+
+    student = student_query.first_or_404()
+
     attempts = TestAttempt.query.filter_by(
         student_id=student.id,
         status="submitted"
     ).order_by(TestAttempt.id.desc()).all()
 
+    total_attempts = len(attempts)
+
+    score_values = []
+    percentile_values = []
+    rank_values = []
+
+    total_correct = 0
+    total_questions = 0
+
+    latest_percentile = None
+    latest_rank = None
+
+    for index, attempt in enumerate(attempts):
+        score = float(getattr(attempt, "total_score", 0) or 0)
+        score_values.append(score)
+
+        correct = int(getattr(attempt, "correct_count", 0) or 0)
+        wrong = int(getattr(attempt, "wrong_count", 0) or 0)
+        skipped = int(getattr(attempt, "skipped_count", 0) or 0)
+
+        total_correct += correct
+        total_questions += (correct + wrong + skipped)
+
+        percentile_overall = getattr(attempt, "percentile_overall", None)
+        if percentile_overall is not None:
+            try:
+                percentile_values.append(float(percentile_overall))
+            except (TypeError, ValueError):
+                pass
+
+        rank_overall = getattr(attempt, "rank_overall", None)
+        if rank_overall is not None:
+            try:
+                rank_values.append(int(rank_overall))
+            except (TypeError, ValueError):
+                pass
+
+        if index == 0:
+            latest_percentile = percentile_overall
+            latest_rank = rank_overall
+
+    avg_score = round(sum(score_values) / len(score_values), 2) if score_values else 0
+    best_score = round(max(score_values), 2) if score_values else 0
+    avg_accuracy = round((total_correct / total_questions) * 100, 2) if total_questions else 0
+    avg_percentile = round(sum(percentile_values) / len(percentile_values), 2) if percentile_values else 0
+    best_rank = min(rank_values) if rank_values else None
+
+    score_trend_down = False
+    if len(score_values) >= 2 and score_values[0] < score_values[-1]:
+        score_trend_down = True
+
+    risk_level = "low"
+    if total_attempts == 0:
+        risk_level = "high"
+    elif avg_accuracy < 35 or avg_score < 120:
+        risk_level = "high"
+    elif avg_accuracy < 50 or score_trend_down:
+        risk_level = "medium"
+
     return render_template(
         "admin_analytics_student_detail.html",
         student=student,
         attempts=attempts,
+        total_attempts=total_attempts,
+        avg_score=avg_score,
+        best_score=best_score,
+        avg_accuracy=avg_accuracy,
+        avg_percentile=avg_percentile,
+        latest_percentile=latest_percentile,
+        best_rank=best_rank,
+        latest_rank=latest_rank,
+        risk_level=risk_level,
     )
-
-
