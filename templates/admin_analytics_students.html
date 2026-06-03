@@ -1,26 +1,626 @@
 {% extends "base.html" %}
 {% block title %}Student Analytics{% endblock %}
+
 {% block content %}
-<section class="dashboard-wrap">
-  <div class="dashboard-header-card">
-    <h1>Student Analytics</h1>
-    <p class="text-muted">Open a student profile to review rank and performance history.</p>
+<section class="dashboard-wrap analytics-students-page">
+  <style>
+    .analytics-students-page {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .students-hero {
+      background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
+      border: 1px solid #e5edf6;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .students-hero h1 {
+      margin: 0;
+      color: #0f172a;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .students-hero p {
+      margin: 10px 0 0;
+      color: #64748b;
+      line-height: 1.6;
+      max-width: 760px;
+      font-size: 0.98rem;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #1d4ed8;
+      border: 1px solid #dbeafe;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .hero-side-card {
+      min-width: 260px;
+      max-width: 340px;
+      background: #ffffff;
+      border: 1px solid #e5edf6;
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .side-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .side-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .side-sub {
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .students-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .students-kpi-card {
+      background: #ffffff;
+      border: 1px solid #e8eef7;
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+    }
+
+    .students-kpi-label {
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .students-kpi-value {
+      color: #0f172a;
+      font-size: 1.9rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .students-kpi-sub {
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .students-panel {
+      background: #ffffff;
+      border: 1px solid #e8eef7;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+    }
+
+    .students-panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .students-panel-head h3 {
+      margin: 0;
+      color: #0f172a;
+      font-size: 1.12rem;
+      font-weight: 800;
+    }
+
+    .students-panel-head p {
+      margin: 6px 0 0;
+      color: #64748b;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .soft-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr 0.8fr 0.8fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .filter-control {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-control label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .filter-control input,
+    .filter-control select {
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid #dbe4ef;
+      padding: 0 14px;
+      font-size: 0.94rem;
+      color: #0f172a;
+      background: #ffffff;
+      outline: none;
+    }
+
+    .filter-control input:focus,
+    .filter-control select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+    }
+
+    .students-table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e8eef7;
+      border-radius: 18px;
+    }
+
+    .students-table {
+      width: 100%;
+      min-width: 1100px;
+      border-collapse: collapse;
+      background: #ffffff;
+    }
+
+    .students-table thead th {
+      text-align: left;
+      background: #f8fbff;
+      color: #64748b;
+      padding: 14px 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.78rem;
+      font-weight: 800;
+      border-bottom: 1px solid #e5edf6;
+    }
+
+    .students-table tbody td {
+      padding: 16px;
+      border-bottom: 1px solid #eef2f7;
+      vertical-align: middle;
+      color: #0f172a;
+      font-size: 0.94rem;
+    }
+
+    .students-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .students-table tbody tr:hover {
+      background: #fbfdff;
+    }
+
+    .student-name {
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .student-sub {
+      color: #64748b;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .metric-main {
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .metric-muted {
+      color: #64748b;
+      font-size: 0.86rem;
+      margin-top: 4px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      min-width: 92px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .status-active {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-inactive {
+      background: #e5e7eb;
+      color: #475569;
+    }
+
+    .risk-pill-high {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .risk-pill-medium {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .risk-pill-low {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #0f172a;
+      color: #ffffff;
+      text-decoration: none;
+      border: 1px solid #0f172a;
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
+    .action-btn:hover {
+      background: #1e293b;
+      border-color: #1e293b;
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px;
+      border-radius: 18px;
+      border: 1px dashed #dbe4ef;
+      background: #fbfdff;
+      color: #64748b;
+      font-size: 0.96rem;
+    }
+
+    @media (max-width: 1200px) {
+      .students-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filter-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .students-hero,
+      .students-panel,
+      .students-kpi-card {
+        padding: 18px;
+      }
+
+      .students-kpi-grid,
+      .filter-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .students-hero h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+
+  {% set students = students|default([]) %}
+  {% set total_students = total_students|default(students|length) %}
+  {% set active_students = active_students|default(0) %}
+  {% set inactive_students = inactive_students|default(0) %}
+  {% set high_risk_count = high_risk_count|default(0) %}
+  {% set medium_risk_count = medium_risk_count|default(0) %}
+  {% set batch_filter = request.args.get('batch_id', '') %}
+  {% set risk_filter = request.args.get('risk', '') %}
+  {% set status_filter = request.args.get('status', '') %}
+  {% set search_query = request.args.get('q', '') %}
+
+  {% if active_students == 0 and total_students > 0 %}
+    {% set inferred_active = namespace(count=0) %}
+    {% for student in students %}
+      {% if student.is_active_user %}
+        {% set inferred_active.count = inferred_active.count + 1 %}
+      {% endif %}
+    {% endfor %}
+    {% set active_students = inferred_active.count %}
+    {% set inactive_students = total_students - active_students %}
+  {% endif %}
+
+  <div class="students-hero">
+    <div>
+      <h1>Student Analytics</h1>
+      <p>
+        Review student-level academic performance, scan risk signals, filter by batch,
+        and open detailed student analytics profiles from one roster page.
+      </p>
+
+      <div class="hero-tags">
+        <span class="hero-tag">Student roster</span>
+        <span class="hero-tag">Risk visibility</span>
+        <span class="hero-tag">Batch filtering</span>
+        <span class="hero-tag">Profile drilldown</span>
+      </div>
+    </div>
+
+    <div class="hero-side-card">
+      <div class="side-label">Students tracked</div>
+      <div class="side-value">{{ total_students }}</div>
+      <div class="side-sub">
+        Use this roster to identify low-engagement students, filter by batch, and
+        open detailed analytics for intervention planning.
+      </div>
+    </div>
   </div>
 
-  <div class="panel-card-soft">
+  <div class="students-kpi-grid">
+    <div class="students-kpi-card">
+      <div class="students-kpi-label">Total Students</div>
+      <div class="students-kpi-value">{{ total_students }}</div>
+      <div class="students-kpi-sub">Total students visible in the analytics roster.</div>
+    </div>
+
+    <div class="students-kpi-card">
+      <div class="students-kpi-label">Active Students</div>
+      <div class="students-kpi-value">{{ active_students }}</div>
+      <div class="students-kpi-sub">Students currently marked active.</div>
+    </div>
+
+    <div class="students-kpi-card">
+      <div class="students-kpi-label">Inactive Students</div>
+      <div class="students-kpi-value">{{ inactive_students }}</div>
+      <div class="students-kpi-sub">Students not currently marked active.</div>
+    </div>
+
+    <div class="students-kpi-card">
+      <div class="students-kpi-label">High Risk Students</div>
+      <div class="students-kpi-value">{{ high_risk_count }}</div>
+      <div class="students-kpi-sub">Students who may need immediate intervention.</div>
+    </div>
+  </div>
+
+  <div class="students-panel">
+    <div class="students-panel-head">
+      <div>
+        <h3>Student Roster</h3>
+        <p>Search, filter, and open detailed analytics for each student.</p>
+      </div>
+      <span class="soft-chip">Roster analytics</span>
+    </div>
+
+    <form method="get" class="filter-bar">
+      <div class="filter-control">
+        <label for="q">Search student</label>
+        <input
+          type="text"
+          id="q"
+          name="q"
+          value="{{ search_query }}"
+          placeholder="Search by student name"
+        >
+      </div>
+
+      <div class="filter-control">
+        <label for="batch_id">Batch</label>
+        <select id="batch_id" name="batch_id">
+          <option value="">All batches</option>
+          {% if batches %}
+            {% for batch in batches %}
+              <option value="{{ batch.id }}" {% if batch_filter|string == batch.id|string %}selected{% endif %}>
+                {{ batch.name }}
+              </option>
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
+
+      <div class="filter-control">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="">All students</option>
+          <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+          <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+      </div>
+
+      <div class="filter-control">
+        <label for="risk">Risk</label>
+        <select id="risk" name="risk">
+          <option value="">All risk levels</option>
+          <option value="high" {% if risk_filter == 'high' %}selected{% endif %}>High</option>
+          <option value="medium" {% if risk_filter == 'medium' %}selected{% endif %}>Medium</option>
+          <option value="low" {% if risk_filter == 'low' %}selected{% endif %}>Low</option>
+        </select>
+      </div>
+    </form>
+
+    {% set rows = namespace(items=[]) %}
     {% for student in students %}
-      <div class="list-item">
-        <div style="font-weight:700;">{{ student.full_name }}</div>
-        <div class="subtle">
-          Batch: {{ student.batch.name if student.batch else 'Not assigned' }}
-        </div>
-        <div style="margin-top:10px;">
-          <a href="{{ url_for('admin.analytics_student_detail_page', student_id=student.id) }}" class="btn-main">View Student Analytics</a>
-        </div>
+      {% set full_name = student.full_name|default('Student') %}
+      {% set batch_name = student.batch.name if student.batch else 'Not assigned' %}
+      {% set is_active = student.is_active_user if student.is_active_user is not none else False %}
+      {% set avg_score = student.avg_score|default(0) %}
+      {% set avg_accuracy = student.avg_accuracy|default(0) %}
+      {% set attempt_count = student.attempt_count|default(0) %}
+      {% set risk_level = student.risk_level|default('low') %}
+
+      {% set include = true %}
+
+      {% if search_query and search_query.lower() not in full_name.lower() %}
+        {% set include = false %}
+      {% endif %}
+
+      {% if batch_filter and (student.batch_id|string != batch_filter|string) %}
+        {% set include = false %}
+      {% endif %}
+
+      {% if status_filter == 'active' and not is_active %}
+        {% set include = false %}
+      {% endif %}
+
+      {% if status_filter == 'inactive' and is_active %}
+        {% set include = false %}
+      {% endif %}
+
+      {% if risk_filter and risk_level != risk_filter %}
+        {% set include = false %}
+      {% endif %}
+
+      {% if include %}
+        {% set rows.items = rows.items + [{
+          'id': student.id,
+          'full_name': full_name,
+          'batch_name': batch_name,
+          'is_active': is_active,
+          'avg_score': avg_score,
+          'avg_accuracy': avg_accuracy,
+          'attempt_count': attempt_count,
+          'risk_level': risk_level,
+          'email': student.email|default(''),
+          'username': student.username|default('')
+        }] %}
+      {% endif %}
+    {% endfor %}
+
+    {% if rows.items %}
+      <div class="students-table-wrap">
+        <table class="students-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Batch</th>
+              <th>Status</th>
+              <th>Attempts</th>
+              <th>Average Score</th>
+              <th>Accuracy</th>
+              <th>Risk</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows.items %}
+              <tr>
+                <td>
+                  <div class="student-name">{{ row.full_name }}</div>
+                  <div class="student-sub">
+                    {% if row.username %}@{{ row.username }}{% endif %}
+                    {% if row.email %}
+                      {% if row.username %}<br>{% endif %}
+                      {{ row.email }}
+                    {% endif %}
+                  </div>
+                </td>
+
+                <td>
+                  <div class="metric-main">{{ row.batch_name }}</div>
+                </td>
+
+                <td>
+                  <span class="status-pill {% if row.is_active %}status-active{% else %}status-inactive{% endif %}">
+                    {% if row.is_active %}Active{% else %}Inactive{% endif %}
+                  </span>
+                </td>
+
+                <td>
+                  <div class="metric-main">{{ row.attempt_count }}</div>
+                  <div class="metric-muted">Submitted attempts</div>
+                </td>
+
+                <td>
+                  <div class="metric-main">{{ row.avg_score }}</div>
+                  <div class="metric-muted">Average score</div>
+                </td>
+
+                <td>
+                  <div class="metric-main">{{ row.avg_accuracy }}%</div>
+                  <div class="metric-muted">Average accuracy</div>
+                </td>
+
+                <td>
+                  <span class="status-pill {% if row.risk_level == 'high' %}risk-pill-high{% elif row.risk_level == 'medium' %}risk-pill-medium{% else %}risk-pill-low{% endif %}">
+                    {{ row.risk_level|title }}
+                  </span>
+                </td>
+
+                <td>
+                  <a href="{{ url_for('admin.analytics_student_detail_page', student_id=row.id) }}" class="action-btn">
+                    View Analytics
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     {% else %}
-      <p class="subtle">No students found.</p>
-    {% endfor %}
+      <div class="empty-state">
+        No students matched the selected filters.
+      </div>
+    {% endif %}
   </div>
 </section>
 {% endblock %}
