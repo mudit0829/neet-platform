@@ -1396,25 +1396,92 @@ def analytics_tests_page():
 def analytics_test_detail_page(test_id):
     admin_required()
 
-    test = Test.query.get_or_404(test_id)
+    institute_id = getattr(current_user, "institute_id", None)
 
-    attempts = TestAttempt.query.filter_by(
+    test_query = Test.query.filter(Test.id == test_id)
+    if institute_id and hasattr(Test, "institute_id"):
+        test_query = test_query.filter(Test.institute_id == institute_id)
+
+    test = test_query.first_or_404()
+
+    attempts_query = TestAttempt.query.filter_by(
         test_id=test.id,
         status="submitted"
-    ).order_by(
-        TestAttempt.rank_overall.asc(),
-        TestAttempt.id.asc()
-    ).all()
+    )
 
-    participants_count = len(attempts)
-    avg_score = round(sum(float(a.total_score or 0) for a in attempts) / participants_count, 2) if participants_count else 0
+    attempts = attempts_query.order_by(TestAttempt.id.desc()).all()
+
+    total_attempts = len(attempts)
+
+    score_values = []
+    accuracy_values = []
+    percentile_values = []
+    rank_values = []
+    time_taken_values = []
+
+    processed_attempts = []
+
+    for attempt in attempts:
+        score = float(getattr(attempt, "total_score", 0) or 0)
+
+        correct = int(getattr(attempt, "correct_count", 0) or 0)
+        wrong = int(getattr(attempt, "wrong_count", 0) or 0)
+        skipped = int(getattr(attempt, "skipped_count", 0) or 0)
+        total_questions = correct + wrong + skipped
+
+        accuracy = round((correct / total_questions) * 100, 2) if total_questions else 0
+
+        rank_overall = getattr(attempt, "rank_overall", None)
+        percentile_overall = getattr(attempt, "percentile_overall", None)
+        rank_batch = getattr(attempt, "rank_batch", None)
+        time_taken_seconds = int(getattr(attempt, "time_taken_seconds", 0) or 0)
+
+        score_values.append(score)
+        accuracy_values.append(accuracy)
+
+        if time_taken_seconds > 0:
+            time_taken_values.append(time_taken_seconds)
+
+        if percentile_overall is not None:
+            try:
+                percentile_values.append(float(percentile_overall))
+            except (TypeError, ValueError):
+                pass
+
+        if rank_overall is not None:
+            try:
+                rank_values.append(int(rank_overall))
+            except (TypeError, ValueError):
+                pass
+
+        setattr(attempt, "safe_rank_overall", rank_overall)
+        setattr(attempt, "safe_percentile_overall", percentile_overall)
+        setattr(attempt, "safe_rank_batch", rank_batch)
+        setattr(attempt, "safe_time_taken_seconds", time_taken_seconds)
+        setattr(attempt, "safe_accuracy", accuracy)
+
+        processed_attempts.append(attempt)
+
+    avg_score = round(sum(score_values) / len(score_values), 2) if score_values else 0
+    highest_score = round(max(score_values), 2) if score_values else 0
+    lowest_score = round(min(score_values), 2) if score_values else 0
+    avg_accuracy = round(sum(accuracy_values) / len(accuracy_values), 2) if accuracy_values else 0
+    avg_percentile = round(sum(percentile_values) / len(percentile_values), 2) if percentile_values else 0
+    best_rank = min(rank_values) if rank_values else None
+    avg_time_taken_seconds = round(sum(time_taken_values) / len(time_taken_values)) if time_taken_values else 0
 
     return render_template(
         "admin_analytics_test_detail.html",
         test=test,
-        attempts=attempts,
-        participants_count=participants_count,
+        attempts=processed_attempts,
+        total_attempts=total_attempts,
         avg_score=avg_score,
+        highest_score=highest_score,
+        lowest_score=lowest_score,
+        avg_accuracy=avg_accuracy,
+        avg_percentile=avg_percentile,
+        best_rank=best_rank,
+        avg_time_taken_seconds=avg_time_taken_seconds,
     )
 
 @admin_bp.route("/analytics/students")
