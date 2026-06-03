@@ -1069,7 +1069,7 @@ def analytics_overview_page():
     total_submitted = TestAttempt.query.filter_by(status="submitted").count()
     total_tests = Test.query.count()
 
-    avg_score = db.session.query(func.avg(TestAttempt.total_score)).filter(
+    avg_score = db.session.query(db.func.avg(TestAttempt.total_score)).filter(
         TestAttempt.status == "submitted"
     ).scalar() or 0
 
