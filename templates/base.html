@@ -612,9 +612,13 @@
         </div>
       </nav>
 
-      <a href="{{ url_for('admin.analytics_overview_page') }}" class="sidebar-link">
-       Analytics
-      </a>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Analytics</div>
+          <a class="nav-item {% if '/admin/analytics' in request.path %}active{% endif %}" href="{{ url_for('admin.analytics_overview_page') }}">
+            <span class="nav-bullet"></span>
+            <span>Analytics</span>
+          </a>
+         </div>
 
       <div class="sidebar-footer">
         <a class="btn btn-secondary btn-block" href="{{ url_for('auth.logout') }}">Logout</a>
