@@ -12,12 +12,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     flex-wrap: wrap;
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.96);
     border: 1px solid #e5e7eb;
-    border-radius: 18px;
+    border-radius: 20px;
     padding: 18px 20px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+  }
+
+  .attempt-top-left {
+    display: grid;
+    gap: 6px;
+  }
+
+  .attempt-meta-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
   }
 
   .attempt-main {
@@ -28,10 +41,11 @@
   }
 
   .card {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.98);
     border: 1px solid #e5e7eb;
-    border-radius: 20px;
+    border-radius: 22px;
     overflow: hidden;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
   }
 
   .question-head {
@@ -39,8 +53,9 @@
     border-bottom: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
+    align-items: center;
   }
 
   .question-body {
@@ -56,10 +71,17 @@
 
   .chip {
     display: inline-flex;
+    align-items: center;
     padding: 6px 10px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
+    line-height: 1;
+  }
+
+  .chip.index {
+    background: #eff6ff;
+    color: #1d4ed8;
   }
 
   .chip.subject {
@@ -86,34 +108,45 @@
     font-size: 18px;
     line-height: 1.7;
     color: #0f172a;
+    white-space: pre-line;
+  }
+
+  .attempt-warning,
+  .attempt-info,
+  .attempt-tip {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    line-height: 1.6;
+    font-size: 14px;
   }
 
   .attempt-warning {
-    margin-top: 18px;
-    padding: 14px 16px;
-    border-radius: 16px;
     background: #fff7ed;
     border: 1px solid #fed7aa;
     color: #9a3412;
-    line-height: 1.6;
-    font-size: 14px;
   }
 
   .attempt-info {
-    margin-top: 18px;
-    padding: 14px 16px;
-    border-radius: 16px;
     background: #eff6ff;
     border: 1px solid #bfdbfe;
     color: #1d4ed8;
-    line-height: 1.6;
-    font-size: 14px;
+  }
+
+  .attempt-tip {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
   }
 
   .option-list {
     display: grid;
     gap: 14px;
     margin-top: 24px;
+  }
+
+  .option-item {
+    position: relative;
   }
 
   .option-item label {
@@ -142,6 +175,11 @@
     color: #ffffff;
   }
 
+  .option-item input[type="radio"]:checked ~ .option-value {
+    color: #0f172a;
+    font-weight: 600;
+  }
+
   .option-key {
     min-width: 36px;
     width: 36px;
@@ -153,15 +191,49 @@
     background: #f1f5f9;
     color: #334155;
     font-weight: 800;
+    transition: all 0.2s ease;
   }
 
-  .action-bar {
-    margin-top: 24px;
-    padding-top: 18px;
-    border-top: 1px solid #e5e7eb;
+  .option-value {
+    color: #334155;
+    line-height: 1.7;
+  }
+
+  .question-utility-row {
     display: flex;
     justify-content: space-between;
     gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .question-mini-stat {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .action-bar {
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .action-left,
+  .action-right {
+    display: flex;
+    gap: 10px;
     flex-wrap: wrap;
   }
 
@@ -178,17 +250,27 @@
     font-weight: 700;
     cursor: pointer;
     border: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
   }
 
   .btn-main {
     background: #2563eb;
     color: #ffffff;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12);
+  }
+
+  .btn-main:hover {
+    transform: translateY(-1px);
   }
 
   .btn-light {
     background: #ffffff;
     color: #0f172a;
     border: 1px solid #cbd5e1;
+  }
+
+  .btn-light:hover {
+    background: #f8fafc;
   }
 
   .btn-review {
@@ -199,15 +281,24 @@
   .btn-submit {
     background: #059669;
     color: #ffffff;
+    box-shadow: 0 10px 20px rgba(5, 150, 105, 0.12);
   }
 
   .side-card {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.98);
     border: 1px solid #e5e7eb;
-    border-radius: 20px;
+    border-radius: 22px;
     padding: 18px;
     position: sticky;
     top: 20px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+  }
+
+  .side-title {
+    margin: 0 0 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
   }
 
   .legend {
@@ -235,11 +326,26 @@
     margin-top: 18px;
   }
 
+  .palette-subject-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .subject-count {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
   .palette-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 10px;
-    margin-top: 12px;
   }
 
   .palette-link {
@@ -247,11 +353,18 @@
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    height: 48px;
-    border-radius: 10px;
+    height: 46px;
+    border-radius: 12px;
     font-weight: 800;
     color: #0f172a;
     background: #cbd5e1;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .palette-link:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
   }
 
   .palette-link.current {
@@ -289,11 +402,19 @@
     padding: 10px 14px;
     border-radius: 12px;
     font-weight: 800;
+    border: 1px solid #bfdbfe;
   }
 
   .timer-box.warning {
     background: #fff7ed;
     color: #9a3412;
+    border-color: #fed7aa;
+  }
+
+  .timer-box.danger {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
   }
 
   .submit-modal {
@@ -313,10 +434,11 @@
 
   .submit-dialog {
     width: 100%;
-    max-width: 500px;
+    max-width: 560px;
     background: #ffffff;
     border-radius: 22px;
     padding: 24px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
   }
 
   .submit-stats {
@@ -347,6 +469,25 @@
     color: #7e22ce;
   }
 
+  .submit-stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .submit-stat-label {
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .submit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
   @media (max-width: 1100px) {
     .attempt-main {
       grid-template-columns: 1fr;
@@ -354,6 +495,19 @@
 
     .side-card {
       position: static;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .question-utility-row,
+    .action-bar,
+    .attempt-top {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .submit-stats {
+      grid-template-columns: 1fr;
     }
   }
 
@@ -372,9 +526,21 @@
       font-size: 14px;
     }
 
-    .action-bar {
-      flex-direction: column;
-      align-items: stretch;
+    .question-body,
+    .question-head,
+    .side-card,
+    .submit-dialog {
+      padding: 16px;
+    }
+
+    .action-left,
+    .action-right {
+      width: 100%;
+    }
+
+    .action-left > *,
+    .action-right > * {
+      flex: 1 1 auto;
     }
   }
 </style>
@@ -391,14 +557,19 @@
 <section class="dashboard-wrap">
   <div class="attempt-shell">
     <div class="attempt-top">
-      <div>
-        <h1 style="margin:0 0 4px;">{{ test.title }}</h1>
+      <div class="attempt-top-left">
+        <div class="topbar-chip">Live Attempt</div>
+        <h1 style="margin:0;">{{ test.title }}</h1>
+        <div class="attempt-meta-row">
+          <span class="chip index">Question {{ question_number }} / {{ total_questions }}</span>
+          <span class="chip mode">{{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}</span>
+        </div>
         <div class="panel-text">{{ answered_count }} of {{ total_questions }} answered</div>
       </div>
 
       <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
         <div class="timer-box" id="timer-box">
-          ⏰
+          <span>⏰</span>
           <span id="time-remaining" data-seconds="{{ remaining_seconds }}">00:00:00</span>
         </div>
         <button type="button" class="btn-submit" id="open-submit-modal">Submit</button>
@@ -413,7 +584,6 @@
             <span class="chip subject">{{ current_question.subject.name if current_question.subject else 'Subject' }}</span>
             <span class="chip difficulty">{{ current_question.difficulty_level|title }}</span>
             <span class="chip chapter">{{ current_question.chapter.name if current_question.chapter else 'Chapter' }}</span>
-            <span class="chip mode">{{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}</span>
           </div>
         </div>
 
@@ -431,22 +601,27 @@
           {% endif %}
 
           <div class="attempt-warning">
-            The timer is running continuously and this attempt will auto-submit when time ends. Do not leave this test unless you are ready to finish within the remaining time. [web:877][web:882][web:896]
+            The timer runs continuously and this attempt will auto-submit when time ends. Do not leave the test unless you are ready to finish within the remaining time. [web:1049][web:1045]
           </div>
 
           {% if test.schedule_type == 'fixed_start' %}
             <div class="attempt-info">
-              This is a fixed start test. Your remaining time is being calculated from the scheduled rules for this exam. [web:885]
+              This is a fixed start test. Your remaining time is being calculated using the scheduled exam rules. [web:1051]
             </div>
           {% elif test.schedule_type == 'window' %}
             <div class="attempt-info">
-              This attempt started inside an allowed time window. Your submission must still happen before the valid expiry time. [web:876][web:882]
+              This attempt began inside the allowed test window, and it must still be submitted before the valid expiry time. [web:1043][web:1049]
             </div>
           {% endif %}
 
-          <form method="POST" action="{{ url_for('student.save_answer', attempt_id=attempt.id) }}">
+          <div class="attempt-tip">
+            Use Save & Next regularly so your latest answer and question time are recorded. Question-level timing helps build subject and chapter analysis later. [web:1028][web:1031]
+          </div>
+
+          <form method="POST" action="{{ url_for('student.save_answer', attempt_id=attempt.id) }}" id="attemptSaveForm">
             <input type="hidden" name="question_id" value="{{ current_question.id }}">
             <input type="hidden" name="question_number" value="{{ question_number }}">
+            <input type="hidden" name="time_spent_seconds" id="time_spent_seconds" value="0">
 
             <div class="option-list">
               {% for key, value in [('A', current_question.option_a), ('B', current_question.option_b), ('C', current_question.option_c), ('D', current_question.option_d)] %}
@@ -459,18 +634,37 @@
                       {% if current_answer and current_answer.selected_option == key %}checked{% endif %}
                     >
                     <span class="option-key">{{ key }}</span>
-                    <span>{{ value }}</span>
+                    <span class="option-value">{{ value }}</span>
                   </label>
                 </div>
               {% endfor %}
             </div>
 
-            <div class="action-bar">
+            <div class="question-utility-row">
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <div class="question-mini-stat">
+                  Subject: {{ current_question.subject.name if current_question.subject else 'General' }}
+                </div>
+                <div class="question-mini-stat">
+                  Chapter: {{ current_question.chapter.name if current_question.chapter else 'General' }}
+                </div>
+              </div>
+
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                {% if current_answer and current_answer.is_marked_for_review %}
+                  <div class="question-mini-stat" style="background:#f3e8ff; color:#7e22ce; border-color:#e9d5ff;">
+                    Marked for review
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="action-bar">
+              <div class="action-left">
                 {% if question_number > 1 %}
                   <a
                     href="{{ url_for('student.attempt_page', attempt_id=attempt.id, q=question_number-1) }}"
-                    class="btn-light"
+                    class="btn-light nav-link-track"
                   >
                     Previous
                   </a>
@@ -485,7 +679,16 @@
                 </button>
               </div>
 
-              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <div class="action-right">
+                {% if question_number < total_questions %}
+                  <a
+                    href="{{ url_for('student.attempt_page', attempt_id=attempt.id, q=question_number+1) }}"
+                    class="btn-light nav-link-track"
+                  >
+                    Next
+                  </a>
+                {% endif %}
+
                 <button type="submit" name="action_type" value="save_next" class="btn-main">
                   Save & Next
                 </button>
@@ -496,7 +699,7 @@
       </div>
 
       <div class="side-card">
-        <h3 style="margin-top:0;">Question Navigator</h3>
+        <h3 class="side-title">Question Navigator</h3>
 
         <div class="legend">
           <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Answered</div>
@@ -506,18 +709,21 @@
         </div>
 
         <div class="attempt-info" style="margin-top:0;">
-          Use the navigator to move between questions. Your answer sheet flow and question numbering stay available throughout the attempt. [cite:888]
+          Use the navigator to move between questions. Your answer sheet flow and question numbering remain visible throughout the attempt. [cite:888]
         </div>
 
         {% for subject_name, questions in subject_groups.items() %}
           <div class="palette-subject">
-            <div style="font-weight:800; color:#0f172a;">{{ subject_name }} ({{ questions|length }})</div>
+            <div class="palette-subject-title">
+              <span>{{ subject_name }}</span>
+              <span class="subject-count">{{ questions|length }} questions</span>
+            </div>
 
             <div class="palette-grid">
               {% for item in questions %}
                 <a
                   href="{{ url_for('student.attempt_page', attempt_id=attempt.id, q=item.index) }}"
-                  class="palette-link {{ item.state }} {% if item.is_current %}current{% endif %}"
+                  class="palette-link {{ item.state }} {% if item.is_current %}current{% endif %} nav-link-track"
                 >
                   {{ item.index }}
                 </a>
@@ -533,33 +739,33 @@
 <div class="submit-modal" id="submitModal">
   <div class="submit-dialog">
     <h2 style="margin:0 0 8px;">Submit Test?</h2>
-    <p class="panel-text">Please review your stats before submitting.</p>
+    <p class="panel-text">Please review your current attempt status before final submission.</p>
 
     <div class="submit-stats">
       <div class="submit-stat green">
-        <div style="font-size:28px; font-weight:800;">{{ answered_count }}</div>
-        <div>Answered</div>
+        <div class="submit-stat-value">{{ answered_count }}</div>
+        <div class="submit-stat-label">Answered</div>
       </div>
 
       <div class="submit-stat red">
-        <div style="font-size:28px; font-weight:800;">{{ total_questions - answered_count }}</div>
-        <div>Unanswered</div>
+        <div class="submit-stat-value">{{ total_questions - answered_count }}</div>
+        <div class="submit-stat-label">Unanswered</div>
       </div>
 
       <div class="submit-stat purple">
-        <div style="font-size:28px; font-weight:800;">{{ review_ns.count }}</div>
-        <div>Review</div>
+        <div class="submit-stat-value">{{ review_ns.count }}</div>
+        <div class="submit-stat-label">Review</div>
       </div>
     </div>
 
     <div class="attempt-warning" style="margin:0 0 18px;">
-      Once submitted, this attempt cannot be edited. If time reaches zero, the system will submit automatically. [web:877][web:882]
+      Once submitted, this attempt cannot be edited. If the timer reaches zero, the system will auto-submit the test. [web:1045][web:1049]
     </div>
 
-    <div style="display:flex; justify-content:flex-end; gap:12px; flex-wrap:wrap;">
+    <div class="submit-actions">
       <button type="button" class="btn-light" id="close-submit-modal">Continue Test</button>
 
-      <form method="POST" action="{{ url_for('student.submit_attempt', attempt_id=attempt.id) }}">
+      <form method="POST" action="{{ url_for('student.submit_attempt', attempt_id=attempt.id) }}" id="manualSubmitForm">
         <button type="submit" class="btn-submit">Submit Now</button>
       </form>
     </div>
@@ -576,6 +782,13 @@
     const openSubmitModal = document.getElementById("open-submit-modal");
     const closeSubmitModal = document.getElementById("close-submit-modal");
     const autoSubmitForm = document.getElementById("autoSubmitForm");
+    const manualSubmitForm = document.getElementById("manualSubmitForm");
+    const saveForm = document.getElementById("attemptSaveForm");
+    const timeInput = document.getElementById("time_spent_seconds");
+    const trackedLinks = document.querySelectorAll(".nav-link-track");
+
+    let startedAt = Date.now();
+    let submitted = false;
 
     function formatTime(totalSeconds) {
       const hrs = Math.floor(totalSeconds / 3600);
@@ -586,28 +799,62 @@
              String(secs).padStart(2, "0");
     }
 
+    function elapsedSeconds() {
+      return Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+    }
+
+    function syncQuestionTime() {
+      if (timeInput) {
+        timeInput.value = elapsedSeconds();
+      }
+    }
+
+    function syncTimerStyle(seconds) {
+      if (!timerBox) return;
+
+      timerBox.classList.remove("warning", "danger");
+
+      if (seconds <= 60) {
+        timerBox.classList.add("danger");
+      } else if (seconds <= 300) {
+        timerBox.classList.add("warning");
+      }
+    }
+
+    if (saveForm) {
+      saveForm.addEventListener("submit", function () {
+        submitted = true;
+        syncQuestionTime();
+      });
+    }
+
+    trackedLinks.forEach(function (link) {
+      link.addEventListener("click", function () {
+        syncQuestionTime();
+      });
+    });
+
+    if (manualSubmitForm) {
+      manualSubmitForm.addEventListener("submit", function () {
+        submitted = true;
+      });
+    }
+
     if (timerEl) {
       let seconds = parseInt(timerEl.dataset.seconds || "0", 10);
       let timerRef = null;
 
-      function syncTimerStyle() {
-        if (!timerBox) return;
-        if (seconds <= 300) {
-          timerBox.classList.add("warning");
-        } else {
-          timerBox.classList.remove("warning");
-        }
-      }
-
       function tick() {
-        syncTimerStyle();
+        syncTimerStyle(seconds);
 
         if (seconds <= 0) {
           timerEl.textContent = "00:00:00";
+          syncQuestionTime();
           if (timerRef) {
             clearInterval(timerRef);
           }
-          if (autoSubmitForm) {
+          if (autoSubmitForm && !submitted) {
+            submitted = true;
             autoSubmitForm.submit();
           }
           return;
