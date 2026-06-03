@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
+
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 
@@ -34,6 +35,16 @@ def get_attempt_remaining_seconds(attempt):
     return max(0, remaining)
 
 
+def format_seconds_human(total_seconds):
+    total_seconds = int(total_seconds or 0)
+    hrs = total_seconds // 3600
+    mins = (total_seconds % 3600) // 60
+    secs = total_seconds % 60
+    if hrs > 0:
+        return f"{hrs}h {mins}m {secs}s"
+    return f"{mins}m {secs}s"
+
+
 def get_or_create_answer(attempt_id, question_id):
     answer = AttemptAnswer.query.filter_by(
         attempt_id=attempt_id,
@@ -64,7 +75,9 @@ def can_student_start_test(test, student_id):
     if question_count <= 0:
         return False, "This test has no questions yet."
 
-    if getattr(test, "schedule_type", "instant") == "fixed_start":
+    schedule_type = getattr(test, "schedule_type", "instant")
+
+    if schedule_type == "fixed_start":
         if not getattr(test, "start_at", None):
             return False, "This test start time is not configured."
         if now < test.start_at:
@@ -72,7 +85,7 @@ def can_student_start_test(test, student_id):
         if getattr(test, "end_at", None) and now > test.end_at:
             return False, "This test time window has closed."
 
-    elif getattr(test, "schedule_type", "instant") == "window":
+    elif schedule_type == "window":
         if not getattr(test, "start_at", None) or not getattr(test, "end_at", None):
             return False, "This test window is not configured."
         if now < test.start_at:
@@ -81,22 +94,23 @@ def can_student_start_test(test, student_id):
             return False, "This test window has closed."
 
     max_attempts = getattr(test, "max_attempts", 1) or 1
-    previous_attempts_count = TestAttempt.query.filter(
-        TestAttempt.test_id == test.id,
-        TestAttempt.student_id == student_id,
-        TestAttempt.status.in_(["submitted", "ongoing"])
+
+    ongoing_attempt = TestAttempt.query.filter_by(
+        test_id=test.id,
+        student_id=student_id,
+        status="ongoing"
+    ).order_by(TestAttempt.id.desc()).first()
+
+    if ongoing_attempt:
+        return True, ongoing_attempt
+
+    previous_submitted_count = TestAttempt.query.filter_by(
+        test_id=test.id,
+        student_id=student_id,
+        status="submitted"
     ).count()
 
-    if previous_attempts_count >= max_attempts:
-        ongoing_attempt = TestAttempt.query.filter_by(
-            test_id=test.id,
-            student_id=student_id,
-            status="ongoing"
-        ).order_by(TestAttempt.id.desc()).first()
-
-        if ongoing_attempt:
-            return True, ongoing_attempt
-
+    if previous_submitted_count >= max_attempts:
         return False, "Maximum allowed attempts reached."
 
     return True, None
@@ -105,16 +119,13 @@ def can_student_start_test(test, student_id):
 def calculate_attempt_expiry(test, started_at):
     duration_minutes = int(test.duration_minutes or 0)
     duration_delta = timedelta(minutes=duration_minutes)
-
     schedule_type = getattr(test, "schedule_type", "instant")
 
     if schedule_type == "fixed_start":
         fixed_start = test.start_at or started_at
         fixed_end = fixed_start + duration_delta
-
         if getattr(test, "end_at", None):
             return min(fixed_end, test.end_at)
-
         return fixed_end
 
     if schedule_type == "window":
@@ -124,19 +135,6 @@ def calculate_attempt_expiry(test, started_at):
         return rolling_end
 
     return started_at + duration_delta
-
-
-def auto_submit_if_time_over(attempt):
-    if attempt.status != "ongoing":
-        return False
-
-    remaining = get_attempt_remaining_seconds(attempt)
-    if remaining > 0:
-        return False
-
-    finalize_attempt(attempt, auto_submitted=True)
-    db.session.commit()
-    return True
 
 
 def finalize_attempt(attempt, auto_submitted=False):
@@ -180,12 +178,211 @@ def finalize_attempt(attempt, auto_submitted=False):
     attempt.correct_count = correct_count
     attempt.wrong_count = wrong_count
     attempt.skipped_count = skipped_count
+    attempt.submitted_at = utc_now()
 
-    if hasattr(attempt, "submitted_at"):
-        attempt.submitted_at = utc_now()
-
-    if hasattr(attempt, "is_abandoned") and auto_submitted:
+    if auto_submitted and hasattr(attempt, "is_abandoned"):
         attempt.is_abandoned = False
+
+
+def auto_submit_if_time_over(attempt):
+    if attempt.status != "ongoing":
+        return False
+
+    remaining = get_attempt_remaining_seconds(attempt)
+    if remaining > 0:
+        return False
+
+    finalize_attempt(attempt, auto_submitted=True)
+    db.session.commit()
+    return True
+
+
+def build_attempt_analytics(attempt):
+    test_questions = TestQuestion.query.filter_by(
+        test_id=attempt.test_id
+    ).order_by(TestQuestion.display_order.asc()).all()
+
+    answer_map = {
+        answer.question_id: answer
+        for answer in attempt.answers
+    }
+
+    subject_stats = {}
+    chapter_stats = {}
+    detailed_rows = []
+
+    for idx, tq in enumerate(test_questions, start=1):
+        q = tq.question
+        ans = answer_map.get(q.id)
+
+        selected_option = (ans.selected_option or "").strip().upper() if ans and ans.selected_option else ""
+        correct_option = (q.correct_option or "").strip().upper()
+        subject_name = q.subject.name if q.subject else "General"
+        chapter_name = q.chapter.name if q.chapter else "General Chapter"
+        time_spent = int(ans.time_spent_seconds or 0) if ans else 0
+
+        if subject_name not in subject_stats:
+            subject_stats[subject_name] = {
+                "total": 0,
+                "correct": 0,
+                "wrong": 0,
+                "skipped": 0,
+                "score": 0.0,
+                "time_spent": 0,
+                "avg_time_per_question": 0,
+                "avg_time_per_answered": 0,
+                "accuracy": 0,
+            }
+
+        chapter_key = f"{subject_name}|||{chapter_name}"
+        if chapter_key not in chapter_stats:
+            chapter_stats[chapter_key] = {
+                "subject_name": subject_name,
+                "chapter_name": chapter_name,
+                "total": 0,
+                "correct": 0,
+                "wrong": 0,
+                "skipped": 0,
+                "score": 0.0,
+                "time_spent": 0,
+                "avg_time_per_question": 0,
+                "avg_time_per_answered": 0,
+                "accuracy": 0,
+            }
+
+        subject_stats[subject_name]["total"] += 1
+        subject_stats[subject_name]["time_spent"] += time_spent
+
+        chapter_stats[chapter_key]["total"] += 1
+        chapter_stats[chapter_key]["time_spent"] += time_spent
+
+        status = "skipped"
+        marks_delta = 0.0
+
+        if not selected_option:
+            subject_stats[subject_name]["skipped"] += 1
+            chapter_stats[chapter_key]["skipped"] += 1
+        elif selected_option == correct_option:
+            status = "correct"
+            marks_delta = float(tq.marks or 0)
+            subject_stats[subject_name]["correct"] += 1
+            subject_stats[subject_name]["score"] += marks_delta
+            chapter_stats[chapter_key]["correct"] += 1
+            chapter_stats[chapter_key]["score"] += marks_delta
+        else:
+            status = "wrong"
+            marks_delta = -float(tq.negative_marks or 0)
+            subject_stats[subject_name]["wrong"] += 1
+            subject_stats[subject_name]["score"] += marks_delta
+            chapter_stats[chapter_key]["wrong"] += 1
+            chapter_stats[chapter_key]["score"] += marks_delta
+
+        detailed_rows.append({
+            "index": idx,
+            "status": status,
+            "question": q,
+            "subject_name": subject_name,
+            "chapter_name": chapter_name,
+            "selected_option": selected_option,
+            "correct_option": correct_option,
+            "time_spent_seconds": time_spent,
+            "time_spent_human": format_seconds_human(time_spent),
+            "marks_delta": marks_delta,
+            "is_marked_for_review": bool(ans.is_marked_for_review) if ans else False,
+        })
+
+    for stats in subject_stats.values():
+        total = int(stats["total"] or 0)
+        answered = int(stats["correct"] + stats["wrong"])
+        stats["accuracy"] = round((stats["correct"] / total) * 100, 2) if total > 0 else 0
+        stats["avg_time_per_question"] = round(stats["time_spent"] / total, 2) if total > 0 else 0
+        stats["avg_time_per_answered"] = round(stats["time_spent"] / answered, 2) if answered > 0 else 0
+        stats["time_spent_human"] = format_seconds_human(stats["time_spent"])
+
+    chapter_rows = []
+    for stats in chapter_stats.values():
+        total = int(stats["total"] or 0)
+        answered = int(stats["correct"] + stats["wrong"])
+        stats["accuracy"] = round((stats["correct"] / total) * 100, 2) if total > 0 else 0
+        stats["avg_time_per_question"] = round(stats["time_spent"] / total, 2) if total > 0 else 0
+        stats["avg_time_per_answered"] = round(stats["time_spent"] / answered, 2) if answered > 0 else 0
+        stats["time_spent_human"] = format_seconds_human(stats["time_spent"])
+        chapter_rows.append(stats)
+
+    chapter_rows.sort(key=lambda x: (x["accuracy"], x["score"], -x["time_spent"]))
+
+    return test_questions, subject_stats, chapter_rows, detailed_rows
+
+
+def build_student_overview(student_id):
+    attempts = TestAttempt.query.filter_by(
+        student_id=student_id,
+        status="submitted"
+    ).order_by(TestAttempt.id.desc()).all()
+
+    overview = {
+        "total_attempts": len(attempts),
+        "avg_score": 0.0,
+        "avg_accuracy": 0.0,
+        "total_time_spent_seconds": 0,
+        "total_time_spent_human": "0m 0s",
+        "strongest_subject": None,
+        "weakest_subject": None,
+        "subject_rollup": {},
+    }
+
+    if not attempts:
+        return overview
+
+    total_score = 0.0
+    total_questions = 0
+    total_correct = 0
+    subject_rollup = {}
+
+    for attempt in attempts:
+        test_questions, subject_stats, _, _ = build_attempt_analytics(attempt)
+
+        total_score += float(attempt.total_score or 0)
+        total_questions += len(test_questions)
+        total_correct += int(attempt.correct_count or 0)
+
+        for subject_name, stats in subject_stats.items():
+            if subject_name not in subject_rollup:
+                subject_rollup[subject_name] = {
+                    "total": 0,
+                    "correct": 0,
+                    "wrong": 0,
+                    "skipped": 0,
+                    "score": 0.0,
+                    "time_spent": 0,
+                }
+
+            subject_rollup[subject_name]["total"] += stats["total"]
+            subject_rollup[subject_name]["correct"] += stats["correct"]
+            subject_rollup[subject_name]["wrong"] += stats["wrong"]
+            subject_rollup[subject_name]["skipped"] += stats["skipped"]
+            subject_rollup[subject_name]["score"] += stats["score"]
+            subject_rollup[subject_name]["time_spent"] += stats["time_spent"]
+
+    for stats in subject_rollup.values():
+        total = int(stats["total"] or 0)
+        stats["accuracy"] = round((stats["correct"] / total) * 100, 2) if total > 0 else 0
+        stats["avg_time_per_question"] = round(stats["time_spent"] / total, 2) if total > 0 else 0
+        stats["time_spent_human"] = format_seconds_human(stats["time_spent"])
+
+    overview["avg_score"] = round(total_score / len(attempts), 2) if attempts else 0.0
+    overview["avg_accuracy"] = round((total_correct / total_questions) * 100, 2) if total_questions > 0 else 0.0
+    overview["subject_rollup"] = subject_rollup
+    overview["total_time_spent_seconds"] = sum(v["time_spent"] for v in subject_rollup.values())
+    overview["total_time_spent_human"] = format_seconds_human(overview["total_time_spent_seconds"])
+
+    if subject_rollup:
+        strongest = max(subject_rollup.items(), key=lambda x: (x[1]["accuracy"], x[1]["score"]))
+        weakest = min(subject_rollup.items(), key=lambda x: (x[1]["accuracy"], x[1]["score"]))
+        overview["strongest_subject"] = strongest
+        overview["weakest_subject"] = weakest
+
+    return overview
 
 
 @student_bp.route("/dashboard")
@@ -196,20 +393,6 @@ def dashboard():
     now = utc_now()
 
     available_tests = Test.query.filter_by(status="published").count()
-
-    ongoing_tests = TestAttempt.query.filter_by(
-        student_id=current_user.id,
-        status="ongoing"
-    ).count()
-
-    completed_tests = TestAttempt.query.filter_by(
-        student_id=current_user.id,
-        status="submitted"
-    ).count()
-
-    latest_attempts = TestAttempt.query.filter_by(
-        student_id=current_user.id
-    ).order_by(TestAttempt.id.desc()).limit(5).all()
 
     ongoing_attempts = TestAttempt.query.filter_by(
         student_id=current_user.id,
@@ -227,6 +410,22 @@ def dashboard():
         status="ongoing"
     ).order_by(TestAttempt.id.desc()).limit(5).all()
 
+    ongoing_tests = TestAttempt.query.filter_by(
+        student_id=current_user.id,
+        status="ongoing"
+    ).count()
+
+    completed_tests = TestAttempt.query.filter_by(
+        student_id=current_user.id,
+        status="submitted"
+    ).count()
+
+    latest_attempts = TestAttempt.query.filter_by(
+        student_id=current_user.id
+    ).order_by(TestAttempt.id.desc()).limit(5).all()
+
+    overview = build_student_overview(current_user.id)
+
     return render_template(
         "student_dashboard.html",
         available_tests=available_tests,
@@ -234,6 +433,7 @@ def dashboard():
         completed_tests=completed_tests,
         latest_attempts=latest_attempts,
         ongoing_attempts=ongoing_attempts,
+        overview=overview,
     )
 
 
@@ -281,6 +481,7 @@ def tests_page():
         tests=visible_tests,
         ongoing_attempts=ongoing_attempts,
         submitted_attempts=submitted_attempts,
+        now=now,
     )
 
 
@@ -356,8 +557,8 @@ def start_test_attempt(test_id):
         correct_count=0,
         wrong_count=0,
         skipped_count=0,
-        started_at=now if hasattr(TestAttempt, "started_at") else None,
-        expires_at=expires_at if hasattr(TestAttempt, "expires_at") else None,
+        started_at=now,
+        expires_at=expires_at,
     )
 
     db.session.add(attempt)
@@ -383,10 +584,9 @@ def attempt_page(attempt_id):
     if attempt.status == "submitted":
         return redirect(url_for("student.result_page", attempt_id=attempt.id))
 
-    if hasattr(attempt.test, "is_resume_allowed") and attempt.test.is_resume_allowed is False:
-        if request.args.get("resume") == "blocked":
-            flash("Resume is not allowed for this test.", "danger")
-            return redirect(url_for("student.tests_page"))
+    if getattr(attempt.test, "is_resume_allowed", True) is False and request.args.get("resume") == "blocked":
+        flash("Resume is not allowed for this test.", "danger")
+        return redirect(url_for("student.tests_page"))
 
     question_number = request.args.get("q", type=int, default=1)
 
@@ -424,7 +624,7 @@ def attempt_page(attempt_id):
         ans = answer_map.get(q.id)
 
         selected_option = (ans.selected_option or "").strip() if ans else ""
-        marked_for_review = ans.is_marked_for_review if ans else False
+        marked_for_review = bool(ans.is_marked_for_review) if ans else False
 
         if selected_option:
             answered_count += 1
@@ -485,6 +685,7 @@ def save_answer(attempt_id):
     question_number = request.form.get("question_number", type=int, default=1)
     action_type = (request.form.get("action_type") or "save_next").strip()
     selected_option = (request.form.get("selected_option") or "").strip().upper()
+    time_spent_seconds = request.form.get("time_spent_seconds", type=int, default=0)
 
     test_question = TestQuestion.query.filter_by(
         test_id=attempt.test_id,
@@ -495,6 +696,9 @@ def save_answer(attempt_id):
 
     if selected_option not in ["A", "B", "C", "D"]:
         selected_option = None
+
+    if time_spent_seconds and time_spent_seconds > 0:
+        answer.time_spent_seconds = int(answer.time_spent_seconds or 0) + int(time_spent_seconds)
 
     if action_type == "clear":
         answer.selected_option = None
@@ -554,63 +758,10 @@ def result_page(attempt_id):
             flash("Complete and submit your test first.", "danger")
             return redirect(url_for("student.attempt_page", attempt_id=attempt.id))
 
-    test_questions = TestQuestion.query.filter_by(
-        test_id=attempt.test_id
-    ).order_by(TestQuestion.display_order.asc()).all()
-
-    answer_map = {
-        answer.question_id: answer
-        for answer in attempt.answers
-    }
-
-    subject_stats = {}
-    detailed_rows = []
-
-    for idx, tq in enumerate(test_questions, start=1):
-        q = tq.question
-        ans = answer_map.get(q.id)
-
-        selected_option = (ans.selected_option or "").strip().upper() if ans and ans.selected_option else ""
-        correct_option = (q.correct_option or "").strip().upper()
-        subject_name = q.subject.name if q.subject else "General"
-        chapter_name = q.chapter.name if q.chapter else "Chapter"
-
-        if subject_name not in subject_stats:
-            subject_stats[subject_name] = {
-                "total": 0,
-                "correct": 0,
-                "wrong": 0,
-                "skipped": 0,
-                "score": 0.0,
-            }
-
-        subject_stats[subject_name]["total"] += 1
-
-        status = "skipped"
-        if not selected_option:
-            subject_stats[subject_name]["skipped"] += 1
-        elif selected_option == correct_option:
-            status = "correct"
-            subject_stats[subject_name]["correct"] += 1
-            subject_stats[subject_name]["score"] += float(tq.marks or 0)
-        else:
-            status = "wrong"
-            subject_stats[subject_name]["wrong"] += 1
-            subject_stats[subject_name]["score"] -= float(tq.negative_marks or 0)
-
-        detailed_rows.append({
-            "index": idx,
-            "status": status,
-            "question": q,
-            "chapter_name": chapter_name,
-            "selected_option": selected_option,
-            "correct_option": correct_option,
-        })
+    test_questions, subject_stats, chapter_stats, detailed_rows = build_attempt_analytics(attempt)
 
     total_questions = len(test_questions)
-    accuracy = 0.0
-    if total_questions > 0:
-        accuracy = round((attempt.correct_count / total_questions) * 100, 2)
+    accuracy = round((attempt.correct_count / total_questions) * 100, 2) if total_questions > 0 else 0.0
 
     duration_seconds = int((attempt.test.duration_minutes or 0) * 60)
     remaining_seconds = get_attempt_remaining_seconds(attempt)
@@ -622,13 +773,72 @@ def result_page(attempt_id):
         raw_taken = int((end_base - start_base).total_seconds())
         time_taken_seconds = min(duration_seconds, max(0, raw_taken))
 
+    strongest_subject = None
+    weakest_subject = None
+    if subject_stats:
+        strongest_subject = max(subject_stats.items(), key=lambda x: (x[1]["accuracy"], x[1]["score"]))
+        weakest_subject = min(subject_stats.items(), key=lambda x: (x[1]["accuracy"], x[1]["score"]))
+
     return render_template(
         "student_test_result.html",
         attempt=attempt,
         test=attempt.test,
         subject_stats=subject_stats,
+        chapter_stats=chapter_stats,
         detailed_rows=detailed_rows,
         total_questions=total_questions,
         accuracy=accuracy,
         time_taken_seconds=time_taken_seconds,
+        strongest_subject=strongest_subject,
+        weakest_subject=weakest_subject,
+    )
+
+
+@student_bp.route("/attempts/<int:attempt_id>/review")
+@login_required
+def review_page(attempt_id):
+    student_required()
+
+    attempt = TestAttempt.query.get_or_404(attempt_id)
+
+    if attempt.student_id != current_user.id:
+        abort(403)
+
+    if attempt.status != "submitted":
+        flash("Submit the test before opening review.", "danger")
+        return redirect(url_for("student.attempt_page", attempt_id=attempt.id))
+
+    _, subject_stats, chapter_stats, detailed_rows = build_attempt_analytics(attempt)
+
+    status_filter = (request.args.get("status") or "all").strip().lower()
+    if status_filter in ["correct", "wrong", "skipped"]:
+        detailed_rows = [row for row in detailed_rows if row["status"] == status_filter]
+
+    return render_template(
+        "student_test_review.html",
+        attempt=attempt,
+        test=attempt.test,
+        subject_stats=subject_stats,
+        chapter_stats=chapter_stats,
+        detailed_rows=detailed_rows,
+        status_filter=status_filter,
+    )
+
+
+@student_bp.route("/performance")
+@login_required
+def performance_review_page():
+    student_required()
+
+    attempts = TestAttempt.query.filter_by(
+        student_id=current_user.id,
+        status="submitted"
+    ).order_by(TestAttempt.id.desc()).all()
+
+    overview = build_student_overview(current_user.id)
+
+    return render_template(
+        "student_performance_review.html",
+        attempts=attempts[:10],
+        overview=overview,
     )
