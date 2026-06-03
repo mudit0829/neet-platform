@@ -8,77 +8,139 @@
     .dashboard-wrap {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
     }
 
     .hero-card {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f766e 100%);
-      color: #ffffff;
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18);
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 26%),
+        radial-gradient(circle at left bottom, rgba(124, 58, 237, 0.08), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -40px auto;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(15, 118, 110, 0.10), transparent 70%);
+      pointer-events: none;
     }
 
     .hero-chip {
       display: inline-flex;
       align-items: center;
-      padding: 7px 12px;
+      padding: 6px 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.10), rgba(124, 58, 237, 0.08));
+      border: 1px solid rgba(37, 99, 235, 0.08);
+      color: #334155;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .hero-card h2 {
-      margin: 0 0 10px;
-      font-size: 32px;
-      font-weight: 800;
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
       line-height: 1.15;
+      color: #0f172a;
+      max-width: 760px;
     }
 
     .hero-card p {
       margin: 0;
       max-width: 760px;
-      color: rgba(255, 255, 255, 0.82);
-      font-size: 15px;
+      color: #64748b;
+      font-size: 14px;
       line-height: 1.7;
+    }
+
+    .hero-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .hero-pill.blue {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .hero-pill.teal {
+      background: #ecfeff;
+      color: #0f766e;
+      border-color: #bae6fd;
+    }
+
+    .hero-pill.violet {
+      background: #f5f3ff;
+      color: #7c3aed;
+      border-color: #ddd6fe;
     }
 
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 18px;
+      gap: 16px;
     }
 
     .kpi-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 20px;
-      padding: 22px;
-      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
     }
 
+    .kpi-card.blue { background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); }
+    .kpi-card.teal { background: linear-gradient(180deg, #ffffff 0%, #f7fffd 100%); }
+    .kpi-card.violet { background: linear-gradient(180deg, #ffffff 0%, #faf7ff 100%); }
+    .kpi-card.amber { background: linear-gradient(180deg, #ffffff 0%, #fffdf7 100%); }
+
     .kpi-label {
-      font-size: 13px;
+      font-size: 12px;
       color: #64748b;
-      font-weight: 700;
-      margin-bottom: 10px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .kpi-value {
-      font-size: 34px;
+      font-size: 28px;
       line-height: 1;
-      font-weight: 800;
+      font-weight: 700;
       color: #0f172a;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .kpi-meta {
       font-size: 13px;
       color: #94a3b8;
+      line-height: 1.5;
     }
 
     .content-grid {
@@ -95,9 +157,9 @@
     .panel-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 20px;
-      padding: 22px;
-      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
     }
 
     .panel-head {
@@ -105,48 +167,47 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .panel-head h3 {
       margin: 0;
-      font-size: 18px;
-      font-weight: 800;
+      font-size: 17px;
+      font-weight: 700;
       color: #0f172a;
     }
 
     .panel-subtext {
-      margin: 0 0 16px;
+      margin: 0 0 14px;
       color: #64748b;
       font-size: 14px;
-      line-height: 1.7;
+      line-height: 1.6;
     }
 
     .quick-actions {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+      gap: 12px;
     }
 
     .quick-link {
       display: block;
-      padding: 16px;
-      border-radius: 16px;
-      background: #f8fafc;
+      padding: 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
       border: 1px solid #e2e8f0;
-      text-decoration: none;
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
     }
 
     .quick-link:hover {
-      transform: translateY(-2px);
+      transform: translateY(-1px);
       border-color: #cbd5e1;
-      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
     }
 
     .quick-link-title {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 600;
       color: #0f172a;
       margin-bottom: 6px;
     }
@@ -160,7 +221,7 @@
     .activity-list,
     .record-list {
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
 
     .activity-item,
@@ -168,8 +229,8 @@
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      padding: 14px 14px;
-      border-radius: 16px;
+      padding: 13px 14px;
+      border-radius: 14px;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
     }
@@ -191,9 +252,9 @@
     .record-title {
       margin: 0 0 4px;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
       color: #0f172a;
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     .record-meta {
@@ -206,24 +267,29 @@
     .badge-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
 
     .module-chip {
       display: inline-flex;
       align-items: center;
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-radius: 999px;
-      background: #eff6ff;
-      color: #1d4ed8;
-      border: 1px solid #bfdbfe;
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 12px;
+      font-weight: 600;
     }
 
+    .module-chip:nth-child(1) { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .module-chip:nth-child(2) { background: #ecfeff; color: #0f766e; border: 1px solid #99f6e4; }
+    .module-chip:nth-child(3) { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+    .module-chip:nth-child(4) { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .module-chip:nth-child(5) { background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; }
+    .module-chip:nth-child(6) { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+    .module-chip:nth-child(7) { background: #ecfccb; color: #3f6212; border: 1px solid #d9f99d; }
+
     .empty-note {
-      padding: 16px;
-      border-radius: 16px;
+      padding: 14px;
+      border-radius: 14px;
       background: #f8fafc;
       border: 1px dashed #cbd5e1;
       color: #64748b;
@@ -247,11 +313,11 @@
       }
 
       .hero-card {
-        padding: 22px;
+        padding: 20px;
       }
 
       .hero-card h2 {
-        font-size: 26px;
+        font-size: 24px;
       }
     }
   </style>
@@ -262,28 +328,34 @@
     <p>
       Manage academic setup, build the question bank, create tests, and monitor student readiness through a clean operational dashboard.
     </p>
+
+    <div class="hero-metrics">
+      <span class="hero-pill blue">{{ stats.students if stats else 0 }} Students</span>
+      <span class="hero-pill teal">{{ stats.questions if stats else 0 }} Questions</span>
+      <span class="hero-pill violet">{{ stats.tests if stats else 0 }} Tests</span>
+    </div>
   </section>
 
   <section class="kpi-grid">
-    <div class="kpi-card">
+    <div class="kpi-card blue">
       <div class="kpi-label">Total Students</div>
       <div class="kpi-value">{{ stats.students if stats else 0 }}</div>
       <div class="kpi-meta">Registered student accounts</div>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card teal">
       <div class="kpi-label">Question Bank</div>
       <div class="kpi-value">{{ stats.questions if stats else 0 }}</div>
       <div class="kpi-meta">Questions available for paper creation</div>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card violet">
       <div class="kpi-label">Tests</div>
       <div class="kpi-value">{{ stats.tests if stats else 0 }}</div>
       <div class="kpi-meta">Draft and published test papers</div>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card amber">
       <div class="kpi-label">Batches</div>
       <div class="kpi-value">{{ stats.batches if stats else 0 }}</div>
       <div class="kpi-meta">Managed academic groups</div>
