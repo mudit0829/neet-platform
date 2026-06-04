@@ -23,7 +23,15 @@
 
   .attempt-top-left {
     display: grid;
-    gap: 6px;
+    gap: 8px;
+  }
+
+  .attempt-top-left h1 {
+    margin: 0;
+    font-size: 38px;
+    line-height: 1.08;
+    font-weight: 800;
+    color: #0f172a;
   }
 
   .attempt-meta-row {
@@ -35,8 +43,8 @@
 
   .attempt-main {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
-    gap: 20px;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 22px;
     align-items: start;
   }
 
@@ -59,7 +67,7 @@
   }
 
   .question-body {
-    padding: 22px 20px;
+    padding: 28px 24px;
   }
 
   .chip-row {
@@ -105,8 +113,9 @@
   }
 
   .question-text {
-    font-size: 18px;
-    line-height: 1.7;
+    font-size: 30px;
+    line-height: 1.6;
+    font-weight: 700;
     color: #0f172a;
     white-space: pre-line;
   }
@@ -114,11 +123,11 @@
   .attempt-warning,
   .attempt-info,
   .attempt-tip {
-    margin-top: 18px;
-    padding: 14px 16px;
-    border-radius: 16px;
-    line-height: 1.6;
-    font-size: 14px;
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    line-height: 1.5;
+    font-size: 13px;
   }
 
   .attempt-warning {
@@ -153,12 +162,12 @@
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    padding: 16px 18px;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
+    padding: 18px 18px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 18px;
     cursor: pointer;
     background: #ffffff;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
   }
 
   .option-item label:hover {
@@ -168,22 +177,29 @@
 
   .option-item input[type="radio"] {
     margin-top: 4px;
+    transform: scale(1.05);
   }
 
-  .option-item input[type="radio"]:checked + .option-key {
+  .option-item label:has(input[type="radio"]:checked) {
+    border-color: #2563eb;
+    background: #eef4ff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  }
+
+  .option-item label:has(input[type="radio"]:checked) .option-key {
     background: #2563eb;
     color: #ffffff;
   }
 
-  .option-item input[type="radio"]:checked ~ .option-value {
+  .option-item label:has(input[type="radio"]:checked) .option-value {
     color: #0f172a;
     font-weight: 600;
   }
 
   .option-key {
-    min-width: 36px;
-    width: 36px;
-    height: 36px;
+    min-width: 38px;
+    width: 38px;
+    height: 38px;
     border-radius: 999px;
     display: flex;
     align-items: center;
@@ -191,12 +207,13 @@
     background: #f1f5f9;
     color: #334155;
     font-weight: 800;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
   }
 
   .option-value {
     color: #334155;
     line-height: 1.7;
+    font-size: 17px;
   }
 
   .question-utility-row {
@@ -499,6 +516,14 @@
   }
 
   @media (max-width: 768px) {
+    .attempt-top-left h1 {
+      font-size: 30px;
+    }
+
+    .question-text {
+      font-size: 24px;
+    }
+
     .question-utility-row,
     .action-bar,
     .attempt-top {
@@ -559,7 +584,7 @@
     <div class="attempt-top">
       <div class="attempt-top-left">
         <div class="topbar-chip">Live Attempt</div>
-        <h1 style="margin:0;">{{ test.title }}</h1>
+        <h1>{{ test.title }}</h1>
         <div class="attempt-meta-row">
           <span class="chip index">Question {{ question_number }} / {{ total_questions }}</span>
           <span class="chip mode">{{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}</span>
@@ -588,7 +613,7 @@
         </div>
 
         <div class="question-body">
-          <div class="question-text">{{ current_question.stem }}</div>
+          <div class="question-text">{{ current_question.stem|safe }}</div>
 
           {% if current_question.question_image %}
             <div style="margin-top:18px;">
@@ -601,21 +626,21 @@
           {% endif %}
 
           <div class="attempt-warning">
-            The timer runs continuously and this attempt will auto-submit when time ends. Do not leave the test unless you are ready to finish within the remaining time. [web:1049][web:1045]
+            The timer runs continuously and this attempt will auto-submit when time ends. Do not leave the test unless you are ready to finish within the remaining time.
           </div>
 
           {% if test.schedule_type == 'fixed_start' %}
             <div class="attempt-info">
-              This is a fixed start test. Your remaining time is being calculated using the scheduled exam rules. [web:1051]
+              This is a fixed start test. Your remaining time is being calculated using the scheduled exam rules.
             </div>
           {% elif test.schedule_type == 'window' %}
             <div class="attempt-info">
-              This attempt began inside the allowed test window, and it must still be submitted before the valid expiry time. [web:1043][web:1049]
+              This attempt began inside the allowed test window, and it must still be submitted before the valid expiry time.
             </div>
           {% endif %}
 
           <div class="attempt-tip">
-            Use Save & Next regularly so your latest answer and question time are recorded. Question-level timing helps build subject and chapter analysis later. [web:1028][web:1031]
+            Use Save & Next regularly so your latest answer and question time are recorded. Question-level timing helps build subject and chapter analysis later.
           </div>
 
           <form method="POST" action="{{ url_for('student.save_answer', attempt_id=attempt.id) }}" id="attemptSaveForm">
@@ -634,7 +659,7 @@
                       {% if current_answer and current_answer.selected_option == key %}checked{% endif %}
                     >
                     <span class="option-key">{{ key }}</span>
-                    <span class="option-value">{{ value }}</span>
+                    <span class="option-value">{{ value|safe }}</span>
                   </label>
                 </div>
               {% endfor %}
@@ -680,15 +705,6 @@
               </div>
 
               <div class="action-right">
-                {% if question_number < total_questions %}
-                  <a
-                    href="{{ url_for('student.attempt_page', attempt_id=attempt.id, q=question_number+1) }}"
-                    class="btn-light nav-link-track"
-                  >
-                    Next
-                  </a>
-                {% endif %}
-
                 <button type="submit" name="action_type" value="save_next" class="btn-main">
                   Save & Next
                 </button>
@@ -709,7 +725,7 @@
         </div>
 
         <div class="attempt-info" style="margin-top:0;">
-          Use the navigator to move between questions. Your answer sheet flow and question numbering remain visible throughout the attempt. [cite:888]
+          Use the navigator to move between questions. Your answer sheet flow and question numbering remain visible throughout the attempt.
         </div>
 
         {% for subject_name, questions in subject_groups.items() %}
@@ -759,7 +775,7 @@
     </div>
 
     <div class="attempt-warning" style="margin:0 0 18px;">
-      Once submitted, this attempt cannot be edited. If the timer reaches zero, the system will auto-submit the test. [web:1045][web:1049]
+      Once submitted, this attempt cannot be edited. If the timer reaches zero, the system will auto-submit the test.
     </div>
 
     <div class="submit-actions">
