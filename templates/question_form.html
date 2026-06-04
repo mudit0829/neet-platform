@@ -1,121 +1,330 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ page_title }} | NEET Platform{% endblock %}
-{% block page_title %}{{ page_title }}{% endblock %}
-{% block page_subtitle %}Write clean, exam-grade questions with a consistent authoring experience.{% endblock %}
 
 {% block content %}
-<div class="row g-4">
-  <div class="col-lg-8">
-    <div class="card-modern">
-      <div class="panel-body">
-        <form method="post" class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Subject</label>
-            <select class="form-select" name="subject_id" id="subject_id" required>
-              <option value="">Select subject</option>
-              {% for subject in subjects %}
-              <option value="{{ subject.id }}" {% if question and question.subject_id == subject.id %}selected{% endif %}>
-                {{ subject.name }}
-              </option>
-              {% endfor %}
-            </select>
+<style>
+  .qf-page {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+  }
+
+  .qf-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .qf-card {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(226, 232, 240, 0.92);
+    border-radius: 22px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+  }
+
+  .qf-body {
+    padding: 20px;
+  }
+
+  .qf-form-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .qf-row-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .qf-field {
+    display: grid;
+    gap: 8px;
+  }
+
+  .qf-field label {
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .qf-input,
+  .qf-select,
+  .qf-textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #111827;
+  }
+
+  .qf-textarea {
+    resize: vertical;
+  }
+
+  .qf-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .qf-toolbar button {
+    border: 1px solid #dbeafe;
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .qf-toolbar button:hover {
+    background: #dbeafe;
+  }
+
+  .qf-note {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .qf-option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .qf-option-card {
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+  }
+
+  .qf-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .qf-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .qf-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px solid #dbe3ee;
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .qf-side-list {
+    margin: 0;
+    padding-left: 18px;
+    color: #475569;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 1200px) {
+    .qf-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .qf-row-2,
+    .qf-option-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<section class="qf-page">
+  <div class="qf-grid">
+    <div class="qf-card">
+      <div class="qf-body">
+        <h2 style="margin:0 0 8px;">{{ page_title }}</h2>
+        <p class="panel-text" style="margin-bottom:18px;">
+          Write clean, exam-grade questions with scientific notation, formulas, and clear explanations.
+        </p>
+
+        <form method="post" class="qf-form-grid">
+          <div class="qf-row-2">
+            <div class="qf-field">
+              <label for="subject_id">Subject</label>
+              <select class="qf-select" name="subject_id" id="subject_id" required>
+                <option value="">Select subject</option>
+                {% for subject in subjects %}
+                <option value="{{ subject.id }}" {% if question and question.subject_id == subject.id %}selected{% endif %}>
+                  {{ subject.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="qf-field">
+              <label for="chapter_id">Chapter</label>
+              <select class="qf-select" name="chapter_id" id="chapter_id" required>
+                <option value="">Select chapter</option>
+                {% for chapter in chapters %}
+                <option
+                  value="{{ chapter.id }}"
+                  data-subject-id="{{ chapter.subject_id }}"
+                  {% if question and question.chapter_id == chapter.id %}selected{% endif %}
+                >
+                  {{ chapter.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Chapter</label>
-            <select class="form-select" name="chapter_id" id="chapter_id" required>
-              <option value="">Select chapter</option>
-              {% for chapter in chapters %}
-              <option
-                value="{{ chapter.id }}"
-                data-subject-id="{{ chapter.subject_id }}"
-                {% if question and question.chapter_id == chapter.id %}selected{% endif %}
-              >
-                {{ chapter.name }}
-              </option>
-              {% endfor %}
-            </select>
+          <div class="qf-field">
+            <label for="stem">Question statement</label>
+            <div class="qf-toolbar">
+              <button type="button" onclick="insertAtCursor('stem', '\\\\(x^2\\\\)')">Inline Formula</button>
+              <button type="button" onclick="insertAtCursor('stem', '\\\\[ \\\\frac{a}{b} \\\\]')">Block Formula</button>
+              <button type="button" onclick="insertAtCursor('stem', '\\\\times 10^{-3}')">Scientific Value</button>
+              <button type="button" onclick="insertAtCursor('stem', '\\\\mathrm{m/s^2}')">Unit</button>
+            </div>
+            <textarea
+              class="qf-textarea"
+              name="stem"
+              id="stem"
+              rows="5"
+              required
+              data-math-source
+              data-math-preview="#qf-stem-preview"
+            >{{ question.stem if question else '' }}</textarea>
+            <div class="qf-note">
+              Example: <code>\(a=\frac{F}{m}\)</code>, <code>\(6.02 \times 10^{23}\)</code>, <code>\(\mathrm{NaCl}\)</code>. [web:1351][web:1346]
+            </div>
+            <div id="qf-stem-preview" class="math-preview-box math-content" data-render-math></div>
           </div>
 
-          <div class="col-12">
-            <label class="form-label">Question statement</label>
-            <textarea class="form-control" name="stem" rows="5" required>{{ question.stem if question else '' }}</textarea>
+          <div class="qf-option-grid">
+            <div class="qf-option-card">
+              <div class="qf-field">
+                <label for="option_a">Option A</label>
+                <input type="text" class="qf-input" id="option_a" name="option_a" value="{{ question.option_a if question else '' }}" required data-math-source data-math-preview="#qf-option-a-preview">
+                <div id="qf-option-a-preview" class="math-preview-box math-content" data-render-math></div>
+              </div>
+            </div>
+
+            <div class="qf-option-card">
+              <div class="qf-field">
+                <label for="option_b">Option B</label>
+                <input type="text" class="qf-input" id="option_b" name="option_b" value="{{ question.option_b if question else '' }}" required data-math-source data-math-preview="#qf-option-b-preview">
+                <div id="qf-option-b-preview" class="math-preview-box math-content" data-render-math></div>
+              </div>
+            </div>
+
+            <div class="qf-option-card">
+              <div class="qf-field">
+                <label for="option_c">Option C</label>
+                <input type="text" class="qf-input" id="option_c" name="option_c" value="{{ question.option_c if question else '' }}" required data-math-source data-math-preview="#qf-option-c-preview">
+                <div id="qf-option-c-preview" class="math-preview-box math-content" data-render-math></div>
+              </div>
+            </div>
+
+            <div class="qf-option-card">
+              <div class="qf-field">
+                <label for="option_d">Option D</label>
+                <input type="text" class="qf-input" id="option_d" name="option_d" value="{{ question.option_d if question else '' }}" required data-math-source data-math-preview="#qf-option-d-preview">
+                <div id="qf-option-d-preview" class="math-preview-box math-content" data-render-math></div>
+              </div>
+            </div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Option A</label>
-            <input type="text" class="form-control" name="option_a" value="{{ question.option_a if question else '' }}" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Option B</label>
-            <input type="text" class="form-control" name="option_b" value="{{ question.option_b if question else '' }}" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Option C</label>
-            <input type="text" class="form-control" name="option_c" value="{{ question.option_c if question else '' }}" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Option D</label>
-            <input type="text" class="form-control" name="option_d" value="{{ question.option_d if question else '' }}" required>
+          <div class="qf-row-2">
+            <div class="qf-field">
+              <label for="correct_option">Correct option</label>
+              <select class="qf-select" name="correct_option" id="correct_option" required>
+                <option value="">Select correct option</option>
+                {% for option in ['A', 'B', 'C', 'D'] %}
+                <option value="{{ option }}" {% if question and question.correct_option == option %}selected{% endif %}>
+                  {{ option }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="qf-field">
+              <label for="difficulty_level">Difficulty</label>
+              <select class="qf-select" name="difficulty_level" id="difficulty_level" required>
+                <option value="easy" {% if question and question.difficulty_level == 'easy' %}selected{% endif %}>Easy</option>
+                <option value="medium" {% if not question or question.difficulty_level == 'medium' %}selected{% endif %}>Medium</option>
+                <option value="hard" {% if question and question.difficulty_level == 'hard' %}selected{% endif %}>Hard</option>
+              </select>
+            </div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Correct option</label>
-            <select class="form-select" name="correct_option" required>
-              <option value="">Select correct option</option>
-              {% for option in ['A', 'B', 'C', 'D'] %}
-              <option value="{{ option }}" {% if question and question.correct_option == option %}selected{% endif %}>
-                {{ option }}
-              </option>
-              {% endfor %}
-            </select>
+          <div class="qf-field">
+            <label for="explanation">Explanation</label>
+            <div class="qf-toolbar">
+              <button type="button" onclick="insertAtCursor('explanation', '\\\\(F = ma\\\\)')">Inline Formula</button>
+              <button type="button" onclick="insertAtCursor('explanation', '\\\\[ a = \\\\frac{F}{m} \\\\]')">Block Formula</button>
+              <button type="button" onclick="insertAtCursor('explanation', '\\\\therefore')">Therefore</button>
+            </div>
+            <textarea
+              class="qf-textarea"
+              name="explanation"
+              id="explanation"
+              rows="5"
+              placeholder="Write the detailed solution or concept explanation..."
+              data-math-source
+              data-math-preview="#qf-explanation-preview"
+            >{{ question.explanation if question else '' }}</textarea>
+            <div id="qf-explanation-preview" class="math-preview-box math-content" data-render-math></div>
           </div>
 
-          <div class="col-md-6">
-            <label class="form-label">Difficulty</label>
-            <select class="form-select" name="difficulty_level" required>
-              <option value="easy" {% if question and question.difficulty_level == 'easy' %}selected{% endif %}>Easy</option>
-              <option value="medium" {% if not question or question.difficulty_level == 'medium' %}selected{% endif %}>Medium</option>
-              <option value="hard" {% if question and question.difficulty_level == 'hard' %}selected{% endif %}>Hard</option>
-            </select>
-          </div>
-
-          <div class="col-12">
-            <label class="form-label">Explanation</label>
-            <textarea class="form-control" name="explanation" rows="5" placeholder="Write the detailed solution or concept explanation...">{{ question.explanation if question else '' }}</textarea>
-          </div>
-
-          <div class="col-12 d-flex gap-2">
-            <button class="btn btn-primary">{{ submit_label }}</button>
-            <a href="{{ url_for('admin.questions') }}" class="btn btn-outline-secondary">Cancel</a>
+          <div class="qf-actions">
+            <button class="qf-submit">{{ submit_label }}</button>
+            <a href="{{ url_for('admin.questions') }}" class="qf-cancel">Cancel</a>
           </div>
         </form>
       </div>
     </div>
-  </div>
 
-  <div class="col-lg-4">
-    <div class="form-side-note mb-4">
-      <h3 class="h6 fw-bold mb-3">Authoring tips</h3>
-      <ul class="mb-0 ps-3">
-        <li>Keep one concept per question.</li>
-        <li>Use chapters consistently for filtering later.</li>
-        <li>Write clear explanations for review mode.</li>
-        <li>Balance easy, medium, and hard levels.</li>
-      </ul>
-    </div>
+    <div class="qf-card">
+      <div class="qf-body">
+        <h3 style="margin:0 0 14px;">Authoring tips</h3>
+        <ul class="qf-side-list">
+          <li>Keep one concept per question.</li>
+          <li>Use LaTeX syntax for formulas and scientific values.</li>
+          <li>Use chapters consistently for filtering later.</li>
+          <li>Write clear explanations for review mode.</li>
+          <li>Balance easy, medium, and hard levels.</li>
+        </ul>
 
-    <div class="card-modern">
-      <div class="panel-body">
-        <h3 class="h6 fw-bold mb-3">Why this matters</h3>
-        <p class="text-muted mb-0">
-          A strong question bank is the backbone of your test builder, analytics, remedial practice, and future adaptive learning flows.
-        </p>
+        <div class="math-preview-box math-content" style="margin-top:18px;" data-render-math>
+          Example render: \(a = \frac{F}{m}\), \(9.8\,\mathrm{m/s^2}\), \(\mathrm{H_2SO_4}\)
+        </div>
       </div>
     </div>
   </div>
-</div>
+</section>
 {% endblock %}
 
 {% block scripts %}
@@ -137,6 +346,20 @@
     if (selectedOption && selectedOption.hidden) {
       chapterSelect.value = "";
     }
+  }
+
+  function insertAtCursor(id, value) {
+    const field = document.getElementById(id);
+    if (!field) return;
+
+    const start = field.selectionStart || 0;
+    const end = field.selectionEnd || 0;
+    const original = field.value || '';
+
+    field.value = original.slice(0, start) + value + original.slice(end);
+    field.focus();
+    field.selectionStart = field.selectionEnd = start + value.length;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   document.getElementById("subject_id").addEventListener("change", filterChapters);
