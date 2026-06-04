@@ -3,33 +3,39 @@
 
 {% block content %}
 <style>
+  .dashboard-wrap > .page-header,
+  .dashboard-wrap > .dashboard-header,
+  .dashboard-wrap .student-dashboard-hero {
+    display: none !important;
+  }
+
   .attempt-shell {
     display: grid;
-    gap: 20px;
+    gap: 16px;
   }
 
   .attempt-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(255, 255, 255, 0.98);
     border: 1px solid #e5e7eb;
-    border-radius: 20px;
-    padding: 18px 20px;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    border-radius: 16px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
   }
 
   .attempt-top-left {
     display: grid;
-    gap: 8px;
+    gap: 4px;
   }
 
   .attempt-top-left h1 {
     margin: 0;
-    font-size: 38px;
-    line-height: 1.08;
+    font-size: 24px;
+    line-height: 1.15;
     font-weight: 800;
     color: #0f172a;
   }
@@ -43,21 +49,21 @@
 
   .attempt-main {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 22px;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 18px;
     align-items: start;
   }
 
   .card {
     background: rgba(255, 255, 255, 0.98);
     border: 1px solid #e5e7eb;
-    border-radius: 22px;
+    border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
   }
 
   .question-head {
-    padding: 20px;
+    padding: 14px 18px;
     border-bottom: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
@@ -67,7 +73,7 @@
   }
 
   .question-body {
-    padding: 28px 24px;
+    padding: 18px 18px 16px;
   }
 
   .chip-row {
@@ -80,9 +86,9 @@
   .chip {
     display: inline-flex;
     align-items: center;
-    padding: 6px 10px;
+    padding: 5px 9px;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     line-height: 1;
   }
@@ -113,21 +119,22 @@
   }
 
   .question-text {
-    font-size: 30px;
-    line-height: 1.6;
+    font-size: 21px;
+    line-height: 1.45;
     font-weight: 700;
     color: #0f172a;
     white-space: pre-line;
+    margin-bottom: 4px;
   }
 
   .attempt-warning,
   .attempt-info,
   .attempt-tip {
-    margin-top: 14px;
-    padding: 10px 12px;
-    border-radius: 12px;
-    line-height: 1.5;
-    font-size: 13px;
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    line-height: 1.4;
+    font-size: 12px;
   }
 
   .attempt-warning {
@@ -150,8 +157,8 @@
 
   .option-list {
     display: grid;
-    gap: 14px;
-    margin-top: 24px;
+    gap: 10px;
+    margin-top: 16px;
   }
 
   .option-item {
@@ -161,10 +168,10 @@
   .option-item label {
     display: flex;
     align-items: flex-start;
-    gap: 14px;
-    padding: 18px 18px;
+    gap: 12px;
+    padding: 13px 14px;
     border: 1.5px solid #cbd5e1;
-    border-radius: 18px;
+    border-radius: 14px;
     cursor: pointer;
     background: #ffffff;
     transition: all 0.18s ease;
@@ -176,7 +183,7 @@
   }
 
   .option-item input[type="radio"] {
-    margin-top: 4px;
+    margin-top: 3px;
     transform: scale(1.05);
   }
 
@@ -197,9 +204,9 @@
   }
 
   .option-key {
-    min-width: 38px;
-    width: 38px;
-    height: 38px;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
     border-radius: 999px;
     display: flex;
     align-items: center;
@@ -208,42 +215,43 @@
     color: #334155;
     font-weight: 800;
     transition: all 0.18s ease;
+    flex: 0 0 auto;
   }
 
   .option-value {
     color: #334155;
-    line-height: 1.7;
-    font-size: 17px;
+    line-height: 1.45;
+    font-size: 16px;
   }
 
   .question-utility-row {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
-    margin-top: 22px;
-    padding-top: 18px;
+    margin-top: 14px;
+    padding-top: 12px;
     border-top: 1px solid #e5e7eb;
   }
 
   .question-mini-stat {
     display: inline-flex;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 999px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     color: #334155;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
   }
 
   .action-bar {
-    margin-top: 18px;
+    margin-top: 12px;
     display: flex;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
   }
 
@@ -262,7 +270,7 @@
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    padding: 12px 18px;
+    padding: 11px 16px;
     border-radius: 12px;
     font-weight: 700;
     cursor: pointer;
@@ -304,11 +312,11 @@
   .side-card {
     background: rgba(255, 255, 255, 0.98);
     border: 1px solid #e5e7eb;
-    border-radius: 22px;
-    padding: 18px;
+    border-radius: 18px;
+    padding: 14px;
     position: sticky;
-    top: 20px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    top: 14px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
   }
 
   .side-title {
@@ -322,7 +330,7 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
 
   .legend-item {
@@ -330,17 +338,17 @@
     align-items: center;
     gap: 8px;
     color: #475569;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .legend-dot {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 4px;
   }
 
   .palette-subject {
-    margin-top: 18px;
+    margin-top: 16px;
   }
 
   .palette-subject-title {
@@ -355,14 +363,14 @@
 
   .subject-count {
     color: #64748b;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
   }
 
   .palette-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 10px;
+    gap: 8px;
   }
 
   .palette-link {
@@ -370,9 +378,10 @@
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    height: 46px;
-    border-radius: 12px;
+    height: 40px;
+    border-radius: 10px;
     font-weight: 800;
+    font-size: 14px;
     color: #0f172a;
     background: #cbd5e1;
     border: 1px solid transparent;
@@ -516,17 +525,22 @@
   }
 
   @media (max-width: 768px) {
+    .attempt-top {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
     .attempt-top-left h1 {
-      font-size: 30px;
+      font-size: 20px;
     }
 
     .question-text {
-      font-size: 24px;
+      font-size: 18px;
+      line-height: 1.42;
     }
 
     .question-utility-row,
-    .action-bar,
-    .attempt-top {
+    .action-bar {
       flex-direction: column;
       align-items: stretch;
     }
@@ -547,15 +561,15 @@
     }
 
     .palette-link {
-      height: 42px;
-      font-size: 14px;
+      height: 38px;
+      font-size: 13px;
     }
 
     .question-body,
     .question-head,
     .side-card,
     .submit-dialog {
-      padding: 16px;
+      padding: 14px;
     }
 
     .action-left,
@@ -583,13 +597,12 @@
   <div class="attempt-shell">
     <div class="attempt-top">
       <div class="attempt-top-left">
-        <div class="topbar-chip">Live Attempt</div>
         <h1>{{ test.title }}</h1>
         <div class="attempt-meta-row">
-          <span class="chip index">Question {{ question_number }} / {{ total_questions }}</span>
+          <span class="chip index">Q{{ question_number }}/{{ total_questions }}</span>
           <span class="chip mode">{{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}</span>
+          <span class="chip chapter">{{ answered_count }} answered</span>
         </div>
-        <div class="panel-text">{{ answered_count }} of {{ total_questions }} answered</div>
       </div>
 
       <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
@@ -616,7 +629,7 @@
           <div class="question-text">{{ current_question.stem|safe }}</div>
 
           {% if current_question.question_image %}
-            <div style="margin-top:18px;">
+            <div style="margin-top:14px;">
               <img
                 src="{{ url_for('static', filename=current_question.question_image) }}"
                 alt="Question image"
@@ -640,7 +653,7 @@
           {% endif %}
 
           <div class="attempt-tip">
-            Use Save & Next regularly so your latest answer and question time are recorded. Question-level timing helps build subject and chapter analysis later.
+            Use Save &amp; Next regularly so your latest answer and question time are recorded.
           </div>
 
           <form method="POST" action="{{ url_for('student.save_answer', attempt_id=attempt.id) }}" id="attemptSaveForm">
@@ -706,7 +719,7 @@
 
               <div class="action-right">
                 <button type="submit" name="action_type" value="save_next" class="btn-main">
-                  Save & Next
+                  Save &amp; Next
                 </button>
               </div>
             </div>
