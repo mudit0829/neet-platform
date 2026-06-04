@@ -127,34 +127,6 @@
     margin-bottom: 4px;
   }
 
-  .attempt-warning,
-  .attempt-info,
-  .attempt-tip {
-    margin-top: 10px;
-    padding: 8px 10px;
-    border-radius: 10px;
-    line-height: 1.4;
-    font-size: 12px;
-  }
-
-  .attempt-warning {
-    background: #fff7ed;
-    border: 1px solid #fed7aa;
-    color: #9a3412;
-  }
-
-  .attempt-info {
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    color: #1d4ed8;
-  }
-
-  .attempt-tip {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    color: #334155;
-  }
-
   .option-list {
     display: grid;
     gap: 10px;
@@ -345,6 +317,43 @@
     width: 14px;
     height: 14px;
     border-radius: 4px;
+  }
+
+  .navigator-note {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .attempt-note {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    line-height: 1.4;
+    font-size: 12px;
+  }
+
+  .attempt-warning {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+  }
+
+  .attempt-info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+  }
+
+  .attempt-tip {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
   }
 
   .palette-subject {
@@ -638,24 +647,6 @@
             </div>
           {% endif %}
 
-          <div class="attempt-warning">
-            The timer runs continuously and this attempt will auto-submit when time ends. Do not leave the test unless you are ready to finish within the remaining time.
-          </div>
-
-          {% if test.schedule_type == 'fixed_start' %}
-            <div class="attempt-info">
-              This is a fixed start test. Your remaining time is being calculated using the scheduled exam rules.
-            </div>
-          {% elif test.schedule_type == 'window' %}
-            <div class="attempt-info">
-              This attempt began inside the allowed test window, and it must still be submitted before the valid expiry time.
-            </div>
-          {% endif %}
-
-          <div class="attempt-tip">
-            Use Save &amp; Next regularly so your latest answer and question time are recorded.
-          </div>
-
           <form method="POST" action="{{ url_for('student.save_answer', attempt_id=attempt.id) }}" id="attemptSaveForm">
             <input type="hidden" name="question_id" value="{{ current_question.id }}">
             <input type="hidden" name="question_number" value="{{ question_number }}">
@@ -737,9 +728,27 @@
           <div class="legend-item"><span class="legend-dot" style="background:#9333ea;"></span> Review</div>
         </div>
 
-        <div class="attempt-info" style="margin-top:0;">
-          Use the navigator to move between questions. Your answer sheet flow and question numbering remain visible throughout the attempt.
+        <div class="navigator-note">
+          Keep the question area clean. Use the navigator only when moving between questions.
         </div>
+
+        <div class="attempt-note attempt-warning">
+          Timer auto-submits at zero.
+        </div>
+
+        <div class="attempt-note attempt-tip">
+          Use Save &amp; Next to record answer and time.
+        </div>
+
+        {% if test.schedule_type == 'fixed_start' %}
+          <div class="attempt-note attempt-info">
+            Fixed start rules are active.
+          </div>
+        {% elif test.schedule_type == 'window' %}
+          <div class="attempt-note attempt-info">
+            Submit within the allowed window.
+          </div>
+        {% endif %}
 
         {% for subject_name, questions in subject_groups.items() %}
           <div class="palette-subject">
