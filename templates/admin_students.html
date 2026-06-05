@@ -173,21 +173,42 @@
       color: #334155;
     }
 
-    .form-control {
+    .students-page input.form-control,
+    .students-page select.form-control,
+    .students-page textarea.form-control {
       width: 100%;
-      border: 1px solid #cbd5e1;
+      border: 1px solid #cbd5e1 !important;
       border-radius: 14px;
       padding: 13px 14px;
-      background: #ffffff;
-      color: #0f172a;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
       font-size: 14px;
       outline: none;
       transition: 0.2s ease;
+      appearance: none;
     }
 
-    .form-control:focus {
-      border-color: #2563eb;
+    .students-page input.form-control::placeholder,
+    .students-page textarea.form-control::placeholder {
+      color: #94a3b8 !important;
+      -webkit-text-fill-color: #94a3b8 !important;
+    }
+
+    .students-page input.form-control:focus,
+    .students-page select.form-control:focus,
+    .students-page textarea.form-control:focus {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #2563eb !important;
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+    }
+
+    .students-page input:-webkit-autofill,
+    .students-page textarea:-webkit-autofill,
+    .students-page select:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+      -webkit-text-fill-color: #0f172a !important;
     }
 
     textarea.form-control {
@@ -222,10 +243,6 @@
       background: linear-gradient(135deg, #2563eb, #0f766e);
       color: #ffffff;
       box-shadow: 0 12px 22px rgba(37, 99, 235, 0.16);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
     }
 
     .btn-soft {
@@ -266,11 +283,6 @@
       font-size: 14px;
       color: #0f172a;
       outline: none;
-    }
-
-    .search-wrap input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
     }
 
     .search-icon {
@@ -322,11 +334,6 @@
     .student-card {
       padding: 16px;
       transition: 0.18s ease;
-    }
-
-    .student-card:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 24px rgba(15, 23, 42, 0.06);
     }
 
     .student-card.hidden {
@@ -461,12 +468,6 @@
       border-color: #a7f3d0;
     }
 
-    .action-button.danger {
-      background: #fef2f2;
-      color: #b91c1c;
-      border-color: #fecaca;
-    }
-
     .empty-state {
       padding: 24px;
       border-radius: 18px;
@@ -478,38 +479,19 @@
     }
 
     @media (max-width: 1250px) {
-      .workspace-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .toolbar-row {
-        grid-template-columns: 1fr 1fr;
-      }
+      .workspace-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar-row { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 840px) {
-      .students-page {
-        padding: 16px;
-      }
-
+      .students-page { padding: 16px; }
       .form-grid,
       .student-metrics,
       .stats-grid,
-      .toolbar-row {
-        grid-template-columns: 1fr;
-      }
-
-      .span-2 {
-        grid-column: span 1;
-      }
-
-      .student-header {
-        grid-template-columns: 1fr;
-      }
+      .toolbar-row { grid-template-columns: 1fr; }
+      .span-2 { grid-column: span 1; }
+      .student-header { grid-template-columns: 1fr; }
     }
   </style>
 
@@ -521,9 +503,7 @@
   <section class="admin-hero">
     <div class="hero-kicker">Admin Student Management</div>
     <h1>Student admissions and records workspace</h1>
-    <p>
-      Create student accounts, assign batches, maintain admission and guardian information, and quickly open each student’s performance dashboard from one organized screen.
-    </p>
+    <p>Create student accounts, assign batches, maintain admission and guardian information, and manage student access and profile editing from one organized screen.</p>
   </section>
 
   <section class="stats-grid">
@@ -532,23 +512,20 @@
       <p class="stat-value">{{ total_students }}</p>
       <p class="stat-meta">All visible student accounts in the current admin list.</p>
     </article>
-
     <article class="stat-card">
       <p class="stat-label">Active Accounts</p>
       <p class="stat-value">{{ active_students }}</p>
       <p class="stat-meta">Students currently allowed to access the platform.</p>
     </article>
-
     <article class="stat-card">
       <p class="stat-label">Inactive Accounts</p>
       <p class="stat-value">{{ inactive_students }}</p>
-      <p class="stat-meta">Blocked or inactive students needing account action.</p>
+      <p class="stat-meta">Blocked or inactive student accounts.</p>
     </article>
-
     <article class="stat-card">
       <p class="stat-label">Total Attempts</p>
       <p class="stat-value">{{ total_attempts }}</p>
-      <p class="stat-meta">Submitted attempts counted across the visible student list.</p>
+      <p class="stat-meta">Submitted attempts counted across visible students.</p>
     </article>
   </section>
 
@@ -572,17 +549,14 @@
             <label for="full_name">Full name *</label>
             <input type="text" id="full_name" name="full_name" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="username">Username *</label>
             <input type="text" id="username" name="username" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="password">Password *</label>
             <input type="text" id="password" name="password" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="status">Status *</label>
             <select id="status" name="status" class="form-control" required>
@@ -598,35 +572,28 @@
             <label for="admission_no">Admission number *</label>
             <input type="text" id="admission_no" name="admission_no" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="admission_session">Admission session *</label>
             <input type="text" id="admission_session" name="admission_session" class="form-control" placeholder="2026-27" required>
           </div>
-
           <div class="form-group">
             <label for="course_applied">Course applied *</label>
-            <input type="text" id="course_applied" name="course_applied" class="form-control" placeholder="NEET / Foundation" required>
+            <input type="text" id="course_applied" name="course_applied" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="target_exam">Target exam</label>
-            <input type="text" id="target_exam" name="target_exam" class="form-control" placeholder="NEET 2027">
+            <input type="text" id="target_exam" name="target_exam" class="form-control">
           </div>
-
           <div class="form-group">
             <label for="current_class">Current class</label>
-            <input type="text" id="current_class" name="current_class" class="form-control" placeholder="XI / XII / XII Pass">
+            <input type="text" id="current_class" name="current_class" class="form-control">
           </div>
-
           <div class="form-group">
             <label for="batch_id">Batch *</label>
             <select id="batch_id" name="batch_id" class="form-control" required>
               <option value="">Select batch</option>
               {% for batch in batches %}
-                <option value="{{ batch.id }}">
-                  {{ batch.name }}{% if batch.academic_year %} ({{ batch.academic_year }}){% endif %}
-                </option>
+                <option value="{{ batch.id }}">{{ batch.name }}{% if batch.academic_year %} ({{ batch.academic_year }}){% endif %}</option>
               {% endfor %}
             </select>
           </div>
@@ -638,12 +605,10 @@
             <label for="photograph">Photograph *</label>
             <input type="file" id="photograph" name="photograph" class="form-control" accept=".png,.jpg,.jpeg,.gif,.webp" required>
           </div>
-
           <div class="form-group">
             <label for="dob">Date of birth *</label>
             <input type="date" id="dob" name="dob" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="gender">Gender *</label>
             <select id="gender" name="gender" class="form-control" required>
@@ -653,7 +618,6 @@
               <option value="Other">Other</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="category">Category</label>
             <input type="text" id="category" name="category" class="form-control">
@@ -666,32 +630,26 @@
             <label for="student_mobile">Student mobile *</label>
             <input type="text" id="student_mobile" name="student_mobile" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="student_email">Student email</label>
             <input type="email" id="student_email" name="student_email" class="form-control">
           </div>
-
           <div class="form-group">
             <label for="father_name">Father name *</label>
             <input type="text" id="father_name" name="father_name" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="mother_name">Mother name</label>
             <input type="text" id="mother_name" name="mother_name" class="form-control">
           </div>
-
           <div class="form-group">
             <label for="father_mobile">Father mobile *</label>
             <input type="text" id="father_mobile" name="father_mobile" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="mother_mobile">Mother mobile</label>
             <input type="text" id="mother_mobile" name="mother_mobile" class="form-control">
           </div>
-
           <div class="form-group span-2">
             <label for="parent_email">Parent email</label>
             <input type="email" id="parent_email" name="parent_email" class="form-control">
@@ -704,37 +662,30 @@
             <label for="address">Address *</label>
             <textarea id="address" name="address" class="form-control" rows="3" required></textarea>
           </div>
-
           <div class="form-group">
             <label for="city">City *</label>
             <input type="text" id="city" name="city" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="district">District</label>
             <input type="text" id="district" name="district" class="form-control">
           </div>
-
           <div class="form-group">
             <label for="state">State *</label>
             <input type="text" id="state" name="state" class="form-control" required>
           </div>
-
           <div class="form-group">
             <label for="pincode">Pincode</label>
             <input type="text" id="pincode" name="pincode" class="form-control">
           </div>
-
           <div class="form-group">
             <label for="school_name">School name</label>
             <input type="text" id="school_name" name="school_name" class="form-control">
           </div>
-
           <div class="form-group">
             <label for="board_name">Board name</label>
             <input type="text" id="board_name" name="board_name" class="form-control">
           </div>
-
           <div class="form-group span-2">
             <label for="remarks">Remarks</label>
             <textarea id="remarks" name="remarks" class="form-control" rows="3"></textarea>
@@ -754,7 +705,7 @@
       <div class="panel-head">
         <div>
           <h3>Student directory</h3>
-          <p>Search, filter, and open each student’s analytics profile directly from the admin workspace.</p>
+          <p>Open edit, analytics, and account management actions directly from the student list.</p>
         </div>
         <a href="{{ url_for('admin.analytics_students_page') }}" class="btn-link-soft">Open analytics list</a>
       </div>
@@ -817,9 +768,7 @@
 
                 <div>
                   <h4 class="student-name">{{ student.full_name }}</h4>
-                  <p class="student-subline">
-                    {{ student.username or '-' }} • {{ admission_number }} • {{ student_batch }}
-                  </p>
+                  <p class="student-subline">{{ student.username or '-' }} • {{ admission_number }} • {{ student_batch }}</p>
 
                   <div class="student-badges">
                     <span class="status-badge {{ status_value }}">{{ 'Active' if student.is_active_user else 'Inactive' }}</span>
@@ -831,7 +780,7 @@
                 </div>
 
                 <div>
-                  <a href="{{ url_for('admin.analytics_student_detail_page', student_id=student.id) }}" class="action-link primary">View profile</a>
+                  <a href="{{ url_for('admin.student_edit_page', student_id=student.id) }}" class="action-link primary">Edit</a>
                 </div>
               </div>
 
@@ -840,17 +789,14 @@
                   <p class="label">Student mobile</p>
                   <p class="value">{{ profile.student_mobile if profile and profile.student_mobile else '-' }}</p>
                 </div>
-
                 <div class="metric-box">
                   <p class="label">Parent mobile</p>
                   <p class="value">{{ profile.father_mobile if profile and profile.father_mobile else '-' }}</p>
                 </div>
-
                 <div class="metric-box">
                   <p class="label">Current class</p>
                   <p class="value">{{ profile.current_class if profile and profile.current_class else '-' }}</p>
                 </div>
-
                 <div class="metric-box">
                   <p class="label">Course</p>
                   <p class="value">{{ profile.course_applied if profile and profile.course_applied else '-' }}</p>
@@ -858,21 +804,15 @@
               </div>
 
               <div class="student-actions">
-                <a href="{{ url_for('admin.analytics_student_detail_page', student_id=student.id) }}" class="action-link primary">Full detail</a>
-                <a href="#" class="action-link secondary">Edit</a>
+                <a href="{{ url_for('admin.student_edit_page', student_id=student.id) }}" class="action-link primary">Edit profile</a>
+                <a href="{{ url_for('admin.analytics_student_detail_page', student_id=student.id) }}" class="action-link secondary">Analytics</a>
 
-                {% if student.is_active_user %}
-                  <form method="POST" action="#">
-                    <button type="submit" class="action-button warn">Block</button>
-                  </form>
-                {% else %}
-                  <form method="POST" action="#">
-                    <button type="submit" class="action-button success">Reactivate</button>
-                  </form>
-                {% endif %}
-
-                <form method="POST" action="#">
-                  <button type="submit" class="action-button danger">Delete</button>
+                <form method="POST" action="{{ url_for('admin.student_toggle_status', student_id=student.id) }}">
+                  {% if student.is_active_user %}
+                    <button type="submit" class="action-button warn">Block account</button>
+                  {% else %}
+                    <button type="submit" class="action-button success">Activate account</button>
+                  {% endif %}
                 </form>
               </div>
             </article>
