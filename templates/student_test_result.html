@@ -646,22 +646,131 @@
 
   .review-explanation {
     margin-top: 16px;
-    padding: 14px 16px;
-    border-radius: 14px;
-    background: #eff6ff;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
     border: 1px solid #bfdbfe;
   }
 
   .review-explanation-title {
     font-weight: 800;
     color: #1d4ed8;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
+    font-size: 15px;
   }
 
   .review-explanation-text {
     color: #1e3a8a;
-    line-height: 1.7;
-    white-space: pre-line;
+    line-height: 1.8;
+    font-size: 15px;
+    word-break: break-word;
+  }
+
+  .review-explanation-text p {
+    margin: 0 0 12px;
+  }
+
+  .review-explanation-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .review-explanation-text strong,
+  .review-explanation-text b {
+    color: #1e40af;
+    font-weight: 800;
+  }
+
+  .review-explanation-text h1,
+  .review-explanation-text h2,
+  .review-explanation-text h3,
+  .review-explanation-text h4,
+  .review-explanation-text h5,
+  .review-explanation-text h6 {
+    margin: 14px 0 8px;
+    color: #1e3a8a;
+    line-height: 1.35;
+    font-weight: 800;
+  }
+
+  .review-explanation-text h1 { font-size: 22px; }
+  .review-explanation-text h2 { font-size: 20px; }
+  .review-explanation-text h3 { font-size: 18px; }
+  .review-explanation-text h4,
+  .review-explanation-text h5,
+  .review-explanation-text h6 { font-size: 16px; }
+
+  .review-explanation-text ul,
+  .review-explanation-text ol {
+    margin: 10px 0 12px 22px;
+    padding: 0;
+  }
+
+  .review-explanation-text li {
+    margin-bottom: 6px;
+  }
+
+  .review-explanation-text br {
+    line-height: 1.9;
+  }
+
+  .review-explanation-text code {
+    background: rgba(30, 64, 175, 0.08);
+    color: #1e3a8a;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  .review-explanation-text pre {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #dbeafe;
+    color: #1e3a8a;
+    overflow-x: auto;
+    white-space: pre-wrap;
+  }
+
+  .review-explanation-text table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    background: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .review-explanation-text table th,
+  .review-explanation-text table td {
+    border: 1px solid #cbd5e1;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .review-explanation-text table th {
+    background: #dbeafe;
+    color: #1e3a8a;
+    font-weight: 800;
+  }
+
+  .review-explanation-text img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid #dbeafe;
+    margin-top: 10px;
+  }
+
+  .review-explanation-text .equation,
+  .review-explanation-text .math {
+    display: block;
+    margin: 12px 0;
+    padding: 10px 12px;
+    border-left: 4px solid #60a5fa;
+    background: rgba(219, 234, 254, 0.8);
+    border-radius: 8px;
+    font-family: "Segoe UI", Arial, sans-serif;
   }
 
   .review-empty {
@@ -737,11 +846,19 @@
     .review-stem {
       font-size: 16px;
     }
+
+    .review-explanation-text {
+      font-size: 14px;
+    }
   }
 </style>
 
 {% set top_chapters = chapter_stats[:3] if chapter_stats else [] %}
 {% set review_questions_list = review_questions if review_questions is defined and review_questions else [] %}
+{% set test_type_value = test.test_type if test.test_type is defined else (test.testtype if test.testtype is defined else 'test') %}
+{% set test_mode_value = test.test_mode if test.test_mode is defined else (test.testmode if test.testmode is defined else 'custom') %}
+{% set total_marks_value = test.total_marks if test.total_marks is defined else (test.totalmarks if test.totalmarks is defined else 0) %}
+{% set negative_marks_value = test.negative_marks if test.negative_marks is defined else (test.negativemarks if test.negativemarks is defined else 0) %}
 
 <section class="dashboard-wrap">
   <div class="result-wrap">
@@ -756,8 +873,8 @@
 
           <div class="meta-row">
             <span class="meta-chip">{{ test.title }}</span>
-            <span class="meta-chip">{{ test.test_type|replace('_', ' ')|title }}</span>
-            <span class="meta-chip">{{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}</span>
+            <span class="meta-chip">{{ test_type_value|replace('_', ' ')|title }}</span>
+            <span class="meta-chip">{{ test_mode_value|replace('_', ' ')|title }}</span>
             <span class="meta-chip">{{ attempt.status|title }}</span>
           </div>
         </div>
@@ -766,7 +883,7 @@
       <div class="hero-grid">
         <div class="hero-card">
           <div class="hero-value">{{ "%.0f"|format(attempt.total_score) }}</div>
-          <div class="hero-label">Score / {{ test.total_marks }}</div>
+          <div class="hero-label">Score / {{ total_marks_value }}</div>
         </div>
 
         <div class="hero-card">
@@ -801,7 +918,7 @@
 
       <div class="stat-card">
         <div class="stat-value red">{{ attempt.wrong_count }}</div>
-        <div class="stat-label">Incorrect responses with negative marking impact of {{ attempt.wrong_count * test.negative_marks }}.</div>
+        <div class="stat-label">Incorrect responses with negative marking impact of {{ attempt.wrong_count * negative_marks_value }}.</div>
       </div>
 
       <div class="stat-card">
@@ -932,7 +1049,7 @@
         </div>
 
         <div class="summary-note">
-          This page works best when it keeps the result summary at the top and reveals detailed explanations only when students need them, which is a good fit for progressive disclosure on long, content-heavy screens. [web:1386][web:1396]
+          This page keeps the result summary at the top and reveals detailed explanations only when needed.
         </div>
       </div>
     </div>
@@ -977,7 +1094,7 @@
       </div>
 
       <div class="review-note">
-        Start with Wrong and Skipped filters first. That gives the highest revision value without forcing students to scroll through every correct answer immediately. [web:1385][web:1392]
+        Start with Wrong and Skipped filters first. That usually gives the fastest revision value.
       </div>
 
       {% if review_questions_list %}
@@ -1070,7 +1187,7 @@
                     <div class="review-explanation-title">Explanation</div>
 
                     {% if item.explanation is defined and item.explanation %}
-                      <div class="review-explanation-text">{{ item.explanation }}</div>
+                      <div class="review-explanation-text">{{ item.explanation | safe }}</div>
                     {% endif %}
 
                     {% if item.explanation_image is defined and item.explanation_image %}
@@ -1094,7 +1211,7 @@
         </div>
       {% else %}
         <div class="summary-note">
-          The answer key section is ready, but this template expects a backend variable named <strong>review_questions</strong> that contains per-question review data including the selected option, correct option, explanation, and optional images. Your models already support explanations and explanation images for questions. [file:1355]
+          The answer key section is ready, but this template expects a backend variable named <strong>review_questions</strong> that contains per-question review data including the selected option, correct option, explanation, and optional images.
         </div>
       {% endif %}
     </div>
