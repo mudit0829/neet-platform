@@ -1190,15 +1190,20 @@
                       <div class="review-explanation-text">{{ item.explanation | safe }}</div>
                     {% endif %}
 
-                    {% if item.explanation_image is defined and item.explanation_image %}
-                      <div class="review-image-wrap">
-                        <img
-                          src="{{ url_for('static', filename=item.explanation_image) }}"
+                    {% set explanation_image_path = item.explanation_image if item.explanation_image is defined else '' %}
+                      {% set explanation_image_path = explanation_image_path|string|trim %}
+
+                      {% if explanation_image_path and explanation_image_path|lower not in ['none', 'null', 'nan'] %}
+                    <div class="review-image-wrap">
+                       <img
+                         src="{{ url_for('static', filename=explanation_image_path) }}"
                           alt="Explanation image for question {{ item.index if item.index is defined else loop.index }}"
                           class="review-image"
-                        >
-                      </div>
-                    {% endif %}
+                          loading="lazy"
+                          onerror="this.closest('.review-image-wrap').style.display='none';"
+                          >
+                   </div>
+                   {% endif %}
                   </div>
                 {% endif %}
               </div>
