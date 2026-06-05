@@ -4,60 +4,68 @@
 
 {% block head_extra %}
 <style>
-  .dashboard-wrap {
+  .dashboard-shell {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
   }
 
-  .hero-card {
-    position: relative;
-    overflow: hidden;
-    background:
-      radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 26%),
-      radial-gradient(circle at left bottom, rgba(124, 58, 237, 0.08), transparent 24%),
-      linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+  .top-summary-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+    gap: 18px;
+  }
+
+  .welcome-card,
+  .focus-card,
+  .section-card,
+  .metric-card {
+    background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 22px;
-    padding: 24px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
   }
 
-  .hero-card::after {
-    content: "";
-    position: absolute;
-    inset: auto -40px -40px auto;
-    width: 180px;
-    height: 180px;
-    background: radial-gradient(circle, rgba(15, 118, 110, 0.10), transparent 70%);
-    pointer-events: none;
+  .welcome-card {
+    padding: 22px 24px;
+    background:
+      radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 28%),
+      radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 25%),
+      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
   }
 
-  .hero-chip {
+  .welcome-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .page-chip {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
+    gap: 8px;
+    padding: 7px 12px;
     border-radius: 999px;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.10), rgba(124, 58, 237, 0.08));
-    border: 1px solid rgba(37, 99, 235, 0.08);
-    color: #334155;
+    background: #eef2ff;
+    color: #4338ca;
+    border: 1px solid #c7d2fe;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    margin-bottom: 12px;
   }
 
-  .hero-card h2 {
-    margin: 0 0 8px;
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1.15;
+  .welcome-title {
+    margin: 12px 0 6px;
     color: #0f172a;
-    max-width: 760px;
+    font-size: 30px;
+    line-height: 1.15;
+    font-weight: 800;
   }
 
-  .hero-card p {
+  .welcome-text {
     margin: 0;
     max-width: 760px;
     color: #64748b;
@@ -65,264 +73,438 @@
     line-height: 1.7;
   }
 
-  .hero-metrics {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 18px;
-  }
-
-  .hero-pill {
+  .admin-badge {
     display: inline-flex;
     align-items: center;
-    padding: 8px 12px;
-    border-radius: 999px;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 1px solid #dbe2ea;
+    background: rgba(255, 255, 255, 0.88);
+    min-width: 220px;
+  }
+
+  .admin-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .admin-meta strong {
+    display: block;
+    color: #0f172a;
+    font-size: 16px;
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+
+  .admin-meta span {
+    color: #64748b;
     font-size: 13px;
-    font-weight: 600;
-    border: 1px solid transparent;
   }
 
-  .hero-pill.blue {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border-color: #bfdbfe;
+  .focus-card {
+    padding: 20px;
+    background:
+      radial-gradient(circle at top right, rgba(245, 158, 11, 0.10), transparent 30%),
+      linear-gradient(180deg, #ffffff 0%, #fffdf7 100%);
   }
 
-  .hero-pill.teal {
-    background: #ecfeff;
-    color: #0f766e;
-    border-color: #bae6fd;
+  .focus-title {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
   }
 
-  .hero-pill.violet {
-    background: #f5f3ff;
-    color: #7c3aed;
-    border-color: #ddd6fe;
+  .focus-list {
+    display: grid;
+    gap: 10px;
   }
 
-  .hero-pill.amber {
-    background: #fff7ed;
-    color: #c2410c;
-    border-color: #fed7aa;
+  .focus-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 11px 12px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #f1f5f9;
   }
 
-  .kpi-grid {
+  .focus-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .focus-icon.blue { background: #dbeafe; color: #1d4ed8; }
+  .focus-icon.green { background: #dcfce7; color: #166534; }
+  .focus-icon.orange { background: #ffedd5; color: #c2410c; }
+
+  .focus-copy strong {
+    display: block;
+    color: #0f172a;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .focus-copy span {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .metric-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
   }
 
-  .kpi-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
+  .metric-card {
     padding: 18px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    position: relative;
+    overflow: hidden;
   }
 
-  .kpi-card.blue { background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); }
-  .kpi-card.teal { background: linear-gradient(180deg, #ffffff 0%, #f7fffd 100%); }
-  .kpi-card.violet { background: linear-gradient(180deg, #ffffff 0%, #faf7ff 100%); }
-  .kpi-card.amber { background: linear-gradient(180deg, #ffffff 0%, #fffdf7 100%); }
+  .metric-card::after {
+    content: "";
+    position: absolute;
+    right: -14px;
+    bottom: -18px;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    opacity: 0.12;
+  }
 
-  .kpi-label {
-    font-size: 12px;
+  .metric-card.students {
+    background: linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%);
+  }
+  .metric-card.students::after { background: #3b82f6; }
+
+  .metric-card.questions {
+    background: linear-gradient(180deg, #ffffff 0%, #f3fffb 100%);
+  }
+  .metric-card.questions::after { background: #14b8a6; }
+
+  .metric-card.tests {
+    background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
+  }
+  .metric-card.tests::after { background: #8b5cf6; }
+
+  .metric-card.batches {
+    background: linear-gradient(180deg, #ffffff 0%, #fff8f1 100%);
+  }
+  .metric-card.batches::after { background: #f59e0b; }
+
+  .metric-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .metric-label {
     color: #64748b;
-    font-weight: 600;
-    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
   }
 
-  .kpi-value {
-    font-size: 28px;
-    line-height: 1;
-    font-weight: 700;
+  .metric-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .metric-card.students .metric-icon { background: #dbeafe; color: #1d4ed8; }
+  .metric-card.questions .metric-icon { background: #ccfbf1; color: #0f766e; }
+  .metric-card.tests .metric-icon { background: #ede9fe; color: #7c3aed; }
+  .metric-card.batches .metric-icon { background: #ffedd5; color: #c2410c; }
+
+  .metric-value {
     color: #0f172a;
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 800;
     margin-bottom: 8px;
   }
 
-  .kpi-meta {
+  .metric-meta {
+    color: #64748b;
     font-size: 13px;
-    color: #94a3b8;
     line-height: 1.5;
   }
 
-  .dashboard-content-grid {
+  .dashboard-main-grid {
     display: grid;
-    grid-template-columns: 1.2fr 0.9fr;
-    gap: 20px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+    gap: 18px;
   }
 
   .stack {
     display: grid;
-    gap: 20px;
+    gap: 18px;
   }
 
-  .panel-card-soft {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
+  .section-card {
     padding: 18px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
   }
 
-  .panel-head {
+  .section-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 12px;
     margin-bottom: 14px;
+    flex-wrap: wrap;
   }
 
-  .panel-head h3 {
+  .section-head h3 {
     margin: 0;
-    font-size: 17px;
-    font-weight: 700;
     color: #0f172a;
+    font-size: 20px;
+    font-weight: 800;
   }
 
-  .panel-subtext {
-    margin: 0 0 14px;
+  .section-note {
+    margin: 0;
     color: #64748b;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.6;
   }
 
-  .quick-actions {
+  .action-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 
-  .quick-link {
+  .action-card {
     display: block;
-    padding: 14px;
-    border-radius: 14px;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    padding: 16px;
+    border-radius: 16px;
+    text-decoration: none;
     border: 1px solid #e2e8f0;
     transition: all 0.18s ease;
+    background: #ffffff;
+    position: relative;
+    overflow: hidden;
   }
 
-  .quick-link:hover {
+  .action-card:hover {
     transform: translateY(-1px);
-    border-color: #cbd5e1;
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
   }
 
-  .quick-link-title {
-    font-size: 14px;
-    font-weight: 600;
+  .action-card.blue { background: linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%); }
+  .action-card.green { background: linear-gradient(180deg, #ffffff 0%, #f3fffb 100%); }
+  .action-card.purple { background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%); }
+  .action-card.orange { background: linear-gradient(180deg, #ffffff 0%, #fff8f1 100%); }
+
+  .action-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .action-card.blue .action-icon { background: #dbeafe; color: #1d4ed8; }
+  .action-card.green .action-icon { background: #ccfbf1; color: #0f766e; }
+  .action-card.purple .action-icon { background: #ede9fe; color: #7c3aed; }
+  .action-card.orange .action-icon { background: #ffedd5; color: #c2410c; }
+
+  .action-title {
     color: #0f172a;
-    margin-bottom: 6px;
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 5px;
   }
 
-  .quick-link-text {
-    font-size: 13px;
+  .action-text {
     color: #64748b;
+    font-size: 13px;
     line-height: 1.6;
   }
 
-  .activity-list,
-  .record-list {
+  .two-col {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .list-grid {
     display: grid;
     gap: 10px;
   }
 
-  .activity-item,
-  .record-item {
+  .data-row {
     display: flex;
-    align-items: flex-start;
     gap: 12px;
+    align-items: flex-start;
     padding: 13px 14px;
     border-radius: 14px;
-    background: #f8fafc;
     border: 1px solid #e2e8f0;
+    background: #f8fafc;
   }
 
-  .status-dot {
-    width: 10px;
-    height: 10px;
+  .data-dot {
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #2563eb, #10b981);
     margin-top: 5px;
     flex-shrink: 0;
+    background: linear-gradient(135deg, #2563eb, #10b981);
   }
 
-  .record-main {
+  .data-main {
     flex: 1;
     min-width: 0;
   }
 
-  .record-title {
+  .data-title {
     margin: 0 0 4px;
-    font-size: 14px;
-    font-weight: 600;
     color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
     line-height: 1.45;
   }
 
-  .record-meta {
+  .data-meta {
     margin: 0;
-    font-size: 12px;
     color: #64748b;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .status-badge.published {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+
+  .status-badge.draft {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+
+  .activity-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .activity-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 13px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+  }
+
+  .activity-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .activity-copy strong {
+    display: block;
+    color: #0f172a;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 2px;
+  }
+
+  .activity-copy span {
+    color: #64748b;
+    font-size: 12px;
     line-height: 1.5;
   }
 
-  .badge-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .module-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .module-chip:nth-child(1) { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-  .module-chip:nth-child(2) { background: #ecfeff; color: #0f766e; border: 1px solid #99f6e4; }
-  .module-chip:nth-child(3) { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
-  .module-chip:nth-child(4) { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
-  .module-chip:nth-child(5) { background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; }
-  .module-chip:nth-child(6) { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
-  .module-chip:nth-child(7) { background: #ecfccb; color: #3f6212; border: 1px solid #d9f99d; }
-  .module-chip:nth-child(8) { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
-
   .empty-note {
-    padding: 14px;
+    padding: 15px;
     border-radius: 14px;
-    background: #f8fafc;
     border: 1px dashed #cbd5e1;
+    background: #f8fafc;
     color: #64748b;
     font-size: 14px;
   }
 
-  @media (max-width: 1100px) {
-    .kpi-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  @media (max-width: 1180px) {
+    .top-summary-bar,
+    .dashboard-main-grid,
+    .two-col {
+      grid-template-columns: 1fr;
     }
 
-    .dashboard-content-grid {
-      grid-template-columns: 1fr;
+    .metric-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  @media (max-width: 700px) {
-    .kpi-grid,
-    .quick-actions {
+  @media (max-width: 720px) {
+    .metric-grid,
+    .action-grid {
       grid-template-columns: 1fr;
     }
 
-    .hero-card {
-      padding: 20px;
+    .welcome-card,
+    .focus-card,
+    .section-card,
+    .metric-card {
+      border-radius: 18px;
     }
 
-    .hero-card h2 {
+    .welcome-title {
       font-size: 24px;
     }
   }
@@ -330,61 +512,120 @@
 {% endblock %}
 
 {% block content %}
-<section class="dashboard-wrap">
-  <section class="hero-card">
-    <div class="hero-chip">Institute Dashboard</div>
-    <h2>Run your NEET admin operations from one place</h2>
-    <p>
-      Manage academic setup, build the question bank, create tests, monitor analytics, and track student readiness through one clean control panel.
-    </p>
+{% set admin_name = current_user.fullname if current_user is defined and current_user and current_user.fullname else 'Admin User' %}
+{% set admin_initial = admin_name[:1]|upper %}
+<section class="dashboard-shell">
 
-    <div class="hero-metrics">
-      <span class="hero-pill blue">{{ stats.students if stats else 0 }} Students</span>
-      <span class="hero-pill teal">{{ stats.questions if stats else 0 }} Questions</span>
-      <span class="hero-pill violet">{{ stats.tests if stats else 0 }} Tests</span>
-      <span class="hero-pill amber">{{ stats.batches if stats else 0 }} Batches</span>
+  <section class="top-summary-bar">
+    <div class="welcome-card">
+      <div class="welcome-row">
+        <div>
+          <span class="page-chip">Admin Dashboard</span>
+          <h1 class="welcome-title">Welcome back, {{ admin_name }}</h1>
+          <p class="welcome-text">
+            Use this dashboard to manage academic setup, maintain the question bank, create tests, and monitor recent platform activity without extra navigation.
+          </p>
+        </div>
+
+        <div class="admin-badge">
+          <div class="admin-avatar">{{ admin_initial }}</div>
+          <div class="admin-meta">
+            <strong>{{ admin_name }}</strong>
+            <span>Institute Admin</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="focus-card">
+      <h3 class="focus-title">Today’s focus</h3>
+      <div class="focus-list">
+        <div class="focus-item">
+          <div class="focus-icon blue">1</div>
+          <div class="focus-copy">
+            <strong>Complete academic setup</strong>
+            <span>Check batches, subjects, and chapters before adding more questions.</span>
+          </div>
+        </div>
+
+        <div class="focus-item">
+          <div class="focus-icon green">2</div>
+          <div class="focus-copy">
+            <strong>Keep the bank ready</strong>
+            <span>Question quality and tagging directly affect test-building speed.</span>
+          </div>
+        </div>
+
+        <div class="focus-item">
+          <div class="focus-icon orange">3</div>
+          <div class="focus-copy">
+            <strong>Review recent activity</strong>
+            <span>Use the latest tests and activity list to track current admin work.</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="kpi-grid">
-    <div class="kpi-card blue">
-      <div class="kpi-label">Total Students</div>
-      <div class="kpi-value">{{ stats.students if stats else 0 }}</div>
-      <div class="kpi-meta">Registered student accounts</div>
+  <section class="metric-grid">
+    <div class="metric-card students">
+      <div class="metric-top">
+        <div class="metric-label">Students</div>
+        <div class="metric-icon">S</div>
+      </div>
+      <div class="metric-value">{{ stats.students if stats else 0 }}</div>
+      <div class="metric-meta">Registered student accounts in the platform.</div>
     </div>
 
-    <div class="kpi-card teal">
-      <div class="kpi-label">Question Bank</div>
-      <div class="kpi-value">{{ stats.questions if stats else 0 }}</div>
-      <div class="kpi-meta">Questions available for paper creation</div>
+    <div class="metric-card questions">
+      <div class="metric-top">
+        <div class="metric-label">Question Bank</div>
+        <div class="metric-icon">Q</div>
+      </div>
+      <div class="metric-value">{{ stats.questions if stats else 0 }}</div>
+      <div class="metric-meta">Questions available for paper creation and review.</div>
     </div>
 
-    <div class="kpi-card violet">
-      <div class="kpi-label">Tests</div>
-      <div class="kpi-value">{{ stats.tests if stats else 0 }}</div>
-      <div class="kpi-meta">Draft and published test papers</div>
+    <div class="metric-card tests">
+      <div class="metric-top">
+        <div class="metric-label">Tests</div>
+        <div class="metric-icon">T</div>
+      </div>
+      <div class="metric-value">{{ stats.tests if stats else 0 }}</div>
+      <div class="metric-meta">Draft and published tests currently managed.</div>
     </div>
 
-    <div class="kpi-card amber">
-      <div class="kpi-label">Batches</div>
-      <div class="kpi-value">{{ stats.batches if stats else 0 }}</div>
-      <div class="kpi-meta">Managed academic groups</div>
+    <div class="metric-card batches">
+      <div class="metric-top">
+        <div class="metric-label">Batches</div>
+        <div class="metric-icon">B</div>
+      </div>
+      <div class="metric-value">{{ stats.batches if stats else 0 }}</div>
+      <div class="metric-meta">Academic groups available for student assignment.</div>
     </div>
   </section>
 
-  <section class="dashboard-content-grid">
+  <section class="dashboard-main-grid">
     <div class="stack">
-      <div class="panel-card-soft">
-        <div class="panel-head">
-          <h3>Quick actions</h3>
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h3>Quick actions</h3>
+            <p class="section-note">Use the most common admin tasks without searching through the sidebar.</p>
+          </div>
         </div>
 
         {% if quick_actions %}
-          <div class="quick-actions">
+          <div class="action-grid">
             {% for item in quick_actions %}
-              <a href="{{ item.url }}" class="quick-link">
-                <div class="quick-link-title">{{ item.label }}</div>
-                <div class="quick-link-text">Open the admin module and continue setup from the control panel.</div>
+              {% set tone = 'blue' %}
+              {% if loop.index == 2 %}{% set tone = 'green' %}{% endif %}
+              {% if loop.index == 3 %}{% set tone = 'purple' %}{% endif %}
+              {% if loop.index == 4 %}{% set tone = 'orange' %}{% endif %}
+              <a href="{{ item.url }}" class="action-card {{ tone }}">
+                <div class="action-icon">{{ loop.index }}</div>
+                <div class="action-title">{{ item.label }}</div>
+                <div class="action-text">Open this module and continue the setup or review flow directly.</div>
               </a>
             {% endfor %}
           </div>
@@ -393,74 +634,87 @@
         {% endif %}
       </div>
 
-      <div class="panel-card-soft">
-        <div class="panel-head">
-          <h3>Latest tests</h3>
+      <div class="two-col">
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Latest tests</h3>
+              <p class="section-note">Most recently created or updated test papers.</p>
+            </div>
+          </div>
+
+          {% if latest_tests %}
+            <div class="list-grid">
+              {% for test in latest_tests[:4] %}
+                <div class="data-row">
+                  <span class="data-dot"></span>
+                  <div class="data-main">
+                    <p class="data-title">
+                      {{ test.title }}
+                      <span class="status-badge {{ test.status|lower }}">{{ test.status|title }}</span>
+                    </p>
+                    <p class="data-meta">
+                      Type: {{ test.test_type|replace('_', ' ')|title }} •
+                      Duration: {{ test.duration_minutes }} min
+                    </p>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty-note">No tests created yet.</div>
+          {% endif %}
         </div>
 
-        {% if latest_tests %}
-          <div class="record-list">
-            {% for test in latest_tests %}
-              <div class="record-item">
-                <span class="status-dot"></span>
-                <div class="record-main">
-                  <p class="record-title">{{ test.title }}</p>
-                  <p class="record-meta">
-                    Type: {{ test.test_type|replace('_', ' ')|title }} •
-                    Duration: {{ test.duration_minutes }} min •
-                    Status: {{ test.status|title }}
-                  </p>
-                </div>
-              </div>
-            {% endfor %}
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Latest questions</h3>
+              <p class="section-note">Recently added questions from the question bank.</p>
+            </div>
           </div>
-        {% else %}
-          <div class="empty-note">No tests created yet.</div>
-        {% endif %}
-      </div>
 
-      <div class="panel-card-soft">
-        <div class="panel-head">
-          <h3>Latest questions</h3>
+          {% if latest_questions %}
+            <div class="list-grid">
+              {% for question in latest_questions[:4] %}
+                <div class="data-row">
+                  <span class="data-dot"></span>
+                  <div class="data-main">
+                    <p class="data-title">
+                      {{ question.stem[:78] }}{% if question.stem|length > 78 %}...{% endif %}
+                    </p>
+                    <p class="data-meta">
+                      {{ question.subject.name if question.subject else 'General' }} •
+                      {{ question.chapter.name if question.chapter else 'Chapter not assigned' }}
+                    </p>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty-note">No questions added yet.</div>
+          {% endif %}
         </div>
-
-        {% if latest_questions %}
-          <div class="record-list">
-            {% for question in latest_questions %}
-              <div class="record-item">
-                <span class="status-dot"></span>
-                <div class="record-main">
-                  <p class="record-title">
-                    {{ question.stem[:120] }}{% if question.stem|length > 120 %}...{% endif %}
-                  </p>
-                  <p class="record-meta">
-                    Subject: {{ question.subject.name if question.subject else 'General' }} •
-                    Chapter: {{ question.chapter.name if question.chapter else 'Chapter' }}
-                  </p>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="empty-note">No questions added yet.</div>
-        {% endif %}
       </div>
     </div>
 
     <div class="stack">
-      <div class="panel-card-soft">
-        <div class="panel-head">
-          <h3>Recent activity</h3>
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h3>Recent activity</h3>
+            <p class="section-note">Latest platform-side updates visible to the admin team.</p>
+          </div>
         </div>
 
         {% if recent_activity %}
-          <div class="activity-list">
-            {% for item in recent_activity %}
-              <div class="activity-item">
-                <span class="status-dot"></span>
-                <div class="record-main">
-                  <p class="record-title">{{ item }}</p>
-                  <p class="record-meta">Platform activity update</p>
+          <div class="activity-grid">
+            {% for item in recent_activity[:5] %}
+              <div class="activity-row">
+                <div class="activity-mark">{{ loop.index }}</div>
+                <div class="activity-copy">
+                  <strong>{{ item }}</strong>
+                  <span>Platform activity update</span>
                 </div>
               </div>
             {% endfor %}
@@ -470,66 +724,44 @@
         {% endif %}
       </div>
 
-      <div class="panel-card-soft">
-        <div class="panel-head">
-          <h3>Platform modules</h3>
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <h3>Working guide</h3>
+            <p class="section-note">A short operator flow for teachers and non-technical staff.</p>
+          </div>
         </div>
-        <p class="panel-subtext">
-          The admin panel is structured around academic setup, student operations, question bank management, test execution, and analytics.
-        </p>
-        <div class="badge-row">
-          <span class="module-chip">Dashboard</span>
-          <span class="module-chip">Batches</span>
-          <span class="module-chip">Subjects</span>
-          <span class="module-chip">Chapters</span>
-          <span class="module-chip">Students</span>
-          <span class="module-chip">Question Bank</span>
-          <span class="module-chip">Tests</span>
-          <span class="module-chip">Analytics</span>
-        </div>
-      </div>
 
-      <div class="panel-card-soft">
-        <div class="panel-head">
-          <h3>Admin workflow</h3>
-        </div>
-        <p class="panel-subtext">
-          The most reliable setup flow is: create academic masters, add questions, create tests, publish papers, review analytics, then onboard students and run assessments.
-        </p>
-        <div class="activity-list">
-          <div class="activity-item">
-            <span class="status-dot"></span>
-            <div class="record-main">
-              <p class="record-title">Step 1: Create batches, subjects, and chapters</p>
-              <p class="record-meta">Master data should exist before question creation</p>
+        <div class="activity-grid">
+          <div class="activity-row">
+            <div class="activity-mark">A</div>
+            <div class="activity-copy">
+              <strong>Create or verify batches, subjects, and chapters</strong>
+              <span>Academic setup should stay correct before bulk question entry.</span>
             </div>
           </div>
-          <div class="activity-item">
-            <span class="status-dot"></span>
-            <div class="record-main">
-              <p class="record-title">Step 2: Build the question bank</p>
-              <p class="record-meta">Tag questions properly by subject and chapter</p>
+
+          <div class="activity-row">
+            <div class="activity-mark">B</div>
+            <div class="activity-copy">
+              <strong>Add and review questions carefully</strong>
+              <span>Good tagging improves paper building and later analytics quality.</span>
             </div>
           </div>
-          <div class="activity-item">
-            <span class="status-dot"></span>
-            <div class="record-main">
-              <p class="record-title">Step 3: Create and publish tests</p>
-              <p class="record-meta">Use the builder flow before student access</p>
+
+          <div class="activity-row">
+            <div class="activity-mark">C</div>
+            <div class="activity-copy">
+              <strong>Create tests and publish only after review</strong>
+              <span>Check structure, duration, and paper readiness before student access.</span>
             </div>
           </div>
-          <div class="activity-item">
-            <span class="status-dot"></span>
-            <div class="record-main">
-              <p class="record-title">Step 4: Track analytics and student progress</p>
-              <p class="record-meta">Use reports to monitor performance after submissions</p>
-            </div>
-          </div>
-          <div class="activity-item">
-            <span class="status-dot"></span>
-            <div class="record-main">
-              <p class="record-title">Step 5: Add students and continue assessment cycles</p>
-              <p class="record-meta">Keep setup and testing workflow organized</p>
+
+          <div class="activity-row">
+            <div class="activity-mark">D</div>
+            <div class="activity-copy">
+              <strong>Use analytics after submissions</strong>
+              <span>Track performance patterns and identify weak areas for follow-up.</span>
             </div>
           </div>
         </div>
