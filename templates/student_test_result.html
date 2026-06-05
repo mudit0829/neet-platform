@@ -1158,16 +1158,20 @@
               <div class="review-body">
                 <div class="review-stem">{{ item.stem if item.stem is defined else '' }}</div>
 
-                {% if item.question_image is defined and item.question_image %}
-                  <div class="review-image-wrap">
-                    <img
-                      src="{{ url_for('static', filename=item.question_image) }}"
-                      alt="Question image for question {{ item.index if item.index is defined else loop.index }}"
-                      class="review-image"
-                    >
-                  </div>
-                {% endif %}
+                {% set question_image_path = item.question_image if item.question_image is defined else '' %}
+                {% set question_image_path = question_image_path|string|trim %}
 
+                {% if question_image_path and question_image_path|lower not in ['none', 'null', 'nan'] %}
+                <div class="review-image-wrap">
+                 <img
+                   src="{{ url_for('static', filename=question_image_path) }}"
+                   alt="Question image for question {{ item.index if item.index is defined else loop.index }}"
+                   class="review-image"
+                   loading="lazy"
+                   onerror="this.closest('.review-image-wrap').style.display='none';"
+                  >
+               </div>
+              {% endif %}
                 <div class="review-options">
                   {% for key, value in [
                     ('A', item.option_a if item.option_a is defined else ''),
