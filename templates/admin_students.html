@@ -1,49 +1,52 @@
 {% extends "base.html" %}
 
-{% block title %}Students | NEET Platform{% endblock %}
+{% block title %}Admin Students{% endblock %}
 
 {% block content %}
-<section class="admin-page">
+<section class="admin-shell students-page">
   <style>
-    .admin-page {
+    .students-page {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
+      padding: 24px;
     }
 
-    .hero-card,
-    .panel-card,
-    .kpi-card {
+    .admin-hero,
+    .admin-panel,
+    .stat-card,
+    .student-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 22px;
-      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
     }
 
-    .hero-card {
-      padding: 24px;
+    .admin-hero {
+      padding: 28px;
       background:
-        radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 30%),
-        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 24%),
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 22%),
         linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     }
 
-    .hero-chip {
+    .hero-kicker {
       display: inline-flex;
       align-items: center;
-      padding: 7px 12px;
+      gap: 8px;
+      padding: 8px 14px;
       border-radius: 999px;
       background: #eef2ff;
-      border: 1px solid #c7d2fe;
       color: #4338ca;
+      border: 1px solid #c7d2fe;
       font-size: 12px;
       font-weight: 800;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
-    .hero-card h1 {
+    .admin-hero h1 {
       margin: 0 0 8px;
       font-size: 30px;
       line-height: 1.15;
@@ -51,83 +54,70 @@
       font-weight: 800;
     }
 
-    .hero-card p {
+    .admin-hero p {
       margin: 0;
+      max-width: 900px;
       color: #64748b;
       font-size: 14px;
       line-height: 1.75;
-      max-width: 860px;
     }
 
-    .kpi-grid {
+    .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
     }
 
-    .kpi-card {
+    .stat-card {
       padding: 18px;
+      min-height: 132px;
     }
 
-    .kpi-label {
-      font-size: 12px;
+    .stat-label {
+      margin: 0 0 8px;
       color: #64748b;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       font-weight: 800;
-      margin-bottom: 8px;
     }
 
-    .kpi-value {
-      font-size: 28px;
+    .stat-value {
+      margin: 0 0 8px;
       color: #0f172a;
-      font-weight: 800;
+      font-size: 30px;
       line-height: 1;
-      margin-bottom: 8px;
+      font-weight: 800;
     }
 
-    .kpi-meta {
-      font-size: 13px;
+    .stat-meta {
+      margin: 0;
       color: #64748b;
+      font-size: 13px;
       line-height: 1.6;
-    }
-
-    .kpi-card.blue {
-      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    }
-
-    .kpi-card.green {
-      background: linear-gradient(180deg, #ffffff 0%, #f7fef9 100%);
-    }
-
-    .kpi-card.red {
-      background: linear-gradient(180deg, #ffffff 0%, #fff8f8 100%);
-    }
-
-    .kpi-card.amber {
-      background: linear-gradient(180deg, #ffffff 0%, #fffdf7 100%);
     }
 
     .workspace-grid {
       display: grid;
-      grid-template-columns: 420px minmax(0, 1fr);
-      gap: 20px;
+      grid-template-columns: 430px minmax(0, 1fr);
+      gap: 24px;
       align-items: start;
     }
 
-    .panel-card {
+    .admin-panel {
       padding: 22px;
     }
 
     .panel-head {
       display: flex;
-      justify-content: space-between;
       align-items: flex-start;
-      gap: 12px;
+      justify-content: space-between;
+      gap: 16px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
+    .panel-head h2,
     .panel-head h3 {
       margin: 0 0 4px;
       color: #0f172a;
@@ -135,31 +125,31 @@
       font-weight: 800;
     }
 
-    .panel-subtext {
+    .panel-head p {
       margin: 0;
       color: #64748b;
       font-size: 13px;
       line-height: 1.6;
     }
 
-    .helper-box {
-      padding: 13px 14px;
-      border-radius: 14px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e40af;
-      font-size: 13px;
-      line-height: 1.6;
+    .helper-note {
       margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+      font-size: 13px;
+      line-height: 1.65;
     }
 
     .section-label {
-      margin: 8px 0 8px;
-      font-size: 13px;
-      font-weight: 800;
+      margin: 16px 0 10px;
       color: #334155;
+      font-size: 12px;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
     }
 
     .form-grid {
@@ -168,7 +158,7 @@
       gap: 14px;
     }
 
-    .form-span-2 {
+    .span-2 {
       grid-column: span 2;
     }
 
@@ -188,9 +178,9 @@
       border: 1px solid #cbd5e1;
       border-radius: 14px;
       padding: 13px 14px;
-      font-size: 14px;
-      color: #0f172a;
       background: #ffffff;
+      color: #0f172a;
+      font-size: 14px;
       outline: none;
       transition: 0.2s ease;
     }
@@ -202,20 +192,36 @@
 
     textarea.form-control {
       resize: vertical;
-      min-height: 96px;
+      min-height: 98px;
     }
 
-    .btn-primary {
-      border: 0;
+    .button-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .btn-primary,
+    .btn-soft,
+    .btn-link-soft {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 14px;
-      padding: 14px 16px;
-      background: linear-gradient(135deg, #2563eb, #0f766e);
-      color: #ffffff;
+      padding: 12px 16px;
+      text-decoration: none;
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
       transition: 0.2s ease;
-      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.16);
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #0f766e);
+      color: #ffffff;
+      box-shadow: 0 12px 22px rgba(37, 99, 235, 0.16);
     }
 
     .btn-primary:hover {
@@ -223,15 +229,15 @@
     }
 
     .btn-soft {
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
-      padding: 13px 14px;
       background: #ffffff;
       color: #334155;
-      font-size: 14px;
-      font-weight: 800;
-      text-decoration: none;
-      cursor: pointer;
+      border-color: #cbd5e1;
+    }
+
+    .btn-link-soft {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
     }
 
     .toolbar {
@@ -242,27 +248,27 @@
 
     .toolbar-row {
       display: grid;
-      grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(160px, 1fr)) auto;
+      grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(150px, 1fr)) auto;
       gap: 12px;
       align-items: center;
     }
 
-    .search-box {
+    .search-wrap {
       position: relative;
     }
 
-    .search-box input {
+    .search-wrap input {
       width: 100%;
       border: 1px solid #cbd5e1;
       border-radius: 14px;
       padding: 13px 14px 13px 42px;
+      background: #ffffff;
       font-size: 14px;
       color: #0f172a;
-      background: #ffffff;
       outline: none;
     }
 
-    .search-box input:focus {
+    .search-wrap input:focus {
       border-color: #2563eb;
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
     }
@@ -277,83 +283,23 @@
       pointer-events: none;
     }
 
-    .student-list {
-      display: grid;
-      gap: 14px;
-    }
-
-    .student-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 16px;
-      background: #ffffff;
-      transition: 0.18s ease;
-    }
-
-    .student-card:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
-    }
-
-    .student-card.hidden {
-      display: none;
-    }
-
-    .student-top {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 14px;
-      align-items: start;
-    }
-
-    .student-photo {
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      object-fit: cover;
-      background: #e2e8f0;
-      border: 1px solid #cbd5e1;
-    }
-
-    .student-avatar-fallback {
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #dbeafe, #ede9fe);
-      color: #1e3a8a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 18px;
-      border: 1px solid #cbd5e1;
-    }
-
-    .student-name {
-      margin: 0 0 4px;
-      font-size: 17px;
-      font-weight: 800;
-      color: #0f172a;
-    }
-
-    .student-subline {
-      margin: 0;
-      font-size: 13px;
-      color: #64748b;
-      line-height: 1.6;
-    }
-
-    .status-badge,
-    .risk-badge,
-    .mini-badge {
+    .mini-badge,
+    .status-badge {
       display: inline-flex;
       align-items: center;
-      padding: 6px 10px;
+      justify-content: center;
+      padding: 7px 11px;
       border-radius: 999px;
-      border: 1px solid transparent;
       font-size: 12px;
       font-weight: 800;
+      border: 1px solid transparent;
       white-space: nowrap;
+    }
+
+    .mini-badge {
+      background: #f8fafc;
+      color: #475569;
+      border-color: #e2e8f0;
     }
 
     .status-badge.active {
@@ -363,62 +309,109 @@
     }
 
     .status-badge.inactive {
-      background: #fee2e2;
-      color: #b91c1c;
-      border-color: #fecaca;
-    }
-
-    .risk-badge.low {
-      background: #eff6ff;
-      color: #1d4ed8;
-      border-color: #bfdbfe;
-    }
-
-    .risk-badge.medium {
-      background: #fff7ed;
-      color: #c2410c;
-      border-color: #fed7aa;
-    }
-
-    .risk-badge.high {
       background: #fef2f2;
       color: #b91c1c;
       border-color: #fecaca;
     }
 
-    .mini-badge {
-      background: #f8fafc;
-      color: #475569;
-      border-color: #e2e8f0;
+    .students-list {
+      display: grid;
+      gap: 14px;
     }
 
-    .student-meta-grid {
+    .student-card {
+      padding: 16px;
+      transition: 0.18s ease;
+    }
+
+    .student-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .student-card.hidden {
+      display: none;
+    }
+
+    .student-header {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .student-photo,
+    .student-fallback {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .student-photo {
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+
+    .student-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #dbeafe, #ede9fe);
+      color: #1e3a8a;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .student-name {
+      margin: 0 0 4px;
+      color: #0f172a;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .student-subline {
+      margin: 0;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .student-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .student-metrics {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
       margin-top: 14px;
     }
 
-    .meta-box {
+    .metric-box {
       padding: 12px;
       border-radius: 14px;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
     }
 
-    .meta-label {
+    .metric-box .label {
+      margin: 0 0 5px;
+      color: #64748b;
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       font-weight: 800;
-      color: #64748b;
-      margin-bottom: 6px;
     }
 
-    .meta-value {
+    .metric-box .value {
+      margin: 0;
+      color: #0f172a;
       font-size: 15px;
       font-weight: 800;
-      color: #0f172a;
       line-height: 1.3;
     }
 
@@ -430,66 +423,66 @@
     }
 
     .action-link,
-    .action-btn {
+    .action-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
       padding: 10px 14px;
+      border-radius: 12px;
       font-size: 13px;
       font-weight: 800;
       text-decoration: none;
       border: 1px solid transparent;
-      cursor: pointer;
       background: #ffffff;
+      cursor: pointer;
     }
 
-    .action-link.view {
+    .action-link.primary {
       background: #eff6ff;
       color: #1d4ed8;
       border-color: #bfdbfe;
     }
 
-    .action-link.edit {
+    .action-link.secondary {
       background: #f5f3ff;
       color: #7c3aed;
       border-color: #ddd6fe;
     }
 
-    .action-btn.warn {
+    .action-button.warn {
       background: #fff7ed;
       color: #c2410c;
       border-color: #fed7aa;
     }
 
-    .action-btn.success {
+    .action-button.success {
       background: #ecfdf5;
       color: #047857;
       border-color: #a7f3d0;
     }
 
-    .action-btn.danger {
-      background: #fee2e2;
+    .action-button.danger {
+      background: #fef2f2;
       color: #b91c1c;
       border-color: #fecaca;
     }
 
     .empty-state {
       padding: 24px;
-      border: 1px dashed #cbd5e1;
       border-radius: 18px;
       background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      text-align: center;
       color: #64748b;
       font-size: 14px;
-      text-align: center;
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1250px) {
       .workspace-grid {
         grid-template-columns: 1fr;
       }
 
-      .kpi-grid {
+      .stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
@@ -498,19 +491,23 @@
       }
     }
 
-    @media (max-width: 820px) {
+    @media (max-width: 840px) {
+      .students-page {
+        padding: 16px;
+      }
+
       .form-grid,
-      .student-meta-grid,
-      .kpi-grid,
+      .student-metrics,
+      .stats-grid,
       .toolbar-row {
         grid-template-columns: 1fr;
       }
 
-      .form-span-2 {
+      .span-2 {
         grid-column: span 1;
       }
 
-      .student-top {
+      .student-header {
         grid-template-columns: 1fr;
       }
     }
@@ -519,68 +516,71 @@
   {% set total_students = students|length if students else 0 %}
   {% set active_students = students|selectattr('is_active_user')|list|length if students else 0 %}
   {% set inactive_students = total_students - active_students %}
-  {% set total_attempts = studentattemptcounts.values()|sum if studentattemptcounts else 0 %}
+  {% set total_attempts = student_attempt_counts.values()|sum if student_attempt_counts else 0 %}
 
-  <section class="hero-card">
-    <div class="hero-chip">Student Management</div>
-    <h1>Students workspace</h1>
+  <section class="admin-hero">
+    <div class="hero-kicker">Admin Student Management</div>
+    <h1>Student admissions and records workspace</h1>
     <p>
-      Create student accounts, manage academic and contact records, search by batch or performance, and open full student profiles with progress visibility.
+      Create student accounts, assign batches, maintain admission and guardian information, and quickly open each student’s performance dashboard from one organized screen.
     </p>
   </section>
 
-  <section class="kpi-grid">
-    <div class="kpi-card blue">
-      <div class="kpi-label">Total Students</div>
-      <div class="kpi-value">{{ total_students }}</div>
-      <div class="kpi-meta">All student accounts currently mapped in the admin workspace.</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="kpi-label">Active Accounts</div>
-      <div class="kpi-value">{{ active_students }}</div>
-      <div class="kpi-meta">Students who can currently access the platform.</div>
-    </div>
-    <div class="kpi-card red">
-      <div class="kpi-label">Inactive Accounts</div>
-      <div class="kpi-value">{{ inactive_students }}</div>
-      <div class="kpi-meta">Blocked or deactivated students needing review or reactivation.</div>
-    </div>
-    <div class="kpi-card amber">
-      <div class="kpi-label">Test Attempts</div>
-      <div class="kpi-value">{{ total_attempts }}</div>
-      <div class="kpi-meta">Total submitted attempts counted across visible student records.</div>
-    </div>
+  <section class="stats-grid">
+    <article class="stat-card">
+      <p class="stat-label">Total Students</p>
+      <p class="stat-value">{{ total_students }}</p>
+      <p class="stat-meta">All visible student accounts in the current admin list.</p>
+    </article>
+
+    <article class="stat-card">
+      <p class="stat-label">Active Accounts</p>
+      <p class="stat-value">{{ active_students }}</p>
+      <p class="stat-meta">Students currently allowed to access the platform.</p>
+    </article>
+
+    <article class="stat-card">
+      <p class="stat-label">Inactive Accounts</p>
+      <p class="stat-value">{{ inactive_students }}</p>
+      <p class="stat-meta">Blocked or inactive students needing account action.</p>
+    </article>
+
+    <article class="stat-card">
+      <p class="stat-label">Total Attempts</p>
+      <p class="stat-value">{{ total_attempts }}</p>
+      <p class="stat-meta">Submitted attempts counted across the visible student list.</p>
+    </article>
   </section>
 
   <section class="workspace-grid">
-    <div class="panel-card">
+    <section class="admin-panel">
       <div class="panel-head">
         <div>
-          <h3>Create student</h3>
-          <p class="panel-subtext">Create login, admission, guardian, and academic details from one form.</p>
+          <h2>Create student</h2>
+          <p>Use backend-aligned field names and keep the full admission record complete.</p>
         </div>
       </div>
 
-      <div class="helper-box">
-        This form uses backend-matching field names, so it aligns with the current students route and avoids form submission mismatches.
+      <div class="helper-note">
+        This form is aligned to your current Flask route field names like <strong>full_name</strong>, <strong>admission_no</strong>, <strong>batch_id</strong>, <strong>student_mobile</strong>, <strong>father_name</strong>, and <strong>school_name</strong>.
       </div>
 
       <form method="POST" enctype="multipart/form-data">
         <div class="section-label">Login details</div>
         <div class="form-grid">
           <div class="form-group">
-            <label for="fullname">Full name *</label>
-            <input type="text" id="fullname" name="fullname" required class="form-control">
+            <label for="full_name">Full name *</label>
+            <input type="text" id="full_name" name="full_name" class="form-control" required>
           </div>
 
           <div class="form-group">
             <label for="username">Username *</label>
-            <input type="text" id="username" name="username" required class="form-control">
+            <input type="text" id="username" name="username" class="form-control" required>
           </div>
 
           <div class="form-group">
             <label for="password">Password *</label>
-            <input type="text" id="password" name="password" required class="form-control">
+            <input type="text" id="password" name="password" class="form-control" required>
           </div>
 
           <div class="form-group">
@@ -595,56 +595,58 @@
         <div class="section-label">Admission details</div>
         <div class="form-grid">
           <div class="form-group">
-            <label for="admissionno">Admission no. *</label>
-            <input type="text" id="admissionno" name="admissionno" required class="form-control">
+            <label for="admission_no">Admission number *</label>
+            <input type="text" id="admission_no" name="admission_no" class="form-control" required>
           </div>
 
           <div class="form-group">
-            <label for="admissionsession">Admission session *</label>
-            <input type="text" id="admissionsession" name="admissionsession" placeholder="2026-27" required class="form-control">
+            <label for="admission_session">Admission session *</label>
+            <input type="text" id="admission_session" name="admission_session" class="form-control" placeholder="2026-27" required>
           </div>
 
           <div class="form-group">
-            <label for="courseapplied">Course applied *</label>
-            <input type="text" id="courseapplied" name="courseapplied" placeholder="Foundation / NEET" required class="form-control">
+            <label for="course_applied">Course applied *</label>
+            <input type="text" id="course_applied" name="course_applied" class="form-control" placeholder="NEET / Foundation" required>
           </div>
 
           <div class="form-group">
-            <label for="targetexam">Target exam</label>
-            <input type="text" id="targetexam" name="targetexam" placeholder="NEET 2027" class="form-control">
+            <label for="target_exam">Target exam</label>
+            <input type="text" id="target_exam" name="target_exam" class="form-control" placeholder="NEET 2027">
           </div>
 
           <div class="form-group">
-            <label for="currentclass">Current class</label>
-            <input type="text" id="currentclass" name="currentclass" placeholder="XI / XII / XII Pass" class="form-control">
+            <label for="current_class">Current class</label>
+            <input type="text" id="current_class" name="current_class" class="form-control" placeholder="XI / XII / XII Pass">
           </div>
 
           <div class="form-group">
-            <label for="batchid">Batch *</label>
-            <select id="batchid" name="batchid" required class="form-control">
+            <label for="batch_id">Batch *</label>
+            <select id="batch_id" name="batch_id" class="form-control" required>
               <option value="">Select batch</option>
               {% for batch in batches %}
-                <option value="{{ batch.id }}">{{ batch.name }} ({{ batch.academicyear }})</option>
+                <option value="{{ batch.id }}">
+                  {{ batch.name }}{% if batch.academic_year %} ({{ batch.academic_year }}){% endif %}
+                </option>
               {% endfor %}
             </select>
           </div>
         </div>
 
-        <div class="section-label">Photograph & identity</div>
+        <div class="section-label">Identity and profile</div>
         <div class="form-grid">
           <div class="form-group">
             <label for="photograph">Photograph *</label>
-            <input type="file" id="photograph" name="photograph" accept=".png,.jpg,.jpeg,.gif,.webp" required class="form-control">
+            <input type="file" id="photograph" name="photograph" class="form-control" accept=".png,.jpg,.jpeg,.gif,.webp" required>
           </div>
 
           <div class="form-group">
             <label for="dob">Date of birth *</label>
-            <input type="date" id="dob" name="dob" required class="form-control">
+            <input type="date" id="dob" name="dob" class="form-control" required>
           </div>
 
           <div class="form-group">
             <label for="gender">Gender *</label>
-            <select id="gender" name="gender" required class="form-control">
+            <select id="gender" name="gender" class="form-control" required>
               <option value="">Select gender</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
@@ -658,54 +660,54 @@
           </div>
         </div>
 
-        <div class="section-label">Contact details</div>
+        <div class="section-label">Student and guardian contact</div>
         <div class="form-grid">
           <div class="form-group">
-            <label for="studentmobile">Student mobile *</label>
-            <input type="text" id="studentmobile" name="studentmobile" required class="form-control">
+            <label for="student_mobile">Student mobile *</label>
+            <input type="text" id="student_mobile" name="student_mobile" class="form-control" required>
           </div>
 
           <div class="form-group">
-            <label for="studentemail">Student email</label>
-            <input type="email" id="studentemail" name="studentemail" class="form-control">
+            <label for="student_email">Student email</label>
+            <input type="email" id="student_email" name="student_email" class="form-control">
           </div>
 
           <div class="form-group">
-            <label for="fathername">Father name *</label>
-            <input type="text" id="fathername" name="fathername" required class="form-control">
+            <label for="father_name">Father name *</label>
+            <input type="text" id="father_name" name="father_name" class="form-control" required>
           </div>
 
           <div class="form-group">
-            <label for="mothername">Mother name</label>
-            <input type="text" id="mothername" name="mothername" class="form-control">
+            <label for="mother_name">Mother name</label>
+            <input type="text" id="mother_name" name="mother_name" class="form-control">
           </div>
 
           <div class="form-group">
-            <label for="fathermobile">Father mobile *</label>
-            <input type="text" id="fathermobile" name="fathermobile" required class="form-control">
+            <label for="father_mobile">Father mobile *</label>
+            <input type="text" id="father_mobile" name="father_mobile" class="form-control" required>
           </div>
 
           <div class="form-group">
-            <label for="mothermobile">Mother mobile</label>
-            <input type="text" id="mothermobile" name="mothermobile" class="form-control">
+            <label for="mother_mobile">Mother mobile</label>
+            <input type="text" id="mother_mobile" name="mother_mobile" class="form-control">
           </div>
 
-          <div class="form-group form-span-2">
-            <label for="parentemail">Parent email</label>
-            <input type="email" id="parentemail" name="parentemail" class="form-control">
+          <div class="form-group span-2">
+            <label for="parent_email">Parent email</label>
+            <input type="email" id="parent_email" name="parent_email" class="form-control">
           </div>
         </div>
 
-        <div class="section-label">Address & academic info</div>
+        <div class="section-label">Address and academic profile</div>
         <div class="form-grid">
-          <div class="form-group form-span-2">
+          <div class="form-group span-2">
             <label for="address">Address *</label>
-            <textarea id="address" name="address" required class="form-control" rows="3"></textarea>
+            <textarea id="address" name="address" class="form-control" rows="3" required></textarea>
           </div>
 
           <div class="form-group">
             <label for="city">City *</label>
-            <input type="text" id="city" name="city" required class="form-control">
+            <input type="text" id="city" name="city" class="form-control" required>
           </div>
 
           <div class="form-group">
@@ -715,7 +717,7 @@
 
           <div class="form-group">
             <label for="state">State *</label>
-            <input type="text" id="state" name="state" required class="form-control">
+            <input type="text" id="state" name="state" class="form-control" required>
           </div>
 
           <div class="form-group">
@@ -724,44 +726,44 @@
           </div>
 
           <div class="form-group">
-            <label for="schoolname">School name</label>
-            <input type="text" id="schoolname" name="schoolname" class="form-control">
+            <label for="school_name">School name</label>
+            <input type="text" id="school_name" name="school_name" class="form-control">
           </div>
 
           <div class="form-group">
-            <label for="boardname">Board name</label>
-            <input type="text" id="boardname" name="boardname" class="form-control">
+            <label for="board_name">Board name</label>
+            <input type="text" id="board_name" name="board_name" class="form-control">
           </div>
 
-          <div class="form-group form-span-2">
+          <div class="form-group span-2">
             <label for="remarks">Remarks</label>
             <textarea id="remarks" name="remarks" class="form-control" rows="3"></textarea>
           </div>
         </div>
 
-        <div style="margin-top: 18px; display:flex; gap:12px; flex-wrap:wrap;">
-          <button type="submit" class="btn-primary">Create Student</button>
+        <div class="button-row">
+          <button type="submit" class="btn-primary">Create student</button>
           <span class="mini-badge">Photograph required</span>
-          <span class="mini-badge">Username set by admin</span>
-          <span class="mini-badge">Batch linked</span>
+          <span class="mini-badge">Batch assignment required</span>
+          <span class="mini-badge">Admission number must be unique</span>
         </div>
       </form>
-    </div>
+    </section>
 
-    <div class="panel-card">
+    <section class="admin-panel">
       <div class="panel-head">
         <div>
           <h3>Student directory</h3>
-          <p class="panel-subtext">Search students by name, username, admission number, batch, or activity snapshot.</p>
+          <p>Search, filter, and open each student’s analytics profile directly from the admin workspace.</p>
         </div>
-        <a href="{{ url_for('admin.analyticsstudentspage') }}" class="btn-soft">Open analytics page</a>
+        <a href="{{ url_for('admin.analytics_students_page') }}" class="btn-link-soft">Open analytics list</a>
       </div>
 
       <div class="toolbar">
         <div class="toolbar-row">
-          <div class="search-box">
+          <div class="search-wrap">
             <span class="search-icon">⌕</span>
-            <input type="text" id="studentSearch" placeholder="Search by student name, username, or admission no.">
+            <input type="text" id="studentSearch" placeholder="Search by full name, username, or admission number">
           </div>
 
           <select id="batchFilter" class="form-control">
@@ -784,102 +786,106 @@
             <option value="5plus">5+ attempts</option>
           </select>
 
-          <div class="mini-badge"><span id="visibleStudents">{{ total_students }}</span> visible</div>
+          <span class="mini-badge"><span id="visibleStudents">{{ total_students }}</span> visible</span>
         </div>
       </div>
 
       {% if students %}
-      <div class="student-list" id="studentList">
-        {% for student in students %}
-          {% set profile = student.student_profile %}
-          {% set attempts = studentattemptcounts.get(student.id, 0) %}
-          {% set admission_no = profile.admissionno if profile and profile.admissionno else 'No admission no.' %}
-          {% set batch_name = student.batch.name if student.batch else 'Not assigned' %}
-          {% set batch_id_value = student.batch.id if student.batch else '' %}
-          {% set status_value = 'active' if student.is_active_user else 'inactive' %}
-          {% set search_blob = ((student.fullname or '') ~ ' ' ~ (student.username or '') ~ ' ' ~ admission_no)|lower %}
+        <div class="students-list" id="studentsList">
+          {% for student in students %}
+            {% set profile = student.student_profile %}
+            {% set attempts = student_attempt_counts.get(student.id, 0) %}
+            {% set admission_number = profile.admission_no if profile and profile.admission_no else 'No admission no.' %}
+            {% set student_batch = student.batch.name if student.batch else 'Not assigned' %}
+            {% set batch_value = student.batch.id if student.batch else '' %}
+            {% set status_value = 'active' if student.is_active_user else 'inactive' %}
+            {% set search_blob = ((student.full_name or '') ~ ' ' ~ (student.username or '') ~ ' ' ~ admission_number)|lower %}
 
-          <article
-            class="student-card"
-            data-search="{{ search_blob }}"
-            data-batch="{{ batch_id_value }}"
-            data-status="{{ status_value }}"
-            data-attempts="{{ attempts }}"
-          >
-            <div class="student-top">
-              {% if profile and profile.photograph %}
-                <img src="{{ url_for('static', filename=profile.photograph) }}" alt="{{ student.fullname }}" class="student-photo">
-              {% else %}
-                <div class="student-avatar-fallback">{{ (student.fullname or 'S')[0] }}</div>
-              {% endif %}
+            <article
+              class="student-card"
+              data-search="{{ search_blob }}"
+              data-batch="{{ batch_value }}"
+              data-status="{{ status_value }}"
+              data-attempts="{{ attempts }}"
+            >
+              <div class="student-header">
+                {% if profile and profile.photograph %}
+                  <img src="{{ url_for('static', filename=profile.photograph) }}" alt="{{ student.full_name }}" class="student-photo">
+                {% else %}
+                  <div class="student-fallback">{{ (student.full_name or 'S')[0] }}</div>
+                {% endif %}
 
-              <div>
-                <h4 class="student-name">{{ student.fullname }}</h4>
-                <p class="student-subline">
-                  {{ student.username or '-' }} • {{ admission_no }} • {{ batch_name }}
-                </p>
-                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
-                  <span class="status-badge {{ status_value }}">{{ 'Active' if student.is_active_user else 'Inactive' }}</span>
-                  <span class="mini-badge">{{ attempts }} Attempts</span>
-                  {% if profile and profile.targetexam %}
-                    <span class="mini-badge">{{ profile.targetexam }}</span>
-                  {% endif %}
+                <div>
+                  <h4 class="student-name">{{ student.full_name }}</h4>
+                  <p class="student-subline">
+                    {{ student.username or '-' }} • {{ admission_number }} • {{ student_batch }}
+                  </p>
+
+                  <div class="student-badges">
+                    <span class="status-badge {{ status_value }}">{{ 'Active' if student.is_active_user else 'Inactive' }}</span>
+                    <span class="mini-badge">{{ attempts }} attempts</span>
+                    {% if profile and profile.target_exam %}
+                      <span class="mini-badge">{{ profile.target_exam }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div>
+                  <a href="{{ url_for('admin.analytics_student_detail_page', student_id=student.id) }}" class="action-link primary">View profile</a>
                 </div>
               </div>
 
-              <div>
-                <a href="{{ url_for('admin.analyticsstudentdetailpage', studentid=student.id) }}" class="action-link view">View Profile</a>
-              </div>
-            </div>
+              <div class="student-metrics">
+                <div class="metric-box">
+                  <p class="label">Student mobile</p>
+                  <p class="value">{{ profile.student_mobile if profile and profile.student_mobile else '-' }}</p>
+                </div>
 
-            <div class="student-meta-grid">
-              <div class="meta-box">
-                <div class="meta-label">Student Mobile</div>
-                <div class="meta-value">{{ profile.studentmobile if profile and profile.studentmobile else '-' }}</div>
-              </div>
-              <div class="meta-box">
-                <div class="meta-label">Parent Mobile</div>
-                <div class="meta-value">{{ profile.fathermobile if profile and profile.fathermobile else '-' }}</div>
-              </div>
-              <div class="meta-box">
-                <div class="meta-label">Current Class</div>
-                <div class="meta-value">{{ profile.currentclass if profile and profile.currentclass else '-' }}</div>
-              </div>
-              <div class="meta-box">
-                <div class="meta-label">Course</div>
-                <div class="meta-value">{{ profile.courseapplied if profile and profile.courseapplied else '-' }}</div>
-              </div>
-            </div>
+                <div class="metric-box">
+                  <p class="label">Parent mobile</p>
+                  <p class="value">{{ profile.father_mobile if profile and profile.father_mobile else '-' }}</p>
+                </div>
 
-            <div class="student-actions">
-              <a href="{{ url_for('admin.analyticsstudentdetailpage', studentid=student.id) }}" class="action-link view">Full Detail</a>
-              <a href="#" class="action-link edit">Edit</a>
+                <div class="metric-box">
+                  <p class="label">Current class</p>
+                  <p class="value">{{ profile.current_class if profile and profile.current_class else '-' }}</p>
+                </div>
 
-              {% if student.is_active_user %}
-                <form method="POST" action="#" onsubmit="return confirm('Block this student account?');">
-                  <button type="submit" class="action-btn warn">Block</button>
+                <div class="metric-box">
+                  <p class="label">Course</p>
+                  <p class="value">{{ profile.course_applied if profile and profile.course_applied else '-' }}</p>
+                </div>
+              </div>
+
+              <div class="student-actions">
+                <a href="{{ url_for('admin.analytics_student_detail_page', student_id=student.id) }}" class="action-link primary">Full detail</a>
+                <a href="#" class="action-link secondary">Edit</a>
+
+                {% if student.is_active_user %}
+                  <form method="POST" action="#">
+                    <button type="submit" class="action-button warn">Block</button>
+                  </form>
+                {% else %}
+                  <form method="POST" action="#">
+                    <button type="submit" class="action-button success">Reactivate</button>
+                  </form>
+                {% endif %}
+
+                <form method="POST" action="#">
+                  <button type="submit" class="action-button danger">Delete</button>
                 </form>
-              {% else %}
-                <form method="POST" action="#" onsubmit="return confirm('Reactivate this student account?');">
-                  <button type="submit" class="action-btn success">Reactivate</button>
-                </form>
-              {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
 
-              <form method="POST" action="#" onsubmit="return confirm('Delete this student account? This action should be restricted carefully.');">
-                <button type="submit" class="action-btn danger">Delete</button>
-              </form>
-            </div>
-          </article>
-        {% endfor %}
-      </div>
-
-      <div class="empty-state" id="noStudentResults" style="display:none;">
-        No students match the current search or filters.
-      </div>
+        <div class="empty-state" id="studentsEmptyState" style="display:none;">
+          No students match the current search or selected filters.
+        </div>
       {% else %}
-      <div class="empty-state">No students created yet.</div>
+        <div class="empty-state">No students created yet.</div>
       {% endif %}
-    </div>
+    </section>
   </section>
 
   <script>
@@ -889,17 +895,17 @@
       const statusFilter = document.getElementById('statusFilter');
       const attemptFilter = document.getElementById('attemptFilter');
       const cards = document.querySelectorAll('.student-card');
-      const visibleCount = document.getElementById('visibleStudents');
-      const emptyState = document.getElementById('noStudentResults');
+      const visibleStudents = document.getElementById('visibleStudents');
+      const emptyState = document.getElementById('studentsEmptyState');
 
       if (!cards.length) return;
 
-      function passesAttemptFilter(value, filterValue) {
-        const attempts = parseInt(value || '0', 10);
+      function passesAttemptFilter(attemptCount, filterValue) {
+        const count = parseInt(attemptCount || '0', 10);
         if (filterValue === 'all') return true;
-        if (filterValue === '0') return attempts === 0;
-        if (filterValue === '1plus') return attempts >= 1;
-        if (filterValue === '5plus') return attempts >= 5;
+        if (filterValue === '0') return count === 0;
+        if (filterValue === '1plus') return count >= 1;
+        if (filterValue === '5plus') return count >= 5;
         return true;
       }
 
@@ -925,13 +931,14 @@
           }
         });
 
-        if (visibleCount) visibleCount.textContent = count;
+        if (visibleStudents) visibleStudents.textContent = count;
         if (emptyState) emptyState.style.display = count === 0 ? 'block' : 'none';
       }
 
       [searchInput, batchFilter, statusFilter, attemptFilter].forEach((node) => {
-        if (node) node.addEventListener('input', applyFilters);
-        if (node && node.tagName === 'SELECT') node.addEventListener('change', applyFilters);
+        if (!node) return;
+        node.addEventListener('input', applyFilters);
+        node.addEventListener('change', applyFilters);
       });
 
       applyFilters();
