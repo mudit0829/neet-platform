@@ -8,58 +8,188 @@
     .admin-page {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
     }
 
-    .page-intro {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #0f766e 100%);
-      border-radius: 24px;
-      padding: 26px;
-      color: #ffffff;
-      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    .page-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 20px;
+      align-items: stretch;
     }
 
-    .page-intro h2 {
-      margin: 0 0 10px;
-      font-size: 28px;
+    .page-hero,
+    .page-side-card,
+    .panel-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 22px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+    }
+
+    .page-hero {
+      padding: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      color: #4338ca;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .page-hero h2 {
+      margin: 0 0 8px;
+      color: #0f172a;
+      font-size: 30px;
+      line-height: 1.15;
       font-weight: 800;
     }
 
-    .page-intro p {
+    .page-hero p {
       margin: 0;
       max-width: 760px;
-      color: rgba(255, 255, 255, 0.84);
-      line-height: 1.7;
-      font-size: 15px;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .mini-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .mini-chip.blue {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .mini-chip.green {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+
+    .mini-chip.violet {
+      background: #f5f3ff;
+      color: #7c3aed;
+      border-color: #ddd6fe;
+    }
+
+    .page-side-card {
+      padding: 20px;
+      background:
+        radial-gradient(circle at top right, rgba(245, 158, 11, 0.11), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, #fffdf8 100%);
+    }
+
+    .page-side-card h3 {
+      margin: 0 0 12px;
+      color: #0f172a;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .side-points {
+      display: grid;
+      gap: 10px;
+    }
+
+    .side-point {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 1px solid #eef2f7;
+    }
+
+    .side-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .side-copy strong {
+      display: block;
+      color: #0f172a;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .side-copy span {
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.5;
     }
 
     .two-col-grid {
       display: grid;
       grid-template-columns: 380px minmax(0, 1fr);
-      gap: 22px;
+      gap: 20px;
       align-items: start;
     }
 
     .panel-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 20px;
       padding: 22px;
-      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
     }
 
-    .panel-card h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .panel-head h3 {
+      margin: 0 0 4px;
+      font-size: 20px;
       font-weight: 800;
       color: #0f172a;
     }
 
-    .panel-text {
-      margin: 0 0 18px;
-      font-size: 14px;
+    .panel-subtext {
+      margin: 0;
+      font-size: 13px;
       color: #64748b;
-      line-height: 1.7;
+      line-height: 1.6;
     }
 
     .form-grid {
@@ -81,8 +211,8 @@
     .form-control {
       width: 100%;
       border: 1px solid #cbd5e1;
-      border-radius: 12px;
-      padding: 12px 14px;
+      border-radius: 14px;
+      padding: 13px 14px;
       font-size: 14px;
       color: #0f172a;
       background: #ffffff;
@@ -95,31 +225,96 @@
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
     }
 
+    .helper-strip {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .helper-note {
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      border: 1px solid transparent;
+    }
+
+    .helper-note.blue {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1e40af;
+    }
+
+    .helper-note.green {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #166534;
+    }
+
     .btn-primary {
       width: 100%;
       border: 0;
-      border-radius: 12px;
-      padding: 13px 16px;
-      background: linear-gradient(135deg, #2563eb, #059669);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #2563eb, #0f766e);
       color: #ffffff;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       transition: 0.2s ease;
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.16);
     }
 
     .btn-primary:hover {
       transform: translateY(-1px);
-      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+    }
+
+    .table-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .table-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid transparent;
+    }
+
+    .table-pill.total {
+      background: #eef2ff;
+      color: #4338ca;
+      border-color: #c7d2fe;
+    }
+
+    .table-pill.active {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+
+    .table-pill.inactive {
+      background: #fff1f2;
+      color: #be123c;
+      border-color: #fecdd3;
     }
 
     .table-wrap {
       overflow-x: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
     }
 
     .data-table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 720px;
     }
 
     .data-table thead th {
@@ -128,81 +323,186 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
       color: #64748b;
-      padding: 14px 12px;
+      padding: 15px 14px;
       border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
       white-space: nowrap;
     }
 
     .data-table tbody td {
-      padding: 16px 12px;
+      padding: 16px 14px;
       border-bottom: 1px solid #eef2f7;
       font-size: 14px;
       color: #0f172a;
       vertical-align: middle;
+      background: #ffffff;
     }
 
-    .data-table tbody tr:hover {
-      background: #f8fafc;
+    .data-table tbody tr:hover td {
+      background: #fbfdff;
+    }
+
+    .batch-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .batch-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #dbeafe, #ccfbf1);
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .batch-copy strong {
+      display: block;
+      color: #0f172a;
+      font-size: 14px;
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+
+    .batch-copy span {
+      display: block;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.4;
     }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
-      padding: 6px 10px;
+      padding: 7px 11px;
       border-radius: 999px;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
+      border: 1px solid transparent;
     }
 
     .status-active {
       background: #dcfce7;
       color: #166534;
+      border-color: #bbf7d0;
     }
 
     .status-inactive {
       background: #fee2e2;
       color: #991b1b;
+      border-color: #fecaca;
     }
 
     .empty-state {
-      padding: 18px;
+      padding: 22px;
       border: 1px dashed #cbd5e1;
-      border-radius: 16px;
+      border-radius: 18px;
       background: #f8fafc;
       color: #64748b;
       font-size: 14px;
+      text-align: center;
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1080px) {
+      .page-top,
       .two-col-grid {
         grid-template-columns: 1fr;
       }
     }
+
+    @media (max-width: 700px) {
+      .page-hero,
+      .page-side-card,
+      .panel-card {
+        padding: 18px;
+        border-radius: 18px;
+      }
+
+      .page-hero h2 {
+        font-size: 24px;
+      }
+    }
   </style>
 
-  <section class="page-intro">
-    <h2>Batches</h2>
-    <p>
-      Create and manage academic batches so students can be organized properly for login, test assignment, and reporting.
-    </p>
+  {% set total_batches = batches|length if batches else 0 %}
+  {% set active_batches = batches|selectattr('status', 'equalto', 'active')|list|length if batches else 0 %}
+  {% set inactive_batches = batches|selectattr('status', 'equalto', 'inactive')|list|length if batches else 0 %}
+
+  <section class="page-top">
+    <div class="page-hero">
+      <div class="hero-chip">Academic Setup</div>
+      <h2>Manage batches</h2>
+      <p>
+        Create academic batches and keep student grouping clean for admissions, assignments, and future reporting.
+      </p>
+
+      <div class="hero-chips">
+        <span class="mini-chip blue">{{ total_batches }} Total Batches</span>
+        <span class="mini-chip green">{{ active_batches }} Active</span>
+        <span class="mini-chip violet">{{ inactive_batches }} Inactive</span>
+      </div>
+    </div>
+
+    <div class="page-side-card">
+      <h3>How this helps</h3>
+      <div class="side-points">
+        <div class="side-point">
+          <div class="side-icon">1</div>
+          <div class="side-copy">
+            <strong>Organized student grouping</strong>
+            <span>Keep admissions and student management structured by batch.</span>
+          </div>
+        </div>
+
+        <div class="side-point">
+          <div class="side-icon">2</div>
+          <div class="side-copy">
+            <strong>Cleaner academic flow</strong>
+            <span>Use batches as a base layer for tests and progress tracking later.</span>
+          </div>
+        </div>
+
+        <div class="side-point">
+          <div class="side-icon">3</div>
+          <div class="side-copy">
+            <strong>Better reporting readiness</strong>
+            <span>Well-maintained batches improve clarity in admin analytics pages.</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="two-col-grid">
     <div class="panel-card">
-      <h3>Create batch</h3>
-      <p class="panel-text">
-        Add a batch with an academic year and status. This will later help in assigning students and tests in a clean way.
-      </p>
+      <div class="panel-head">
+        <div>
+          <h3>Create batch</h3>
+          <p class="panel-subtext">Add a new academic group using a clear name, year, and status.</p>
+        </div>
+      </div>
+
+      <div class="helper-strip">
+        <div class="helper-note blue">Use batch names teachers can recognize instantly, such as NEET 2026 Morning Batch.</div>
+        <div class="helper-note green">Keep inactive batches for history instead of deleting them if student records depend on them.</div>
+      </div>
 
       <form method="POST" class="form-grid">
         <div class="form-group">
           <label for="name">Batch name</label>
-          <input type="text" id="name" name="name" class="form-control" placeholder="e.g. NEET 2026 Batch A" required>
+          <input type="text" id="name" name="name" class="form-control" placeholder="e.g. NEET 2026 Morning Batch" required>
         </div>
 
         <div class="form-group">
-          <label for="academic_year">Academic year</label>
-          <input type="text" id="academic_year" name="academic_year" class="form-control" placeholder="e.g. 2026-27" required>
+          <label for="academicyear">Academic year</label>
+          <input type="text" id="academicyear" name="academicyear" class="form-control" placeholder="e.g. 2026-27" required>
         </div>
 
         <div class="form-group">
@@ -218,10 +518,18 @@
     </div>
 
     <div class="panel-card">
-      <h3>Batch list</h3>
-      <p class="panel-text">
-        Review all created batches and use them as the base structure for student grouping and future test assignment.
-      </p>
+      <div class="panel-head">
+        <div>
+          <h3>Batch list</h3>
+          <p class="panel-subtext">View current academic groups and check whether they are active for use.</p>
+        </div>
+      </div>
+
+      <div class="table-summary">
+        <span class="table-pill total">{{ total_batches }} Total</span>
+        <span class="table-pill active">{{ active_batches }} Active</span>
+        <span class="table-pill inactive">{{ inactive_batches }} Inactive</span>
+      </div>
 
       {% if batches %}
       <div class="table-wrap">
@@ -229,7 +537,7 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>Batch Name</th>
+              <th>Batch</th>
               <th>Academic Year</th>
               <th>Status</th>
             </tr>
@@ -238,8 +546,16 @@
             {% for batch in batches %}
             <tr>
               <td>#{{ batch.id }}</td>
-              <td>{{ batch.name }}</td>
-              <td>{{ batch.academic_year }}</td>
+              <td>
+                <div class="batch-name">
+                  <div class="batch-icon">{{ loop.index }}</div>
+                  <div class="batch-copy">
+                    <strong>{{ batch.name }}</strong>
+                    <span>Institute batch record</span>
+                  </div>
+                </div>
+              </td>
+              <td>{{ batch.academicyear if batch.academicyear is defined else batch.academic_year }}</td>
               <td>
                 <span class="status-badge {% if batch.status == 'active' %}status-active{% else %}status-inactive{% endif %}">
                   {{ batch.status|title }}
