@@ -21,18 +21,88 @@ def student_required():
         abort(403)
 
 
-def get_attempt_remaining_seconds(attempt):
-    now = utc_now()
+def _get_attr(obj, *names, default=None):
+    for name in names:
+        if hasattr(obj, name):
+            value = getattr(obj, name)
+            if value is not None:
+                return value
+    return default
 
-    if getattr(attempt, "expires_at", None):
-        remaining = int((attempt.expires_at - now).total_seconds())
-        return max(0, remaining)
 
-    start_base = attempt.started_at or attempt.created_at
-    duration_seconds = int((attempt.test.duration_minutes or 0) * 60)
-    elapsed = int((now - start_base).total_seconds())
-    remaining = duration_seconds - elapsed
-    return max(0, remaining)
+def _get_test_id(test_obj):
+    return _get_attr(test_obj, "id", default=None)
+
+
+def _get_attempt_test_id(attempt):
+    return _get_attr(attempt, "test_id", "testid", default=None)
+
+
+def _get_attempt_student_id(attempt):
+    return _get_attr(attempt, "student_id", "studentid", default=None)
+
+
+def _get_question_id(tq):
+    return _get_attr(tq, "question_id", "questionid", default=None)
+
+
+def _get_display_order(tq):
+    value = _get_attr(tq, "display_order", "displayorder", default=0)
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _get_test_duration_minutes(test):
+    value = _get_attr(test, "duration_minutes", "durationminutes", default=0)
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _get_test_status(test):
+    return (_get_attr(test, "status", default="") or "").strip().lower()
+
+
+def _get_test_schedule_type(test):
+    return (_get_attr(test, "schedule_type", "scheduletype", default="instant") or "instant").strip().lower()
+
+
+def _get_test_start_at(test):
+    return _get_attr(test, "start_at", "startat", default=None)
+
+
+def _get_test_end_at(test):
+    return _get_attr(test, "end_at", "endat", default=None)
+
+
+def _get_test_max_attempts(test):
+    value = _get_attr(test, "max_attempts", "maxattempts", default=1)
+    try:
+        return int(value or 1)
+    except (TypeError, ValueError):
+        return 1
+
+
+def _get_question_fields(question):
+    subject = _get_attr(question, "subject", default=None)
+    chapter = _get_attr(question, "chapter", default=None)
+    return {
+        "id": _get_attr(question, "id", default=None),
+        "stem": _get_attr(question, "stem", default="") or "",
+        "question_image": _get_attr(question, "question_image", "questionimage", default=None),
+        "explanation_image": _get_attr(question, "explanation_image", "explanationimage", default=None),
+        "option_a": _get_attr(question, "option_a", "optiona", default="") or "",
+        "option_b": _get_attr(question, "option_b", "optionb", default="") or "",
+        "option_c": _get_attr(question, "option_c", "optionc", default="") or "",
+        "option_d": _get_attr(question, "option_d", "optiond", default="") or "",
+        "correct_option": (_get_attr(question, "correct_option", "correctoption", default="") or "").strip().upper(),
+        "explanation": _get_attr(question, "explanation", default="") or "",
+        "subject_name": _get_attr(subject, "name", default="General") or "General",
+        "chapter_name": _get_attr(chapter, "name", default="General") or "General",
+    }
 
 
 def format_seconds_human(total_seconds):
@@ -44,20 +114,87 @@ def format_seconds_human(total_seconds):
         return f"{hrs}h {mins}m {secs}s"
     return f"{mins}m {secs}s"
 
-def compute_attempt_time_taken_seconds(attempt):
-    duration_seconds = int((attempt.test.duration_minutes or 0) * 60)
 
-    start_base = attempt.started_at or attempt.created_at
+def get_attempt_questions(attempt):
+    test_id = _get_attempt_test_id(attempt)
+    if not test_id:
+        return []
+
+    rows = TestQuestion.query.filter_by(test_id=test_id).all()
+    rows.sort(key=_get_display_order)
+    return rows
+
+
+def get_attempt_answers(attempt):
+    answers = _get_attr(attempt, "answers", default=None)
+    if answers is not None:
+        return list(answers)
+
+    answers = _get_attr(attempt, "attempt_answers", default=None)
+    if answers is not None:
+        return list(answers)
+
+    answers = _get_attr(attempt, "responses", default=None)
+    if answers is not None:
+        return list(answers)
+
+    test_id = _get_attempt_test_id(attempt)
+    attempt_id = _get_attr(attempt, "id", default=None)
+    if not test_id or attempt_id is None:
+        return []
+
+    return AttemptAnswer.query.filter_by(attempt_id=attempt_id).all()
+
+
+def get_answer_map(attempt):
+    answer_map = {}
+    for answer in get_attempt_answers(attempt):
+        qid = _get_attr(answer, "question_id", "questionid", default=None)
+        if qid is not None:
+            answer_map[qid] = answer
+    return answer_map
+
+
+def get_attempt_remaining_seconds(attempt):
+    now = utc_now()
+
+    expires_at = _get_attr(attempt, "expires_at", "expiresat", default=None)
+    if expires_at:
+        remaining = int((expires_at - now).total_seconds())
+        return max(0, remaining)
+
+    test = _get_attr(attempt, "test", default=None)
+    duration_seconds = _get_test_duration_minutes(test) * 60 if test else 0
+
+    start_base = _get_attr(attempt, "started_at", "startedat", default=None) or _get_attr(attempt, "created_at", "createdat", default=None)
+    if not start_base or duration_seconds <= 0:
+        return 0
+
+    elapsed = int((now - start_base).total_seconds())
+    remaining = duration_seconds - elapsed
+    return max(0, remaining)
+
+
+def compute_attempt_time_taken_seconds(attempt):
+    test = _get_attr(attempt, "test", default=None)
+    duration_seconds = _get_test_duration_minutes(test) * 60 if test else 0
+
+    start_base = _get_attr(attempt, "started_at", "startedat", default=None) or _get_attr(attempt, "created_at", "createdat", default=None)
     if not start_base:
         return 0
 
-    if attempt.status == "submitted":
-        end_base = attempt.submitted_at or utc_now()
+    if _get_attr(attempt, "status", default="") == "submitted":
+        end_base = _get_attr(attempt, "submitted_at", "submittedat", default=None) or utc_now()
         raw_taken = int((end_base - start_base).total_seconds())
-        return min(duration_seconds, max(0, raw_taken))
+        if duration_seconds > 0:
+            return min(duration_seconds, max(0, raw_taken))
+        return max(0, raw_taken)
 
     remaining_seconds = get_attempt_remaining_seconds(attempt)
+    if duration_seconds <= 0:
+        return 0
     return max(0, duration_seconds - remaining_seconds)
+
 
 def recompute_test_rankings(test_id):
     attempts = (
@@ -88,23 +225,23 @@ def recompute_test_rankings(test_id):
     for attempt in attempts:
         student = getattr(attempt, "student", None)
 
-        batch_id = getattr(student, "batch_id", None)
-        institute_id = getattr(student, "institute_id", None)
+        batch_id = _get_attr(student, "batch_id", "batchid", default=None)
+        institute_id = _get_attr(student, "institute_id", "instituteid", default=None)
 
         if batch_id:
             batch_groups[batch_id].append(attempt)
         if institute_id:
             institute_groups[institute_id].append(attempt)
 
-    for batch_id, batch_attempts in batch_groups.items():
+    for batch_attempts in batch_groups.values():
+        total = len(batch_attempts)
         for idx, attempt in enumerate(batch_attempts, start=1):
-            total = len(batch_attempts)
             attempt.rank_batch = idx
             attempt.percentile_batch = round(((total - idx + 1) / total) * 100, 2)
 
-    for institute_id, institute_attempts in institute_groups.items():
+    for institute_attempts in institute_groups.values():
+        total = len(institute_attempts)
         for idx, attempt in enumerate(institute_attempts, start=1):
-            total = len(institute_attempts)
             attempt.rank_institute = idx
             attempt.percentile_institute = round(((total - idx + 1) / total) * 100, 2)
 
@@ -135,35 +272,39 @@ def get_or_create_answer(attempt_id, question_id):
 def can_student_start_test(test, student_id):
     now = utc_now()
 
-    if test.status != "published":
+    if _get_test_status(test) != "published":
         return False, "This test is not available."
 
-    question_count = TestQuestion.query.filter_by(test_id=test.id).count()
+    question_count = TestQuestion.query.filter_by(test_id=_get_test_id(test)).count()
     if question_count <= 0:
         return False, "This test has no questions yet."
 
-    schedule_type = getattr(test, "schedule_type", "instant")
+    schedule_type = _get_test_schedule_type(test)
 
     if schedule_type == "fixed_start":
-        if not getattr(test, "start_at", None):
+        start_at = _get_test_start_at(test)
+        end_at = _get_test_end_at(test)
+        if not start_at:
             return False, "This test start time is not configured."
-        if now < test.start_at:
+        if now < start_at:
             return False, "This test has not started yet."
-        if getattr(test, "end_at", None) and now > test.end_at:
+        if end_at and now > end_at:
             return False, "This test time window has closed."
 
     elif schedule_type == "window":
-        if not getattr(test, "start_at", None) or not getattr(test, "end_at", None):
+        start_at = _get_test_start_at(test)
+        end_at = _get_test_end_at(test)
+        if not start_at or not end_at:
             return False, "This test window is not configured."
-        if now < test.start_at:
+        if now < start_at:
             return False, "This test window has not opened yet."
-        if now > test.end_at:
+        if now > end_at:
             return False, "This test window has closed."
 
-    max_attempts = getattr(test, "max_attempts", 1) or 1
+    max_attempts = _get_test_max_attempts(test)
 
     ongoing_attempt = TestAttempt.query.filter_by(
-        test_id=test.id,
+        test_id=_get_test_id(test),
         student_id=student_id,
         status="ongoing"
     ).order_by(TestAttempt.id.desc()).first()
@@ -172,7 +313,7 @@ def can_student_start_test(test, student_id):
         return True, ongoing_attempt
 
     previous_submitted_count = TestAttempt.query.filter_by(
-        test_id=test.id,
+        test_id=_get_test_id(test),
         student_id=student_id,
         status="submitted"
     ).count()
@@ -184,38 +325,36 @@ def can_student_start_test(test, student_id):
 
 
 def calculate_attempt_expiry(test, started_at):
-    duration_minutes = int(test.duration_minutes or 0)
+    duration_minutes = _get_test_duration_minutes(test)
     duration_delta = timedelta(minutes=duration_minutes)
-    schedule_type = getattr(test, "schedule_type", "instant")
+    schedule_type = _get_test_schedule_type(test)
+
+    start_at = _get_test_start_at(test)
 
     if schedule_type == "fixed_start":
-        fixed_start = test.start_at or started_at
+        fixed_start = start_at or started_at
         fixed_end = fixed_start + duration_delta
-        if getattr(test, "end_at", None):
-            return min(fixed_end, test.end_at)
+        end_at = _get_test_end_at(test)
+        if end_at:
+            return min(fixed_end, end_at)
         return fixed_end
 
     if schedule_type == "window":
         rolling_end = started_at + duration_delta
-        if getattr(test, "end_at", None):
-            return min(rolling_end, test.end_at)
+        end_at = _get_test_end_at(test)
+        if end_at:
+            return min(rolling_end, end_at)
         return rolling_end
 
     return started_at + duration_delta
 
 
 def finalize_attempt(attempt, auto_submitted=False):
-    if attempt.status == "submitted":
+    if _get_attr(attempt, "status", default="") == "submitted":
         return
 
-    test_questions = TestQuestion.query.filter_by(
-        test_id=attempt.test_id
-    ).order_by(TestQuestion.display_order.asc()).all()
-
-    answer_map = {
-        answer.question_id: answer
-        for answer in attempt.answers
-    }
+    test_questions = get_attempt_questions(attempt)
+    answer_map = get_answer_map(attempt)
 
     total_score = 0.0
     correct_count = 0
@@ -223,22 +362,24 @@ def finalize_attempt(attempt, auto_submitted=False):
     skipped_count = 0
 
     for tq in test_questions:
-        answer = answer_map.get(tq.question_id)
+        question_id = _get_question_id(tq)
+        question = _get_attr(tq, "question", default=None)
+        answer = answer_map.get(question_id)
 
         selected_option = ""
-        if answer and answer.selected_option:
-            selected_option = (answer.selected_option or "").strip().upper()
+        if answer and _get_attr(answer, "selected_option", "selectedoption", default=None):
+            selected_option = (_get_attr(answer, "selected_option", "selectedoption", default="") or "").strip().upper()
 
-        correct_option = (tq.question.correct_option or "").strip().upper()
+        correct_option = (_get_attr(question, "correct_option", "correctoption", default="") or "").strip().upper()
 
         if not selected_option:
             skipped_count += 1
         elif selected_option == correct_option:
             correct_count += 1
-            total_score += float(tq.marks or 0)
+            total_score += float(_get_attr(tq, "marks", default=0) or 0)
         else:
             wrong_count += 1
-            total_score -= float(tq.negative_marks or 0)
+            total_score -= float(_get_attr(tq, "negative_marks", "negativemarks", default=0) or 0)
 
     attempt.status = "submitted"
     attempt.total_score = total_score
@@ -253,7 +394,7 @@ def finalize_attempt(attempt, auto_submitted=False):
 
 
 def auto_submit_if_time_over(attempt):
-    if attempt.status != "ongoing":
+    if _get_attr(attempt, "status", default="") != "ongoing":
         return False
 
     remaining = get_attempt_remaining_seconds(attempt)
@@ -262,34 +403,37 @@ def auto_submit_if_time_over(attempt):
 
     finalize_attempt(attempt, auto_submitted=True)
     db.session.flush()
-    recompute_test_rankings(attempt.test_id)
+    recompute_test_rankings(_get_attempt_test_id(attempt))
     db.session.commit()
     return True
 
 
 def build_attempt_analytics(attempt):
-    test_questions = TestQuestion.query.filter_by(
-        test_id=attempt.test_id
-    ).order_by(TestQuestion.display_order.asc()).all()
-
-    answer_map = {
-        answer.question_id: answer
-        for answer in attempt.answers
-    }
+    test_questions = get_attempt_questions(attempt)
+    answer_map = get_answer_map(attempt)
 
     subject_stats = {}
     chapter_stats = {}
     detailed_rows = []
 
     for idx, tq in enumerate(test_questions, start=1):
-        q = tq.question
-        ans = answer_map.get(q.id)
+        q = _get_attr(tq, "question", default=None)
+        if not q:
+            continue
 
-        selected_option = (ans.selected_option or "").strip().upper() if ans and ans.selected_option else ""
-        correct_option = (q.correct_option or "").strip().upper()
-        subject_name = q.subject.name if q.subject else "General"
-        chapter_name = q.chapter.name if q.chapter else "General Chapter"
-        time_spent = int(ans.time_spent_seconds or 0) if ans else 0
+        ans = answer_map.get(_get_attr(q, "id", default=None))
+
+        selected_option = (_get_attr(ans, "selected_option", "selectedoption", default="") or "").strip().upper() if ans else ""
+        correct_option = (_get_attr(q, "correct_option", "correctoption", default="") or "").strip().upper()
+        subject_name = _get_attr(_get_attr(q, "subject", default=None), "name", default="General") or "General"
+        chapter_name = _get_attr(_get_attr(q, "chapter", default=None), "name", default="General Chapter") or "General Chapter"
+
+        time_spent = 0
+        if ans:
+            try:
+                time_spent = int(_get_attr(ans, "time_spent_seconds", "timespentseconds", default=0) or 0)
+            except (TypeError, ValueError):
+                time_spent = 0
 
         if subject_name not in subject_stats:
             subject_stats[subject_name] = {
@@ -334,14 +478,14 @@ def build_attempt_analytics(attempt):
             chapter_stats[chapter_key]["skipped"] += 1
         elif selected_option == correct_option:
             status = "correct"
-            marks_delta = float(tq.marks or 0)
+            marks_delta = float(_get_attr(tq, "marks", default=0) or 0)
             subject_stats[subject_name]["correct"] += 1
             subject_stats[subject_name]["score"] += marks_delta
             chapter_stats[chapter_key]["correct"] += 1
             chapter_stats[chapter_key]["score"] += marks_delta
         else:
             status = "wrong"
-            marks_delta = -float(tq.negative_marks or 0)
+            marks_delta = -float(_get_attr(tq, "negative_marks", "negativemarks", default=0) or 0)
             subject_stats[subject_name]["wrong"] += 1
             subject_stats[subject_name]["score"] += marks_delta
             chapter_stats[chapter_key]["wrong"] += 1
@@ -358,7 +502,7 @@ def build_attempt_analytics(attempt):
             "time_spent_seconds": time_spent,
             "time_spent_human": format_seconds_human(time_spent),
             "marks_delta": marks_delta,
-            "is_marked_for_review": bool(ans.is_marked_for_review) if ans else False,
+            "is_marked_for_review": bool(_get_attr(ans, "is_marked_for_review", "ismarkedforreview", default=False)) if ans else False,
         })
 
     for stats in subject_stats.values():
@@ -382,6 +526,56 @@ def build_attempt_analytics(attempt):
     chapter_rows.sort(key=lambda x: (x["accuracy"], x["score"], -x["time_spent"]))
 
     return test_questions, subject_stats, chapter_rows, detailed_rows
+
+
+def build_review_questions(attempt):
+    test_questions = get_attempt_questions(attempt)
+    answer_map = get_answer_map(attempt)
+    review_questions = []
+
+    for idx, tq in enumerate(test_questions, start=1):
+        q = _get_attr(tq, "question", default=None)
+        if not q:
+            continue
+
+        ans = answer_map.get(_get_attr(q, "id", default=None))
+
+        selected_option = (_get_attr(ans, "selected_option", "selectedoption", default=None) or "").strip().upper()
+        correct_option = (_get_attr(q, "correct_option", "correctoption", default="") or "").strip().upper()
+        is_skipped = not selected_option
+        is_correct = bool(selected_option and correct_option and selected_option == correct_option)
+        is_marked_for_review = bool(_get_attr(ans, "is_marked_for_review", "ismarkedforreview", default=False)) if ans else False
+
+        try:
+            time_spent_seconds = int(_get_attr(ans, "time_spent_seconds", "timespentseconds", default=0) or 0) if ans else 0
+        except (TypeError, ValueError):
+            time_spent_seconds = 0
+
+        qf = _get_question_fields(q)
+
+        review_questions.append({
+            "index": idx,
+            "question_id": qf["id"],
+            "stem": qf["stem"],
+            "question_image": qf["question_image"],
+            "subject_name": qf["subject_name"],
+            "chapter_name": qf["chapter_name"],
+            "option_a": qf["option_a"],
+            "option_b": qf["option_b"],
+            "option_c": qf["option_c"],
+            "option_d": qf["option_d"],
+            "correct_option": correct_option,
+            "selected_option": selected_option,
+            "is_correct": is_correct,
+            "is_skipped": is_skipped,
+            "is_marked_for_review": is_marked_for_review,
+            "time_spent_seconds": time_spent_seconds,
+            "time_spent_human": format_seconds_human(time_spent_seconds),
+            "explanation": qf["explanation"],
+            "explanation_image": qf["explanation_image"],
+        })
+
+    return review_questions
 
 
 def build_student_overview(student_id):
@@ -416,24 +610,24 @@ def build_student_overview(student_id):
     rank_history = []
 
     for attempt in attempts:
-        if attempt.percentile_overall is not None:
-            percentile_values.append(float(attempt.percentile_overall))
+        if _get_attr(attempt, "percentile_overall", "percentileoverall", default=None) is not None:
+            percentile_values.append(float(_get_attr(attempt, "percentile_overall", "percentileoverall")))
 
         rank_history.append({
-            "attempt_id": attempt.id,
-            "test_title": attempt.test.title if attempt.test else "Test",
-            "rank_overall": attempt.rank_overall,
-            "percentile_overall": attempt.percentile_overall,
-            "score": float(attempt.total_score or 0),
-            "submitted_at": attempt.submitted_at,
+            "attempt_id": _get_attr(attempt, "id", default=None),
+            "test_title": _get_attr(_get_attr(attempt, "test", default=None), "title", default="Test") or "Test",
+            "rank_overall": _get_attr(attempt, "rank_overall", "rankoverall", default=None),
+            "percentile_overall": _get_attr(attempt, "percentile_overall", "percentileoverall", default=None),
+            "score": float(_get_attr(attempt, "total_score", "totalscore", default=0) or 0),
+            "submitted_at": _get_attr(attempt, "submitted_at", "submittedat", default=None),
         })
 
     for attempt in attempts:
         test_questions, subject_stats, _, _ = build_attempt_analytics(attempt)
 
-        total_score += float(attempt.total_score or 0)
+        total_score += float(_get_attr(attempt, "total_score", "totalscore", default=0) or 0)
         total_questions += len(test_questions)
-        total_correct += int(attempt.correct_count or 0)
+        total_correct += int(_get_attr(attempt, "correct_count", "correctcount", default=0) or 0)
 
         for subject_name, stats in subject_stats.items():
             if subject_name not in subject_rollup:
@@ -471,13 +665,18 @@ def build_student_overview(student_id):
         overview["strongest_subject"] = strongest
         overview["weakest_subject"] = weakest
 
-    valid_ranks = [a.rank_overall for a in attempts if a.rank_overall is not None]
+    valid_ranks = [
+        _get_attr(a, "rank_overall", "rankoverall", default=None)
+        for a in attempts
+        if _get_attr(a, "rank_overall", "rankoverall", default=None) is not None
+    ]
     overview["best_rank"] = min(valid_ranks) if valid_ranks else None
-    overview["latest_rank"] = attempts[0].rank_overall if attempts and attempts[0].rank_overall is not None else None
+    overview["latest_rank"] = _get_attr(attempts[0], "rank_overall", "rankoverall", default=None) if attempts else None
     overview["avg_percentile"] = round(sum(percentile_values) / len(percentile_values), 2) if percentile_values else 0.0
     overview["rank_history"] = rank_history[:10]
 
     return overview
+
 
 @student_bp.route("/dashboard")
 @login_required
@@ -494,7 +693,7 @@ def dashboard():
     ).order_by(TestAttempt.id.desc()).limit(5).all()
 
     for attempt in ongoing_attempts:
-        if getattr(attempt, "expires_at", None) and now >= attempt.expires_at:
+        if _get_attr(attempt, "expires_at", "expiresat", default=None) and now >= _get_attr(attempt, "expires_at", "expiresat"):
             finalize_attempt(attempt, auto_submitted=True)
 
     db.session.commit()
@@ -541,13 +740,13 @@ def tests_page():
 
     visible_tests = []
     for test in tests:
-        schedule_type = getattr(test, "schedule_type", "instant")
+        schedule_type = _get_test_schedule_type(test)
 
         if schedule_type == "fixed_start":
-            if getattr(test, "end_at", None) and now > test.end_at:
+            if _get_test_end_at(test) and now > _get_test_end_at(test):
                 continue
         elif schedule_type == "window":
-            if getattr(test, "end_at", None) and now > test.end_at:
+            if _get_test_end_at(test) and now > _get_test_end_at(test):
                 continue
 
         visible_tests.append(test)
@@ -586,20 +785,20 @@ def test_instructions_page(test_id):
 
     test = Test.query.get_or_404(test_id)
 
-    if test.status != "published":
+    if _get_test_status(test) != "published":
         flash("This test is not available.", "danger")
         return redirect(url_for("student.tests_page"))
 
-    question_count = TestQuestion.query.filter_by(test_id=test.id).count()
+    question_count = TestQuestion.query.filter_by(test_id=_get_test_id(test)).count()
 
     ongoing_attempt = TestAttempt.query.filter_by(
-        test_id=test.id,
+        test_id=_get_test_id(test),
         student_id=current_user.id,
         status="ongoing"
     ).order_by(TestAttempt.id.desc()).first()
 
     submitted_attempt = TestAttempt.query.filter_by(
-        test_id=test.id,
+        test_id=_get_test_id(test),
         student_id=current_user.id,
         status="submitted"
     ).order_by(TestAttempt.id.desc()).first()
@@ -644,7 +843,7 @@ def start_test_attempt(test_id):
         return redirect(url_for("student.test_instructions_page", test_id=test.id))
 
     attempt = TestAttempt(
-        test_id=test.id,
+        test_id=_get_test_id(test),
         student_id=current_user.id,
         status="ongoing",
         total_score=0.0,
@@ -668,14 +867,14 @@ def attempt_page(attempt_id):
 
     attempt = TestAttempt.query.get_or_404(attempt_id)
 
-    if attempt.student_id != current_user.id:
+    if _get_attempt_student_id(attempt) != current_user.id:
         abort(403)
 
     if auto_submit_if_time_over(attempt):
         flash("Time is over. Your test was submitted automatically.", "info")
         return redirect(url_for("student.result_page", attempt_id=attempt.id))
 
-    if attempt.status == "submitted":
+    if _get_attr(attempt, "status", default="") == "submitted":
         return redirect(url_for("student.result_page", attempt_id=attempt.id))
 
     if getattr(attempt.test, "is_resume_allowed", True) is False and request.args.get("resume") == "blocked":
@@ -684,9 +883,7 @@ def attempt_page(attempt_id):
 
     question_number = request.args.get("q", type=int, default=1)
 
-    test_questions = TestQuestion.query.filter_by(
-        test_id=attempt.test_id
-    ).order_by(TestQuestion.display_order.asc()).all()
+    test_questions = get_attempt_questions(attempt)
 
     if not test_questions:
         flash("This test has no questions.", "danger")
@@ -700,25 +897,30 @@ def attempt_page(attempt_id):
         question_number = total_questions
 
     current_test_question = test_questions[question_number - 1]
-    current_question = current_test_question.question
+    current_question = _get_attr(current_test_question, "question", default=None)
 
     answer_map = {}
     for item in test_questions:
-        answer_map[item.question_id] = get_or_create_answer(attempt.id, item.question_id)
+        qid = _get_question_id(item)
+        if qid is not None:
+            answer_map[qid] = get_or_create_answer(attempt.id, qid)
 
     db.session.commit()
 
-    current_answer = answer_map.get(current_question.id)
+    current_answer = answer_map.get(_get_attr(current_question, "id", default=None))
 
     subject_groups = defaultdict(list)
     answered_count = 0
 
     for index, tq in enumerate(test_questions, start=1):
-        q = tq.question
-        ans = answer_map.get(q.id)
+        q = _get_attr(tq, "question", default=None)
+        if not q:
+            continue
 
-        selected_option = (ans.selected_option or "").strip() if ans else ""
-        marked_for_review = bool(ans.is_marked_for_review) if ans else False
+        ans = answer_map.get(_get_attr(q, "id", default=None))
+
+        selected_option = (_get_attr(ans, "selected_option", "selectedoption", default="") or "").strip() if ans else ""
+        marked_for_review = bool(_get_attr(ans, "is_marked_for_review", "ismarkedforreview", default=False)) if ans else False
 
         if selected_option:
             answered_count += 1
@@ -732,10 +934,10 @@ def attempt_page(attempt_id):
         else:
             state = "not_answered"
 
-        subject_name = q.subject.name if q.subject else "General"
+        subject_name = _get_attr(_get_attr(q, "subject", default=None), "name", default="General") or "General"
         subject_groups[subject_name].append({
             "index": index,
-            "question_id": q.id,
+            "question_id": _get_attr(q, "id", default=None),
             "state": state,
             "is_current": index == question_number,
         })
@@ -765,14 +967,14 @@ def save_answer(attempt_id):
 
     attempt = TestAttempt.query.get_or_404(attempt_id)
 
-    if attempt.student_id != current_user.id:
+    if _get_attempt_student_id(attempt) != current_user.id:
         abort(403)
 
     if auto_submit_if_time_over(attempt):
         flash("Time is over. Your test was submitted automatically.", "info")
         return redirect(url_for("student.result_page", attempt_id=attempt.id))
 
-    if attempt.status != "ongoing":
+    if _get_attr(attempt, "status", default="") != "ongoing":
         return redirect(url_for("student.result_page", attempt_id=attempt.id))
 
     question_id = request.form.get("question_id", type=int)
@@ -782,17 +984,17 @@ def save_answer(attempt_id):
     time_spent_seconds = request.form.get("time_spent_seconds", type=int, default=0)
 
     test_question = TestQuestion.query.filter_by(
-        test_id=attempt.test_id,
+        test_id=_get_attempt_test_id(attempt),
         question_id=question_id
     ).first_or_404()
 
-    answer = get_or_create_answer(attempt.id, test_question.question_id)
+    answer = get_or_create_answer(attempt.id, _get_question_id(test_question))
 
     if selected_option not in ["A", "B", "C", "D"]:
         selected_option = None
 
     if time_spent_seconds and time_spent_seconds > 0:
-        answer.time_spent_seconds = int(answer.time_spent_seconds or 0) + int(time_spent_seconds)
+        answer.time_spent_seconds = int(_get_attr(answer, "time_spent_seconds", "timespentseconds", default=0) or 0) + int(time_spent_seconds)
 
     if action_type == "clear":
         answer.selected_option = None
@@ -806,7 +1008,7 @@ def save_answer(attempt_id):
 
     db.session.commit()
 
-    total_questions = TestQuestion.query.filter_by(test_id=attempt.test_id).count()
+    total_questions = TestQuestion.query.filter_by(test_id=_get_attempt_test_id(attempt)).count()
     next_question_number = question_number
 
     if action_type in ["save_next", "mark_review"] and question_number < total_questions:
@@ -822,15 +1024,15 @@ def submit_attempt(attempt_id):
 
     attempt = TestAttempt.query.get_or_404(attempt_id)
 
-    if attempt.student_id != current_user.id:
+    if _get_attempt_student_id(attempt) != current_user.id:
         abort(403)
 
-    if attempt.status == "submitted":
+    if _get_attr(attempt, "status", default="") == "submitted":
         return redirect(url_for("student.result_page", attempt_id=attempt.id))
 
     finalize_attempt(attempt)
     db.session.flush()
-    recompute_test_rankings(attempt.test_id)
+    recompute_test_rankings(_get_attempt_test_id(attempt))
     db.session.commit()
 
     flash("Test submitted successfully.", "success")
@@ -844,10 +1046,10 @@ def result_page(attempt_id):
 
     attempt = TestAttempt.query.get_or_404(attempt_id)
 
-    if attempt.student_id != current_user.id:
+    if _get_attempt_student_id(attempt) != current_user.id:
         abort(403)
 
-    if attempt.status == "ongoing":
+    if _get_attr(attempt, "status", default="") == "ongoing":
         if auto_submit_if_time_over(attempt):
             flash("Time is over. Your test was submitted automatically.", "info")
         else:
@@ -855,19 +1057,24 @@ def result_page(attempt_id):
             return redirect(url_for("student.attempt_page", attempt_id=attempt.id))
 
     test_questions, subject_stats, chapter_stats, detailed_rows = build_attempt_analytics(attempt)
+    review_questions = build_review_questions(attempt)
 
     total_questions = len(test_questions)
-    accuracy = round((attempt.correct_count / total_questions) * 100, 2) if total_questions > 0 else 0.0
+    correct_count = int(_get_attr(attempt, "correct_count", "correctcount", default=0) or 0)
+    accuracy = round((correct_count / total_questions) * 100, 2) if total_questions > 0 else 0.0
 
-    duration_seconds = int((attempt.test.duration_minutes or 0) * 60)
+    duration_seconds = _get_test_duration_minutes(_get_attr(attempt, "test", default=None)) * 60
     remaining_seconds = get_attempt_remaining_seconds(attempt)
     time_taken_seconds = max(0, duration_seconds - remaining_seconds)
 
-    start_base = attempt.started_at or attempt.created_at
-    if attempt.status == "submitted" and start_base:
-        end_base = attempt.submitted_at or utc_now()
+    start_base = _get_attr(attempt, "started_at", "startedat", default=None) or _get_attr(attempt, "created_at", "createdat", default=None)
+    if _get_attr(attempt, "status", default="") == "submitted" and start_base:
+        end_base = _get_attr(attempt, "submitted_at", "submittedat", default=None) or utc_now()
         raw_taken = int((end_base - start_base).total_seconds())
-        time_taken_seconds = min(duration_seconds, max(0, raw_taken))
+        if duration_seconds > 0:
+            time_taken_seconds = min(duration_seconds, max(0, raw_taken))
+        else:
+            time_taken_seconds = max(0, raw_taken)
 
     strongest_subject = None
     weakest_subject = None
@@ -876,7 +1083,7 @@ def result_page(attempt_id):
         weakest_subject = min(subject_stats.items(), key=lambda x: (x[1]["accuracy"], x[1]["score"]))
 
     participants_count = TestAttempt.query.filter_by(
-        test_id=attempt.test_id,
+        test_id=_get_attempt_test_id(attempt),
         status="submitted"
     ).count()
 
@@ -887,18 +1094,20 @@ def result_page(attempt_id):
         subject_stats=subject_stats,
         chapter_stats=chapter_stats,
         detailed_rows=detailed_rows,
+        review_questions=review_questions,
         total_questions=total_questions,
         accuracy=accuracy,
         time_taken_seconds=time_taken_seconds,
+        time_taken_human=format_seconds_human(time_taken_seconds),
         strongest_subject=strongest_subject,
         weakest_subject=weakest_subject,
         participants_count=participants_count,
-        rank_overall=attempt.rank_overall,
-        rank_batch=attempt.rank_batch,
-        rank_institute=attempt.rank_institute,
-        percentile_overall=attempt.percentile_overall,
-        percentile_batch=attempt.percentile_batch,
-        percentile_institute=attempt.percentile_institute,
+        rank_overall=_get_attr(attempt, "rank_overall", "rankoverall", default=None),
+        rank_batch=_get_attr(attempt, "rank_batch", "rankbatch", default=None),
+        rank_institute=_get_attr(attempt, "rank_institute", "rankinstitute", default=None),
+        percentile_overall=_get_attr(attempt, "percentile_overall", "percentileoverall", default=None),
+        percentile_batch=_get_attr(attempt, "percentile_batch", "percentilebatch", default=None),
+        percentile_institute=_get_attr(attempt, "percentile_institute", "percentileinstitute", default=None),
     )
 
 
@@ -909,27 +1118,31 @@ def review_page(attempt_id):
 
     attempt = TestAttempt.query.get_or_404(attempt_id)
 
-    if attempt.student_id != current_user.id:
+    if _get_attempt_student_id(attempt) != current_user.id:
         abort(403)
 
-    if attempt.status != "submitted":
+    if _get_attr(attempt, "status", default="") != "submitted":
         flash("Submit the test before opening review.", "danger")
         return redirect(url_for("student.attempt_page", attempt_id=attempt.id))
 
     test_questions, subject_stats, chapter_stats, detailed_rows = build_attempt_analytics(attempt)
 
     total_questions = len(test_questions)
-    accuracy = round((attempt.correct_count / total_questions) * 100, 2) if total_questions > 0 else 0.0
+    correct_count = int(_get_attr(attempt, "correct_count", "correctcount", default=0) or 0)
+    accuracy = round((correct_count / total_questions) * 100, 2) if total_questions > 0 else 0.0
 
-    duration_seconds = int((attempt.test.duration_minutes or 0) * 60)
+    duration_seconds = _get_test_duration_minutes(_get_attr(attempt, "test", default=None)) * 60
     remaining_seconds = get_attempt_remaining_seconds(attempt)
     time_taken_seconds = max(0, duration_seconds - remaining_seconds)
 
-    start_base = attempt.started_at or attempt.created_at
-    if attempt.status == "submitted" and start_base:
-        end_base = attempt.submitted_at or utc_now()
+    start_base = _get_attr(attempt, "started_at", "startedat", default=None) or _get_attr(attempt, "created_at", "createdat", default=None)
+    if _get_attr(attempt, "status", default="") == "submitted" and start_base:
+        end_base = _get_attr(attempt, "submitted_at", "submittedat", default=None) or utc_now()
         raw_taken = int((end_base - start_base).total_seconds())
-        time_taken_seconds = min(duration_seconds, max(0, raw_taken))
+        if duration_seconds > 0:
+            time_taken_seconds = min(duration_seconds, max(0, raw_taken))
+        else:
+            time_taken_seconds = max(0, raw_taken)
 
     status_filter = (request.args.get("status") or "all").strip().lower()
     if status_filter in ["correct", "wrong", "skipped"]:
