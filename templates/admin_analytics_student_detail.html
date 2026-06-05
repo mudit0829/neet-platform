@@ -1,581 +1,587 @@
 {% extends "base.html" %}
-{% block title %}{{ student.full_name }} Analytics{% endblock %}
+
+{% block title %}Student Analytics Detail{% endblock %}
 
 {% block content %}
-<section class="dashboard-wrap analytics-student-detail-page">
+<section class="student-detail-shell admin-student-detail-page">
   <style>
-    .analytics-student-detail-page {
+    .admin-student-detail-page {
       display: flex;
       flex-direction: column;
-      gap: 22px;
+      gap: 24px;
+      padding: 24px;
     }
 
-    .student-profile-hero {
-      background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
-      border: 1px solid #e5edf6;
+    .profile-card,
+    .panel-card,
+    .metric-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 22px;
-      flex-wrap: wrap;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
     }
 
-    .student-profile-main h1 {
-      margin: 0;
-      font-size: 2rem;
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .profile-card,
+    .panel-card {
+      padding: 22px;
+    }
+
+    .profile-top {
+      text-align: center;
+    }
+
+    .profile-photo,
+    .profile-fallback {
+      width: 112px;
+      height: 112px;
+      border-radius: 30px;
+      margin: 0 auto 14px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .profile-photo {
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+
+    .profile-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #dbeafe, #ede9fe);
+      color: #1e3a8a;
+      font-size: 38px;
       font-weight: 800;
+    }
+
+    .profile-name {
+      margin: 0 0 6px;
       color: #0f172a;
-      letter-spacing: -0.03em;
+      font-size: 26px;
+      font-weight: 800;
     }
 
-    .student-profile-sub {
-      margin-top: 10px;
+    .profile-subtitle {
+      margin: 0;
       color: #64748b;
-      font-size: 0.98rem;
-      line-height: 1.6;
+      font-size: 14px;
+      line-height: 1.7;
     }
 
-    .profile-tags {
+    .badge-row,
+    .action-row {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
-      margin-top: 16px;
+      margin-top: 14px;
     }
 
-    .profile-tag {
+    .status-badge,
+    .risk-badge,
+    .soft-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 9px 13px;
+      padding: 7px 12px;
       border-radius: 999px;
-      background: #eef4ff;
-      border: 1px solid #dbeafe;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .status-badge.active {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+
+    .status-badge.inactive {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .risk-badge.low {
+      background: #eff6ff;
       color: #1d4ed8;
-      font-size: 0.84rem;
+      border-color: #bfdbfe;
+    }
+
+    .risk-badge.medium {
+      background: #fff7ed;
+      color: #c2410c;
+      border-color: #fed7aa;
+    }
+
+    .risk-badge.high {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .soft-badge {
+      background: #f8fafc;
+      color: #475569;
+      border-color: #e2e8f0;
+    }
+
+    .action-link,
+    .action-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .action-link.primary {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .action-link.secondary {
+      background: #f8fafc;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+
+    .action-button.warn {
+      background: #fff7ed;
+      color: #c2410c;
+      border-color: #fed7aa;
+    }
+
+    .action-button.success {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+
+    .action-button.danger {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .detail-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .detail-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .detail-label {
+      margin: 0 0 6px;
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       font-weight: 800;
     }
 
-    .student-profile-side {
-      min-width: 260px;
-      max-width: 350px;
-      width: 100%;
-      background: #ffffff;
-      border: 1px solid #e5edf6;
-      border-radius: 20px;
+    .detail-value {
+      margin: 0;
+      color: #0f172a;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .metric-card {
       padding: 18px;
     }
 
-    .profile-side-label {
-      font-size: 0.76rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 800;
-      color: #94a3b8;
-      margin-bottom: 8px;
-    }
-
-    .profile-side-value {
-      font-size: 1.55rem;
-      font-weight: 800;
-      color: #0f172a;
-      margin-bottom: 6px;
-    }
-
-    .profile-side-sub {
+    .metric-label {
+      margin: 0 0 8px;
       color: #64748b;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .student-kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 18px;
-    }
-
-    .student-kpi-card {
-      background: #ffffff;
-      border: 1px solid #e8eef7;
-      border-radius: 22px;
-      padding: 20px;
-      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
-    }
-
-    .student-kpi-label {
-      color: #94a3b8;
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 0.78rem;
+      letter-spacing: 0.05em;
       font-weight: 800;
-      margin-bottom: 12px;
     }
 
-    .student-kpi-value {
+    .metric-value {
+      margin: 0 0 8px;
       color: #0f172a;
-      font-size: 1.9rem;
+      font-size: 30px;
+      line-height: 1;
       font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: 6px;
     }
 
-    .student-kpi-sub {
-      color: #64748b;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .student-panel {
-      background: #ffffff;
-      border: 1px solid #e8eef7;
-      border-radius: 24px;
-      padding: 22px;
-      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
-    }
-
-    .student-panel-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-
-    .student-panel-head h3 {
+    .metric-meta {
       margin: 0;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .panel-head h2 {
+      margin: 0 0 4px;
       color: #0f172a;
-      font-size: 1.12rem;
+      font-size: 20px;
       font-weight: 800;
     }
 
-    .student-panel-head p {
-      margin: 6px 0 0;
+    .panel-head p {
+      margin: 0;
       color: #64748b;
-      font-size: 0.92rem;
-      line-height: 1.5;
+      font-size: 13px;
+      line-height: 1.6;
     }
 
-    .soft-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #f8fafc;
+    .insight-box {
+      padding: 16px;
+      border-radius: 18px;
       border: 1px solid #e2e8f0;
-      color: #475569;
-      font-size: 0.82rem;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      margin-bottom: 18px;
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .insight-box strong {
+      color: #0f172a;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table thead th {
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       font-weight: 800;
       white-space: nowrap;
     }
 
-    .student-meta-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .student-meta-card {
-      border: 1px solid #e8eef7;
-      border-radius: 18px;
-      padding: 18px;
-      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-    }
-
-    .student-meta-label {
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 0.76rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .student-meta-value {
-      color: #0f172a;
-      font-size: 1.05rem;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-
-    .student-meta-sub {
-      color: #64748b;
-      font-size: 0.88rem;
-      line-height: 1.45;
-    }
-
-    .attempt-table-wrap {
-      overflow-x: auto;
-      border: 1px solid #e8eef7;
-      border-radius: 18px;
-    }
-
-    .attempt-table {
-      width: 100%;
-      min-width: 1100px;
-      border-collapse: collapse;
-      background: #ffffff;
-    }
-
-    .attempt-table thead th {
-      text-align: left;
-      background: #f8fbff;
-      color: #64748b;
-      padding: 14px 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-size: 0.78rem;
-      font-weight: 800;
-      border-bottom: 1px solid #e5edf6;
-    }
-
-    .attempt-table tbody td {
-      padding: 16px;
+    .data-table tbody td {
+      padding: 14px 12px;
       border-bottom: 1px solid #eef2f7;
-      vertical-align: middle;
       color: #0f172a;
-      font-size: 0.94rem;
+      font-size: 14px;
+      vertical-align: top;
     }
 
-    .attempt-table tbody tr:last-child td {
-      border-bottom: none;
-    }
-
-    .attempt-table tbody tr:hover {
-      background: #fbfdff;
-    }
-
-    .metric-main {
-      font-weight: 800;
-      color: #0f172a;
-    }
-
-    .metric-muted {
-      color: #64748b;
-      font-size: 0.86rem;
-      margin-top: 4px;
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      min-width: 92px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 800;
-    }
-
-    .status-active {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .status-inactive {
-      background: #e5e7eb;
-      color: #475569;
-    }
-
-    .risk-pill-high {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-
-    .risk-pill-medium {
-      background: #fef3c7;
-      color: #b45309;
-    }
-
-    .risk-pill-low {
-      background: #dcfce7;
-      color: #15803d;
+    .data-table tbody tr:hover {
+      background: #f8fafc;
     }
 
     .empty-state {
-      text-align: center;
-      padding: 28px;
+      padding: 26px;
       border-radius: 18px;
-      border: 1px dashed #dbe4ef;
-      background: #fbfdff;
+      border: 1px dashed #cbd5e1;
+      background: #f8fafc;
+      text-align: center;
       color: #64748b;
-      font-size: 0.96rem;
+      font-size: 14px;
     }
 
-    @media (max-width: 1200px) {
-      .student-kpi-grid {
+    @media (max-width: 1150px) {
+      .detail-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-
-      .student-meta-grid {
-        grid-template-columns: 1fr;
-      }
     }
 
-    @media (max-width: 768px) {
-      .student-profile-hero,
-      .student-kpi-card,
-      .student-panel {
-        padding: 18px;
+    @media (max-width: 780px) {
+      .admin-student-detail-page {
+        padding: 16px;
       }
 
-      .student-kpi-grid {
+      .metrics-grid {
         grid-template-columns: 1fr;
-      }
-
-      .student-profile-main h1 {
-        font-size: 1.6rem;
       }
     }
   </style>
 
-  {% set attempts = attempts|default([]) %}
-  {% set batch_name = student.batch.name if student.batch else 'Not assigned' %}
-  {% set total_attempts = total_attempts|default(attempts|length) %}
-  {% set avg_score = avg_score|default(0) %}
-  {% set best_score = best_score|default(0) %}
-  {% set avg_accuracy = avg_accuracy|default(0) %}
-  {% set latest_percentile = latest_percentile|default(0) %}
-  {% set best_rank = best_rank|default(None) %}
-  {% set latest_rank = latest_rank|default(None) %}
-  {% set risk_level = risk_level|default('low') %}
-  {% set is_active = student.is_active_user if student.is_active_user is not none else False %}
+  {% set profile = student.student_profile %}
 
-  {% if avg_score == 0 and attempts %}
-    {% set totals = namespace(score_sum=0, correct_sum=0, question_sum=0, best=0, latest_p=0, best_rank_calc=None, latest_rank_calc=None) %}
-    {% for attempt in attempts %}
-      {% set score = attempt.total_score|default(0) %}
-      {% set correct = attempt.correct_count|default(0) %}
-      {% set wrong = attempt.wrong_count|default(0) %}
-      {% set skipped = attempt.skipped_count|default(0) %}
-      {% set total_q = correct + wrong + skipped %}
-
-      {% set totals.score_sum = totals.score_sum + score %}
-      {% set totals.correct_sum = totals.correct_sum + correct %}
-      {% set totals.question_sum = totals.question_sum + total_q %}
-
-      {% if score > totals.best %}
-        {% set totals.best = score %}
-      {% endif %}
-
-      {% if loop.first %}
-        {% set totals.latest_p = attempt.percentile_overall|default(0) %}
-        {% set totals.latest_rank_calc = attempt.rank_overall %}
-      {% endif %}
-
-      {% if attempt.rank_overall is not none %}
-        {% if totals.best_rank_calc is none or attempt.rank_overall < totals.best_rank_calc %}
-          {% set totals.best_rank_calc = attempt.rank_overall %}
-        {% endif %}
-      {% endif %}
-    {% endfor %}
-
-    {% set avg_score = (totals.score_sum / attempts|length)|round(2) if attempts else 0 %}
-    {% set best_score = totals.best %}
-    {% set avg_accuracy = ((totals.correct_sum / totals.question_sum) * 100)|round(2) if totals.question_sum else 0 %}
-    {% set latest_percentile = totals.latest_p %}
-    {% set best_rank = totals.best_rank_calc %}
-    {% set latest_rank = totals.latest_rank_calc %}
-  {% endif %}
-
-  <div class="student-profile-hero">
-    <div class="student-profile-main">
-      <h1>{{ student.full_name }}</h1>
-      <div class="student-profile-sub">
-        Batch: {{ batch_name }}
-        {% if student.username %}<br>Username: @{{ student.username }}{% endif %}
-        {% if student.email %}<br>Email: {{ student.email }}{% endif %}
-      </div>
-
-      <div class="profile-tags">
-        <span class="profile-tag">Individual profile</span>
-        <span class="profile-tag">Attempt history</span>
-        <span class="profile-tag">Rank visibility</span>
-        <span class="profile-tag">Intervention ready</span>
-      </div>
-    </div>
-
-    <div class="student-profile-side">
-      <div class="profile-side-label">Current standing</div>
-      <div class="profile-side-value">
-        {% if latest_rank %}
-          Rank #{{ latest_rank }}
+  <section class="detail-layout">
+    <aside class="profile-card">
+      <div class="profile-top">
+        {% if profile and profile.photograph %}
+          <img src="{{ url_for('static', filename=profile.photograph) }}" alt="{{ student.full_name }}" class="profile-photo">
         {% else %}
-          No rank yet
+          <div class="profile-fallback">{{ (student.full_name or 'S')[0] }}</div>
         {% endif %}
+
+        <h1 class="profile-name">{{ student.full_name }}</h1>
+        <p class="profile-subtitle">
+          {{ student.username or '-' }} • {{ student.batch.name if student.batch else 'No batch assigned' }}
+        </p>
+
+        <div class="badge-row">
+          <span class="status-badge {{ 'active' if student.is_active_user else 'inactive' }}">
+            {{ 'Active' if student.is_active_user else 'Inactive' }}
+          </span>
+          <span class="risk-badge {{ risk_level }}">{{ risk_level|title }} risk</span>
+          <span class="soft-badge">{{ total_attempts }} attempts</span>
+        </div>
+
+        <div class="action-row">
+          <a href="{{ url_for('admin.analytics_students_page') }}" class="action-link secondary">Back to list</a>
+          <a href="{{ url_for('admin.students_page') }}" class="action-link primary">Manage student</a>
+
+          {% if student.is_active_user %}
+            <form method="POST" action="#">
+              <button type="submit" class="action-button warn">Block</button>
+            </form>
+          {% else %}
+            <form method="POST" action="#">
+              <button type="submit" class="action-button success">Reactivate</button>
+            </form>
+          {% endif %}
+
+          <form method="POST" action="#">
+            <button type="submit" class="action-button danger">Delete</button>
+          </form>
+        </div>
       </div>
-      <div class="profile-side-sub">
-        Latest percentile:
-        {% if latest_percentile is not none %}
-          {{ latest_percentile }}
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <p class="detail-label">Admission number</p>
+          <p class="detail-value">{{ profile.admission_no if profile and profile.admission_no else '-' }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Admission session</p>
+          <p class="detail-value">{{ profile.admission_session if profile and profile.admission_session else '-' }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Course applied</p>
+          <p class="detail-value">{{ profile.course_applied if profile and profile.course_applied else '-' }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Target exam</p>
+          <p class="detail-value">{{ profile.target_exam if profile and profile.target_exam else '-' }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Student mobile</p>
+          <p class="detail-value">{{ profile.student_mobile if profile and profile.student_mobile else '-' }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Student email</p>
+          <p class="detail-value">{{ student.email or (profile.student_email if profile and profile.student_email else '-') }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Father name</p>
+          <p class="detail-value">{{ profile.father_name if profile and profile.father_name else '-' }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Father mobile</p>
+          <p class="detail-value">{{ profile.father_mobile if profile and profile.father_mobile else '-' }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Mother name</p>
+          <p class="detail-value">{{ profile.mother_name if profile and profile.mother_name else '-' }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Parent email</p>
+          <p class="detail-value">{{ profile.parent_email if profile and profile.parent_email else '-' }}</p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Address</p>
+          <p class="detail-value">
+            {{ profile.address if profile and profile.address else '-' }},
+            {{ profile.city if profile and profile.city else '-' }},
+            {{ profile.state if profile and profile.state else '-' }}
+          </p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">School and board</p>
+          <p class="detail-value">
+            {{ profile.school_name if profile and profile.school_name else '-' }} /
+            {{ profile.board_name if profile and profile.board_name else '-' }}
+          </p>
+        </div>
+
+        <div class="detail-item">
+          <p class="detail-label">Remarks</p>
+          <p class="detail-value">{{ profile.remarks if profile and profile.remarks else 'No remarks added.' }}</p>
+        </div>
+      </div>
+    </aside>
+
+    <div style="display:grid; gap:24px;">
+      <section class="metrics-grid">
+        <article class="metric-card">
+          <p class="metric-label">Total attempts</p>
+          <p class="metric-value">{{ total_attempts }}</p>
+          <p class="metric-meta">Submitted tests completed by this student.</p>
+        </article>
+
+        <article class="metric-card">
+          <p class="metric-label">Average score</p>
+          <p class="metric-value">{{ avg_score }}</p>
+          <p class="metric-meta">Average score across all submitted attempts.</p>
+        </article>
+
+        <article class="metric-card">
+          <p class="metric-label">Best score</p>
+          <p class="metric-value">{{ best_score }}</p>
+          <p class="metric-meta">Highest score achieved so far.</p>
+        </article>
+
+        <article class="metric-card">
+          <p class="metric-label">Average accuracy</p>
+          <p class="metric-value">{{ avg_accuracy }}%</p>
+          <p class="metric-meta">Correct answers as a share of attempted question volume.</p>
+        </article>
+      </section>
+
+      <section class="metrics-grid">
+        <article class="metric-card">
+          <p class="metric-label">Average percentile</p>
+          <p class="metric-value">{{ avg_percentile if avg_percentile is not none else '-' }}</p>
+          <p class="metric-meta">Percentile trend based on available submitted attempts.</p>
+        </article>
+
+        <article class="metric-card">
+          <p class="metric-label">Latest percentile</p>
+          <p class="metric-value">{{ latest_percentile if latest_percentile is not none else '-' }}</p>
+          <p class="metric-meta">Most recent percentile recorded in analytics data.</p>
+        </article>
+
+        <article class="metric-card">
+          <p class="metric-label">Best rank</p>
+          <p class="metric-value">{{ best_rank if best_rank is not none else '-' }}</p>
+          <p class="metric-meta">Best overall rank achieved across attempts.</p>
+        </article>
+
+        <article class="metric-card">
+          <p class="metric-label">Latest rank</p>
+          <p class="metric-value">{{ latest_rank if latest_rank is not none else '-' }}</p>
+          <p class="metric-meta">Most recent overall rank captured from the latest attempt.</p>
+        </article>
+      </section>
+
+      <section class="panel-card">
+        <div class="panel-head">
+          <div>
+            <h2>Performance insight</h2>
+            <p>Quick interpretation block for admin review, counselling, and academic intervention.</p>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <strong>Risk level:</strong> {{ risk_level|title }}.
+          {% if risk_level == 'high' %}
+            This student is currently a strong intervention candidate based on low participation, weak score level, or low accuracy.
+          {% elif risk_level == 'medium' %}
+            This student should be monitored for trend movement, score consistency, and practice discipline.
+          {% else %}
+            This student currently appears stable against the present backend performance rules.
+          {% endif %}
+        </div>
+
+        {% if attempts %}
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Test</th>
+                  <th>Score</th>
+                  <th>Correct</th>
+                  <th>Wrong</th>
+                  <th>Skipped</th>
+                  <th>Percentile</th>
+                  <th>Rank</th>
+                  <th>Batch Rank</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for attempt in attempts %}
+                  <tr>
+                    <td>
+                      {% if attempt.test %}
+                        <div style="font-weight:700;">{{ attempt.test.title }}</div>
+                      {% else %}
+                        <div style="font-weight:700;">Test #{{ attempt.test_id }}</div>
+                      {% endif %}
+                      <div style="font-size:12px; color:#64748b;">Attempt #{{ attempt.id }}</div>
+                    </td>
+                    <td>{{ attempt.total_score or 0 }}</td>
+                    <td>{{ attempt.correct_count or 0 }}</td>
+                    <td>{{ attempt.wrong_count or 0 }}</td>
+                    <td>{{ attempt.skipped_count or 0 }}</td>
+                    <td>{{ attempt.percentile_overall if attempt.percentile_overall is not none else '-' }}</td>
+                    <td>{{ attempt.rank_overall if attempt.rank_overall is not none else '-' }}</td>
+                    <td>{{ attempt.rank_batch if attempt.rank_batch is not none else '-' }}</td>
+                    <td>{{ attempt.status or 'submitted' }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         {% else %}
-          -
+          <div class="empty-state">No submitted attempts are available for this student yet.</div>
         {% endif %}
-      </div>
-      <div style="margin-top:12px;">
-        <span class="status-pill {% if is_active %}status-active{% else %}status-inactive{% endif %}">
-          {% if is_active %}Active{% else %}Inactive{% endif %}
-        </span>
-        <span class="status-pill {% if risk_level == 'high' %}risk-pill-high{% elif risk_level == 'medium' %}risk-pill-medium{% else %}risk-pill-low{% endif %}" style="margin-left:8px;">
-          {{ risk_level|title }} Risk
-        </span>
-      </div>
+      </section>
     </div>
-  </div>
-
-  <div class="student-kpi-grid">
-    <div class="student-kpi-card">
-      <div class="student-kpi-label">Submitted Attempts</div>
-      <div class="student-kpi-value">{{ total_attempts }}</div>
-      <div class="student-kpi-sub">Completed tests available for student-level analytics.</div>
-    </div>
-
-    <div class="student-kpi-card">
-      <div class="student-kpi-label">Average Score</div>
-      <div class="student-kpi-value">{{ avg_score }}</div>
-      <div class="student-kpi-sub">Average score across submitted attempts.</div>
-    </div>
-
-    <div class="student-kpi-card">
-      <div class="student-kpi-label">Best Score</div>
-      <div class="student-kpi-value">{{ best_score }}</div>
-      <div class="student-kpi-sub">Highest score achieved so far.</div>
-    </div>
-
-    <div class="student-kpi-card">
-      <div class="student-kpi-label">Average Accuracy</div>
-      <div class="student-kpi-value">{{ avg_accuracy }}%</div>
-      <div class="student-kpi-sub">Correct answers across total evaluated questions.</div>
-    </div>
-  </div>
-
-  <div class="student-panel">
-    <div class="student-panel-head">
-      <div>
-        <h3>Performance Summary</h3>
-        <p>Quick academic snapshot for current discussion, mentoring, and intervention planning.</p>
-      </div>
-      <span class="soft-chip">Student summary</span>
-    </div>
-
-    <div class="student-meta-grid">
-      <div class="student-meta-card">
-        <div class="student-meta-label">Best Rank</div>
-        <div class="student-meta-value">
-          {% if best_rank is not none %}#{{ best_rank }}{% else %}-{% endif %}
-        </div>
-        <div class="student-meta-sub">
-          Best overall rank achieved across submitted tests.
-        </div>
-      </div>
-
-      <div class="student-meta-card">
-        <div class="student-meta-label">Latest Rank</div>
-        <div class="student-meta-value">
-          {% if latest_rank is not none %}#{{ latest_rank }}{% else %}-{% endif %}
-        </div>
-        <div class="student-meta-sub">
-          Most recent available overall rank from the latest attempt.
-        </div>
-      </div>
-
-      <div class="student-meta-card">
-        <div class="student-meta-label">Latest Percentile</div>
-        <div class="student-meta-value">
-          {% if latest_percentile is not none %}{{ latest_percentile }}{% else %}-{% endif %}
-        </div>
-        <div class="student-meta-sub">
-          Latest percentile benchmark visible in analytics history.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="student-panel">
-    <div class="student-panel-head">
-      <div>
-        <h3>Submitted Attempts</h3>
-        <p>Detailed history of test performance, ranks, percentiles, and submission timing.</p>
-      </div>
-      <span class="soft-chip">Attempt history</span>
-    </div>
-
-    {% if attempts %}
-      <div class="attempt-table-wrap">
-        <table class="attempt-table">
-          <thead>
-            <tr>
-              <th>Test</th>
-              <th>Score</th>
-              <th>Overall Rank</th>
-              <th>Percentile</th>
-              <th>Batch Rank</th>
-              <th>Time Taken</th>
-              <th>Submitted</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for attempt in attempts %}
-              <tr>
-                <td>
-                  <div class="metric-main">{{ attempt.test.title if attempt.test else '-' }}</div>
-                  <div class="metric-muted">
-                    Attempt ID: {{ attempt.id }}
-                  </div>
-                </td>
-
-                <td>
-                  <div class="metric-main">{{ attempt.total_score|default(0) }}</div>
-                  <div class="metric-muted">Total score</div>
-                </td>
-
-                <td>
-                  <div class="metric-main">
-                    {% if attempt.rank_overall is not none %}#{{ attempt.rank_overall }}{% else %}-{% endif %}
-                  </div>
-                  <div class="metric-muted">Overall rank</div>
-                </td>
-
-                <td>
-                  <div class="metric-main">
-                    {% if attempt.percentile_overall is not none %}{{ attempt.percentile_overall }}{% else %}-{% endif %}
-                  </div>
-                  <div class="metric-muted">Overall percentile</div>
-                </td>
-
-                <td>
-                  <div class="metric-main">
-                    {% if attempt.rank_batch is not none %}#{{ attempt.rank_batch }}{% else %}-{% endif %}
-                  </div>
-                  <div class="metric-muted">Batch rank</div>
-                </td>
-
-                <td>
-                  <div class="metric-main">{{ attempt.time_taken_seconds|default(0) }}s</div>
-                  <div class="metric-muted">Time taken</div>
-                </td>
-
-                <td>
-                  <div class="metric-main">
-                    {{ attempt.submitted_at.strftime('%d %b %Y') if attempt.submitted_at else '-' }}
-                  </div>
-                  <div class="metric-muted">
-                    {{ attempt.submitted_at.strftime('%I:%M %p') if attempt.submitted_at else '' }}
-                  </div>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% else %}
-      <div class="empty-state">
-        No submitted attempts are available for this student yet.
-      </div>
-    {% endif %}
-  </div>
+  </section>
 </section>
 {% endblock %}
