@@ -90,7 +90,9 @@
   }
 
   .btn-main,
-  .btn-light {
+  .btn-light,
+  .btn-filter,
+  .btn-inline {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -99,6 +101,8 @@
     border-radius: 12px;
     font-weight: 700;
     transition: all 0.18s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
   }
 
   .btn-main {
@@ -112,8 +116,10 @@
     border: 1px solid rgba(255, 255, 255, 0.22);
   }
 
+  .btn-main:hover,
   .btn-light:hover,
-  .btn-main:hover {
+  .btn-filter:hover,
+  .btn-inline:hover {
     transform: translateY(-1px);
   }
 
@@ -163,7 +169,8 @@
 
   .summary-note,
   .insight-note,
-  .weak-note {
+  .weak-note,
+  .review-note {
     margin-top: 16px;
     padding: 14px 16px;
     border-radius: 16px;
@@ -187,6 +194,12 @@
     background: #fff7ed;
     border: 1px solid #fed7aa;
     color: #9a3412;
+  }
+
+  .review-note {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
   }
 
   .subject-row {
@@ -302,11 +315,397 @@
     line-height: 1.6;
   }
 
+  .review-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .review-filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .btn-filter {
+    background: #ffffff;
+    color: #334155;
+    border-color: #cbd5e1;
+    padding: 9px 14px;
+    border-radius: 999px;
+  }
+
+  .btn-filter.active {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+  }
+
+  .btn-inline {
+    background: #f8fafc;
+    color: #0f172a;
+    border-color: #e2e8f0;
+    padding: 10px 14px;
+  }
+
+  .review-summary-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .review-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid transparent;
+  }
+
+  .review-chip.all {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+  }
+
+  .review-chip.correct {
+    background: #ecfdf3;
+    color: #166534;
+    border-color: #bbf7d0;
+  }
+
+  .review-chip.wrong {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+  }
+
+  .review-chip.skipped {
+    background: #f8fafc;
+    color: #475569;
+    border-color: #e2e8f0;
+  }
+
+  .review-chip.marked {
+    background: #faf5ff;
+    color: #7e22ce;
+    border-color: #e9d5ff;
+  }
+
+  .review-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .review-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #ffffff;
+    overflow: hidden;
+    transition: box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+
+  .review-item:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  }
+
+  .review-item[data-state="correct"] {
+    border-color: #bbf7d0;
+  }
+
+  .review-item[data-state="wrong"] {
+    border-color: #fecaca;
+  }
+
+  .review-item[data-state="skipped"] {
+    border-color: #dbe2ea;
+  }
+
+  .review-head {
+    width: 100%;
+    border: none;
+    background: #ffffff;
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: center;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .review-head-main {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .review-qno {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    flex: 0 0 auto;
+  }
+
+  .review-head-copy {
+    min-width: 0;
+  }
+
+  .review-meta {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+
+  .review-answer-line {
+    margin-top: 4px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .review-answer-line span {
+    white-space: nowrap;
+  }
+
+  .review-head-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .review-badge {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .review-badge.correct {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .review-badge.wrong {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .review-badge.skipped {
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  .review-badge.marked {
+    background: #f3e8ff;
+    color: #7e22ce;
+  }
+
+  .review-time {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .review-caret {
+    font-size: 18px;
+    color: #64748b;
+    transition: transform 0.18s ease;
+    line-height: 1;
+  }
+
+  .review-item.open .review-caret {
+    transform: rotate(180deg);
+  }
+
+  .review-body {
+    display: none;
+    padding: 0 18px 18px;
+    border-top: 1px solid #eef2f7;
+    background: #fcfcfd;
+  }
+
+  .review-item.open .review-body {
+    display: block;
+  }
+
+  .review-stem {
+    margin-top: 16px;
+    font-size: 18px;
+    line-height: 1.6;
+    color: #0f172a;
+    font-weight: 700;
+    white-space: pre-line;
+  }
+
+  .review-image-wrap {
+    margin-top: 14px;
+  }
+
+  .review-image {
+    max-width: 100%;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    display: block;
+  }
+
+  .review-options {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .review-option {
+    border: 1px solid #dbe2ea;
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #ffffff;
+  }
+
+  .review-option-key {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    flex: 0 0 auto;
+  }
+
+  .review-option-text {
+    color: #334155;
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+
+  .correct-option {
+    border-color: #86efac;
+    background: #f0fdf4;
+  }
+
+  .correct-option .review-option-key {
+    background: #16a34a;
+    color: #ffffff;
+  }
+
+  .selected-wrong-option {
+    border-color: #fca5a5;
+    background: #fef2f2;
+  }
+
+  .selected-wrong-option .review-option-key {
+    background: #dc2626;
+    color: #ffffff;
+  }
+
+  .selected-correct-option {
+    border-color: #86efac;
+    background: #f0fdf4;
+    box-shadow: inset 0 0 0 1px #22c55e;
+  }
+
+  .selected-correct-option .review-option-key {
+    background: #16a34a;
+    color: #ffffff;
+  }
+
+  .review-explanation {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+  }
+
+  .review-explanation-title {
+    font-weight: 800;
+    color: #1d4ed8;
+    margin-bottom: 6px;
+  }
+
+  .review-explanation-text {
+    color: #1e3a8a;
+    line-height: 1.7;
+    white-space: pre-line;
+  }
+
+  .review-empty {
+    margin-top: 18px;
+    padding: 18px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    text-align: center;
+    display: none;
+  }
+
+  .review-empty.show {
+    display: block;
+  }
+
   @media (max-width: 1100px) {
     .hero-grid,
     .grid-3,
     .grid-2 {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .review-head {
+      align-items: flex-start;
+    }
+
+    .review-head,
+    .review-head-main,
+    .review-head-right {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .review-head-right {
+      width: 100%;
+      gap: 8px;
+    }
+
+    .review-answer-line span {
+      white-space: normal;
     }
   }
 
@@ -326,10 +725,23 @@
     .stat-value {
       font-size: 30px;
     }
+
+    .review-head {
+      padding: 14px;
+    }
+
+    .review-body {
+      padding: 0 14px 14px;
+    }
+
+    .review-stem {
+      font-size: 16px;
+    }
   }
 </style>
 
 {% set top_chapters = chapter_stats[:3] if chapter_stats else [] %}
+{% set review_questions_list = review_questions if review_questions is defined and review_questions else [] %}
 
 <section class="dashboard-wrap">
   <div class="result-wrap">
@@ -339,7 +751,7 @@
           <div class="topbar-chip" style="background:rgba(255,255,255,0.16); color:#ffffff; border:none;">Result Summary</div>
           <h1 class="hero-title">Test Completed</h1>
           <p class="hero-subtitle">
-            Your test has been evaluated successfully. Review your outcome, check subject-level performance, and move into detailed review only where needed.
+            Your test has been evaluated successfully. Review your outcome, check subject-level performance, and move into detailed answer review only where needed.
           </p>
 
           <div class="meta-row">
@@ -374,7 +786,8 @@
       </div>
 
       <div class="action-row">
-        <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="btn-main">Open Test Review</a>
+        <a href="#question-review" class="btn-main">Open Answer Key</a>
+        <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="btn-light">Open Test Review</a>
         <a href="{{ url_for('student.performance_review_page') }}" class="btn-light">Performance Review</a>
         <a href="{{ url_for('student.dashboard') }}" class="btn-light">Dashboard</a>
       </div>
@@ -503,25 +916,187 @@
 
         <div class="insight-list">
           <div class="insight-item">
+            <strong>Open Answer Key</strong><br>
+            Check each question, your marked option, the correct answer, and the explanation in one structured section.
+          </div>
+
+          <div class="insight-item">
             <strong>Open Test Review</strong><br>
-            Check every question, answer, explanation, and timing signal in one place.
+            Use the dedicated review flow when you want a full-screen question-by-question walkthrough.
           </div>
 
           <div class="insight-item">
             <strong>Open Performance Review</strong><br>
             Compare this attempt with your broader trend across completed tests.
           </div>
-
-          <div class="insight-item">
-            <strong>Return to Dashboard</strong><br>
-            Continue with upcoming tests or resume your broader preparation flow.
-          </div>
         </div>
 
         <div class="summary-note">
-          A result page should focus on outcome, key strengths, weak zones, and the next decision instead of mixing full question review into the same screen. [web:1036][web:1048]
+          This page works best when it keeps the result summary at the top and reveals detailed explanations only when students need them, which is a good fit for progressive disclosure on long, content-heavy screens. [web:1386][web:1396]
         </div>
       </div>
+    </div>
+
+    <div class="card-soft" id="question-review">
+      <div class="review-top">
+        <div>
+          <h2 class="section-title">Question Review</h2>
+          <p class="section-subtitle">Review the answer key, compare your response, and expand explanations only where you need deeper revision.</p>
+        </div>
+
+        <div class="review-actions">
+          <button type="button" class="btn-inline" id="expand-all-review">Expand All</button>
+          <button type="button" class="btn-inline" id="collapse-all-review">Collapse All</button>
+        </div>
+      </div>
+
+      <div class="review-summary-chips">
+        <span class="review-chip all">Total {{ total_questions }}</span>
+        <span class="review-chip correct">Correct {{ attempt.correct_count }}</span>
+        <span class="review-chip wrong">Wrong {{ attempt.wrong_count }}</span>
+        <span class="review-chip skipped">Skipped {{ attempt.skipped_count }}</span>
+        {% if review_questions_list %}
+          <span class="review-chip marked">
+            Marked
+            {{
+              review_questions_list
+              | selectattr('is_marked_for_review')
+              | list
+              | length
+            }}
+          </span>
+        {% endif %}
+      </div>
+
+      <div class="review-filter-row" id="reviewFilters">
+        <button type="button" class="btn-filter active" data-filter="all">All</button>
+        <button type="button" class="btn-filter" data-filter="wrong">Wrong</button>
+        <button type="button" class="btn-filter" data-filter="skipped">Skipped</button>
+        <button type="button" class="btn-filter" data-filter="correct">Correct</button>
+        <button type="button" class="btn-filter" data-filter="reviewed">Marked</button>
+      </div>
+
+      <div class="review-note">
+        Start with Wrong and Skipped filters first. That gives the highest revision value without forcing students to scroll through every correct answer immediately. [web:1385][web:1392]
+      </div>
+
+      {% if review_questions_list %}
+        <div class="review-list" id="reviewList">
+          {% for item in review_questions_list %}
+            {% set selected_option = item.selected_option if item.selected_option is defined else None %}
+            {% set correct_option = item.correct_option if item.correct_option is defined else None %}
+            {% set is_correct = item.is_correct if item.is_correct is defined else false %}
+            {% set is_skipped = item.is_skipped if item.is_skipped is defined else (not selected_option) %}
+            {% set is_marked = item.is_marked_for_review if item.is_marked_for_review is defined else false %}
+            {% set item_state = 'skipped' if is_skipped else ('correct' if is_correct else 'wrong') %}
+
+            <div
+              class="review-item"
+              data-state="{{ item_state }}"
+              data-reviewed="{{ 'yes' if is_marked else 'no' }}"
+            >
+              <button type="button" class="review-head" data-review-toggle>
+                <div class="review-head-main">
+                  <div class="review-qno">Q{{ item.index if item.index is defined else loop.index }}</div>
+
+                  <div class="review-head-copy">
+                    <div class="review-meta">
+                      {{ item.subject_name if item.subject_name is defined and item.subject_name else 'General' }}
+                      •
+                      {{ item.chapter_name if item.chapter_name is defined and item.chapter_name else 'General' }}
+                    </div>
+
+                    <div class="review-answer-line">
+                      <span>Your answer: {{ selected_option if selected_option else 'Not Answered' }}</span>
+                      <span>Correct: {{ correct_option if correct_option else '-' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="review-head-right">
+                  {% if is_skipped %}
+                    <span class="review-badge skipped">Skipped</span>
+                  {% elif is_correct %}
+                    <span class="review-badge correct">Correct</span>
+                  {% else %}
+                    <span class="review-badge wrong">Wrong</span>
+                  {% endif %}
+
+                  {% if is_marked %}
+                    <span class="review-badge marked">Marked</span>
+                  {% endif %}
+
+                  <span class="review-time">
+                    {% if item.time_spent_seconds is defined %}
+                      {{ item.time_spent_seconds }} sec
+                    {% else %}
+                      0 sec
+                    {% endif %}
+                  </span>
+
+                  <span class="review-caret">⌄</span>
+                </div>
+              </button>
+
+              <div class="review-body">
+                <div class="review-stem">{{ item.stem if item.stem is defined else '' }}</div>
+
+                {% if item.question_image is defined and item.question_image %}
+                  <div class="review-image-wrap">
+                    <img
+                      src="{{ url_for('static', filename=item.question_image) }}"
+                      alt="Question image for question {{ item.index if item.index is defined else loop.index }}"
+                      class="review-image"
+                    >
+                  </div>
+                {% endif %}
+
+                <div class="review-options">
+                  {% for key, value in [
+                    ('A', item.option_a if item.option_a is defined else ''),
+                    ('B', item.option_b if item.option_b is defined else ''),
+                    ('C', item.option_c if item.option_c is defined else ''),
+                    ('D', item.option_d if item.option_d is defined else '')
+                  ] %}
+                    <div class="review-option{% if correct_option == key %} correct-option{% endif %}{% if selected_option == key and correct_option != key %} selected-wrong-option{% endif %}{% if selected_option == key and correct_option == key %} selected-correct-option{% endif %}">
+                      <span class="review-option-key">{{ key }}</span>
+                      <span class="review-option-text">{{ value }}</span>
+                    </div>
+                  {% endfor %}
+                </div>
+
+                {% if (item.explanation is defined and item.explanation) or (item.explanation_image is defined and item.explanation_image) %}
+                  <div class="review-explanation">
+                    <div class="review-explanation-title">Explanation</div>
+
+                    {% if item.explanation is defined and item.explanation %}
+                      <div class="review-explanation-text">{{ item.explanation }}</div>
+                    {% endif %}
+
+                    {% if item.explanation_image is defined and item.explanation_image %}
+                      <div class="review-image-wrap">
+                        <img
+                          src="{{ url_for('static', filename=item.explanation_image) }}"
+                          alt="Explanation image for question {{ item.index if item.index is defined else loop.index }}"
+                          class="review-image"
+                        >
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="review-empty" id="reviewEmpty">
+          No questions match the selected filter.
+        </div>
+      {% else %}
+        <div class="summary-note">
+          The answer key section is ready, but this template expects a backend variable named <strong>review_questions</strong> that contains per-question review data including the selected option, correct option, explanation, and optional images. Your models already support explanations and explanation images for questions. [file:1355]
+        </div>
+      {% endif %}
     </div>
   </div>
 </section>
@@ -529,18 +1104,88 @@
 <script>
   (function () {
     const timeEl = document.getElementById("time-taken");
-    if (!timeEl) return;
+    if (timeEl) {
+      const totalSeconds = parseInt(timeEl.dataset.seconds || "0", 10);
+      const hrs = Math.floor(totalSeconds / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
 
-    const totalSeconds = parseInt(timeEl.dataset.seconds || "0", 10);
-    const hrs = Math.floor(totalSeconds / 3600);
-    const mins = Math.floor((totalSeconds % 3600) / 60);
-    const secs = totalSeconds % 60;
-
-    if (hrs > 0) {
-      timeEl.textContent = hrs + "h " + mins + "m " + secs + "s";
-    } else {
-      timeEl.textContent = mins + "m " + secs + "s";
+      if (hrs > 0) {
+        timeEl.textContent = hrs + "h " + mins + "m " + secs + "s";
+      } else {
+        timeEl.textContent = mins + "m " + secs + "s";
+      }
     }
+
+    const reviewItems = Array.from(document.querySelectorAll(".review-item"));
+    const toggleButtons = document.querySelectorAll("[data-review-toggle]");
+    const filters = document.querySelectorAll(".btn-filter");
+    const emptyState = document.getElementById("reviewEmpty");
+    const expandAllBtn = document.getElementById("expand-all-review");
+    const collapseAllBtn = document.getElementById("collapse-all-review");
+
+    toggleButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const item = btn.closest(".review-item");
+        if (item) item.classList.toggle("open");
+      });
+    });
+
+    function applyFilter(filterValue) {
+      let visibleCount = 0;
+
+      reviewItems.forEach(function (item) {
+        const state = item.dataset.state;
+        const reviewed = item.dataset.reviewed;
+        let show = false;
+
+        if (filterValue === "all") {
+          show = true;
+        } else if (filterValue === "reviewed") {
+          show = reviewed === "yes";
+        } else {
+          show = state === filterValue;
+        }
+
+        item.style.display = show ? "" : "none";
+        if (show) visibleCount += 1;
+      });
+
+      if (emptyState) {
+        emptyState.classList.toggle("show", visibleCount === 0);
+      }
+    }
+
+    filters.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        filters.forEach(function (node) {
+          node.classList.remove("active");
+        });
+
+        btn.classList.add("active");
+        applyFilter(btn.dataset.filter || "all");
+      });
+    });
+
+    if (expandAllBtn) {
+      expandAllBtn.addEventListener("click", function () {
+        reviewItems.forEach(function (item) {
+          if (item.style.display !== "none") {
+            item.classList.add("open");
+          }
+        });
+      });
+    }
+
+    if (collapseAllBtn) {
+      collapseAllBtn.addEventListener("click", function () {
+        reviewItems.forEach(function (item) {
+          item.classList.remove("open");
+        });
+      });
+    }
+
+    applyFilter("all");
   })();
 </script>
 {% endblock %}
