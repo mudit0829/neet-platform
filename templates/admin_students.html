@@ -429,6 +429,10 @@
       margin-top: 14px;
     }
 
+    .student-actions form {
+      margin: 0;
+    }
+
     .action-link,
     .action-button {
       display: inline-flex;
@@ -466,6 +470,12 @@
       background: #ecfdf5;
       color: #047857;
       border-color: #a7f3d0;
+    }
+
+    .action-button.danger {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
     }
 
     .empty-state {
@@ -813,6 +823,14 @@
                   {% else %}
                     <button type="submit" class="action-button success">Activate account</button>
                   {% endif %}
+                </form>
+
+                <form
+                  method="POST"
+                  action="{{ url_for('admin.student_delete', student_id=student.id) }}"
+                  onsubmit="return confirm('Delete this student permanently? This will remove the student profile and all attempts.');"
+                >
+                  <button type="submit" class="action-button danger">Delete student</button>
                 </form>
               </div>
             </article>
