@@ -1042,6 +1042,25 @@ def questions_page():
         creators=creators,
     )
 
+@admin_bp.route("/create-question", endpoint="create_question")
+@login_required
+def create_question():
+    return redirect(url_for("admin.questions"))
+
+
+@admin_bp.route("/questions/<int:question_id>/edit", endpoint="edit_question")
+@login_required
+def edit_question(question_id):
+    flash("Question editing is not available in this version yet.", "warning")
+    return redirect(url_for("admin.questions"))
+
+
+@admin_bp.route("/questions/<int:question_id>/delete", methods=["POST"], endpoint="delete_question")
+@login_required
+def delete_question(question_id):
+    flash("Question deletion is not available in this version yet.", "warning")
+    return redirect(url_for("admin.questions"))
+
 
 @admin_bp.route("/tests", methods=["GET", "POST"])
 @login_required
