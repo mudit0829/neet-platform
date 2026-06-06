@@ -646,7 +646,7 @@
       {% if risk_students %}
         <div class="attention-list">
           {% for item in risk_students %}
-            {% set risk_level = (item.risk_level|default('medium')) %}
+            {% set risk_level = item.risk_level|default('medium') %}
             <div class="attention-item">
               <div>
                 <div class="attention-name">{{ item.full_name|default('Student') }}</div>
@@ -686,8 +686,8 @@
         <h3>Batch Performance Leaderboard</h3>
         <p>Compare cohorts on score, accuracy, percentile, and participation from one table.</p>
       </div>
-      <a href="{{ url_for('admin.analytics_tests_page') if false else '#' }}" class="analytics-chip" style="text-decoration:none;">
-        Cohort view
+      <a href="{{ url_for('admin.analytics_tests_page') }}" class="analytics-chip" style="text-decoration:none;">
+        Test analytics
       </a>
     </div>
 
@@ -721,7 +721,7 @@
                 <td>{{ batch.participation_rate|default(0) }}%</td>
                 <td>
                   {% if batch.id %}
-                    <a href="{{ url_for('admin.analytics_students_page') }}?batch_id={{ batch.id }}" class="table-link">
+                    <a href="{{ url_for('admin.analytics_students_page', batch_id=batch.id) }}" class="table-link">
                       View Students
                     </a>
                   {% else %}
@@ -735,7 +735,7 @@
       </div>
     {% else %}
       <div class="empty-state">
-        Batch leaderboard data is not available yet. Once backend sends `batch_rows`, this section
+        Batch leaderboard data is not available yet. Once backend sends batch rows, this section
         will show full cohort comparison.
       </div>
     {% endif %}
