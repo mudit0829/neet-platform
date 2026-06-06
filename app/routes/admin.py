@@ -824,6 +824,57 @@ def student_reset_password(student_id):
     flash("Student password reset successfully.", "success")
     return redirect(request.referrer or url_for("admin.student_edit_page", student_id=student.id))
 
+@admin_bp.route("/students/<int:student_id>/delete", methods=["POST"])
+@login_required
+def student_delete(student_id):
+    admin_required()
+
+    institute_id = getattr(current_user, "institute_id", None)
+
+    student_query = User.query.filter(
+        User.id == student_id,
+        User.role == "student",
+    )
+
+    if institute_id and hasattr(User, "institute_id"):
+        student_query = student_query.filter(User.institute_id == institute_id)
+
+    student = student_query.first_or_404()
+    profile = student.student_profile
+
+    try:
+        student_name = student.full_name or student.username or f"Student #{student.id}"
+
+        photograph_path = None
+        if profile and profile.photograph:
+            photograph_path = os.path.join(
+                current_app.root_path,
+                "static",
+                *profile.photograph.split("/")
+            )
+
+        TestAttempt.query.filter_by(student_id=student.id).delete(synchronize_session=False)
+
+        if profile:
+            db.session.delete(profile)
+
+        db.session.delete(student)
+        db.session.commit()
+
+        if photograph_path and os.path.exists(photograph_path):
+            try:
+                os.remove(photograph_path)
+            except Exception:
+                pass
+
+        flash(f"Student '{student_name}' deleted successfully.", "success")
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting student: {str(e)}", "danger")
+
+    return redirect(request.referrer or url_for("admin.students_page"))
+
 
 @admin_bp.route("/questions", methods=["GET", "POST"])
 @login_required
