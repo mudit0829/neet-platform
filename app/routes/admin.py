@@ -876,7 +876,7 @@ def student_delete(student_id):
     return redirect(request.referrer or url_for("admin.students_page"))
 
 
-@admin_bp.route("/questions", methods=["GET", "POST"])
+@admin_bp.route("/questions", methods=["GET", "POST"], endpoint="questions")
 @login_required
 def questions_page():
     admin_required()
