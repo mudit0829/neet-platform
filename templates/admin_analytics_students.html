@@ -173,9 +173,10 @@
 
     .filter-bar {
       display: grid;
-      grid-template-columns: 1.3fr 0.9fr 0.8fr 0.8fr;
+      grid-template-columns: 1.3fr 0.9fr 0.8fr 0.8fr auto;
       gap: 14px;
       margin-bottom: 18px;
+      align-items: end;
     }
 
     .filter-control {
@@ -208,6 +209,38 @@
     .filter-control select:focus {
       border-color: #93c5fd;
       box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn,
+    .reset-btn {
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .filter-btn {
+      background: #0f172a;
+      color: #ffffff;
+      border: 1px solid #0f172a;
+    }
+
+    .reset-btn {
+      background: #ffffff;
+      color: #334155;
+      border: 1px solid #cbd5e1;
     }
 
     .students-table-wrap {
@@ -381,13 +414,13 @@
   {% set search_query = request.args.get('q', '') %}
 
   {% if active_students == 0 and total_students > 0 %}
-    {% set inferred_active = namespace(count=0) %}
+    {% set inferred = namespace(active=0) %}
     {% for student in students %}
       {% if student.is_active_user %}
-        {% set inferred_active.count = inferred_active.count + 1 %}
+        {% set inferred.active = inferred.active + 1 %}
       {% endif %}
     {% endfor %}
-    {% set active_students = inferred_active.count %}
+    {% set active_students = inferred.active %}
     {% set inactive_students = total_students - active_students %}
   {% endif %}
 
@@ -449,7 +482,7 @@
         <h3>Student Roster</h3>
         <p>Search, filter, and open detailed analytics for each student.</p>
       </div>
-      <span class="soft-chip">Roster analytics</span>
+      <span class="soft-chip">{{ students|length }} loaded</span>
     </div>
 
     <form method="get" class="filter-bar">
@@ -496,57 +529,14 @@
           <option value="low" {% if risk_filter == 'low' %}selected{% endif %}>Low</option>
         </select>
       </div>
+
+      <div class="filter-actions">
+        <button type="submit" class="filter-btn">Apply filters</button>
+        <a href="{{ url_for('admin.analytics_students_page') }}" class="reset-btn">Reset</a>
+      </div>
     </form>
 
-    {% set rows = namespace(items=[]) %}
-    {% for student in students %}
-      {% set full_name = student.full_name|default('Student') %}
-      {% set batch_name = student.batch.name if student.batch else 'Not assigned' %}
-      {% set is_active = student.is_active_user if student.is_active_user is not none else False %}
-      {% set avg_score = student.avg_score|default(0) %}
-      {% set avg_accuracy = student.avg_accuracy|default(0) %}
-      {% set attempt_count = student.attempt_count|default(0) %}
-      {% set risk_level = student.risk_level|default('low') %}
-
-      {% set include = true %}
-
-      {% if search_query and search_query.lower() not in full_name.lower() %}
-        {% set include = false %}
-      {% endif %}
-
-      {% if batch_filter and (student.batch_id|string != batch_filter|string) %}
-        {% set include = false %}
-      {% endif %}
-
-      {% if status_filter == 'active' and not is_active %}
-        {% set include = false %}
-      {% endif %}
-
-      {% if status_filter == 'inactive' and is_active %}
-        {% set include = false %}
-      {% endif %}
-
-      {% if risk_filter and risk_level != risk_filter %}
-        {% set include = false %}
-      {% endif %}
-
-      {% if include %}
-        {% set rows.items = rows.items + [{
-          'id': student.id,
-          'full_name': full_name,
-          'batch_name': batch_name,
-          'is_active': is_active,
-          'avg_score': avg_score,
-          'avg_accuracy': avg_accuracy,
-          'attempt_count': attempt_count,
-          'risk_level': risk_level,
-          'email': student.email|default(''),
-          'username': student.username|default('')
-        }] %}
-      {% endif %}
-    {% endfor %}
-
-    {% if rows.items %}
+    {% if students %}
       <div class="students-table-wrap">
         <table class="students-table">
           <thead>
@@ -562,52 +552,60 @@
             </tr>
           </thead>
           <tbody>
-            {% for row in rows.items %}
+            {% for student in students %}
+              {% set full_name = student.full_name|default('Student') %}
+              {% set batch_name = student.batch.name if student.batch else 'Not assigned' %}
+              {% set is_active = student.is_active_user if student.is_active_user is not none else False %}
+              {% set avg_score = student.avg_score|default(0) %}
+              {% set avg_accuracy = student.avg_accuracy|default(0) %}
+              {% set attempt_count = student.attempt_count|default(0) %}
+              {% set risk_level = student.risk_level|default('low') %}
+
               <tr>
                 <td>
-                  <div class="student-name">{{ row.full_name }}</div>
+                  <div class="student-name">{{ full_name }}</div>
                   <div class="student-sub">
-                    {% if row.username %}@{{ row.username }}{% endif %}
-                    {% if row.email %}
-                      {% if row.username %}<br>{% endif %}
-                      {{ row.email }}
+                    {% if student.username %}@{{ student.username }}{% endif %}
+                    {% if student.email %}
+                      {% if student.username %}<br>{% endif %}
+                      {{ student.email }}
                     {% endif %}
                   </div>
                 </td>
 
                 <td>
-                  <div class="metric-main">{{ row.batch_name }}</div>
+                  <div class="metric-main">{{ batch_name }}</div>
                 </td>
 
                 <td>
-                  <span class="status-pill {% if row.is_active %}status-active{% else %}status-inactive{% endif %}">
-                    {% if row.is_active %}Active{% else %}Inactive{% endif %}
+                  <span class="status-pill {% if is_active %}status-active{% else %}status-inactive{% endif %}">
+                    {% if is_active %}Active{% else %}Inactive{% endif %}
                   </span>
                 </td>
 
                 <td>
-                  <div class="metric-main">{{ row.attempt_count }}</div>
+                  <div class="metric-main">{{ attempt_count }}</div>
                   <div class="metric-muted">Submitted attempts</div>
                 </td>
 
                 <td>
-                  <div class="metric-main">{{ row.avg_score }}</div>
+                  <div class="metric-main">{{ avg_score }}</div>
                   <div class="metric-muted">Average score</div>
                 </td>
 
                 <td>
-                  <div class="metric-main">{{ row.avg_accuracy }}%</div>
+                  <div class="metric-main">{{ avg_accuracy }}%</div>
                   <div class="metric-muted">Average accuracy</div>
                 </td>
 
                 <td>
-                  <span class="status-pill {% if row.risk_level == 'high' %}risk-pill-high{% elif row.risk_level == 'medium' %}risk-pill-medium{% else %}risk-pill-low{% endif %}">
-                    {{ row.risk_level|title }}
+                  <span class="status-pill {% if risk_level == 'high' %}risk-pill-high{% elif risk_level == 'medium' %}risk-pill-medium{% else %}risk-pill-low{% endif %}">
+                    {{ risk_level|title }}
                   </span>
                 </td>
 
                 <td>
-                  <a href="{{ url_for('admin.analytics_student_detail_page', student_id=row.id) }}" class="action-btn">
+                  <a href="{{ url_for('admin.analytics_student_detail_page', student_id=student.id) }}" class="action-btn">
                     View Analytics
                   </a>
                 </td>
