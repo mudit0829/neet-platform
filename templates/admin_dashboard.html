@@ -171,7 +171,7 @@
 
   .metric-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 16px;
   }
 
@@ -212,6 +212,16 @@
   }
   .metric-card.batches::after { background: #f59e0b; }
 
+  .metric-card.subjects {
+    background: linear-gradient(180deg, #ffffff 0%, #f4fdf7 100%);
+  }
+  .metric-card.subjects::after { background: #22c55e; }
+
+  .metric-card.chapters {
+    background: linear-gradient(180deg, #ffffff 0%, #fff5f7 100%);
+  }
+  .metric-card.chapters::after { background: #ec4899; }
+
   .metric-top {
     display: flex;
     justify-content: space-between;
@@ -243,6 +253,8 @@
   .metric-card.questions .metric-icon { background: #ccfbf1; color: #0f766e; }
   .metric-card.tests .metric-icon { background: #ede9fe; color: #7c3aed; }
   .metric-card.batches .metric-icon { background: #ffedd5; color: #c2410c; }
+  .metric-card.subjects .metric-icon { background: #dcfce7; color: #166534; }
+  .metric-card.chapters .metric-icon { background: #fce7f3; color: #be185d; }
 
   .metric-value {
     color: #0f172a;
@@ -427,6 +439,12 @@
     border: 1px solid #fde68a;
   }
 
+  .status-badge.default {
+    background: #e2e8f0;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+  }
+
   .activity-grid {
     display: grid;
     gap: 10px;
@@ -487,7 +505,7 @@
     }
 
     .metric-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
@@ -512,7 +530,7 @@
 {% endblock %}
 
 {% block content %}
-{% set admin_name = current_user.fullname if current_user is defined and current_user and current_user.fullname else 'Admin User' %}
+{% set admin_name = current_user.full_name if current_user is defined and current_user and current_user.full_name else (current_user.username if current_user is defined and current_user and current_user.username else 'Admin User') %}
 {% set admin_initial = admin_name[:1]|upper %}
 <section class="dashboard-shell">
 
@@ -603,6 +621,24 @@
       <div class="metric-value">{{ stats.batches if stats else 0 }}</div>
       <div class="metric-meta">Academic groups available for student assignment.</div>
     </div>
+
+    <div class="metric-card subjects">
+      <div class="metric-top">
+        <div class="metric-label">Subjects</div>
+        <div class="metric-icon">Sub</div>
+      </div>
+      <div class="metric-value">{{ stats.subjects if stats else 0 }}</div>
+      <div class="metric-meta">Subjects configured for question organization.</div>
+    </div>
+
+    <div class="metric-card chapters">
+      <div class="metric-top">
+        <div class="metric-label">Chapters</div>
+        <div class="metric-icon">Ch</div>
+      </div>
+      <div class="metric-value">{{ stats.chapters if stats else 0 }}</div>
+      <div class="metric-meta">Chapter units mapped under available subjects.</div>
+    </div>
   </section>
 
   <section class="dashboard-main-grid">
@@ -646,16 +682,19 @@
           {% if latest_tests %}
             <div class="list-grid">
               {% for test in latest_tests[:4] %}
+                {% set test_status = (test.status or 'draft')|lower %}
                 <div class="data-row">
                   <span class="data-dot"></span>
                   <div class="data-main">
                     <p class="data-title">
                       {{ test.title }}
-                      <span class="status-badge {{ test.status|lower }}">{{ test.status|title }}</span>
+                      <span class="status-badge {{ test_status if test_status in ['published', 'draft'] else 'default' }}">
+                        {{ (test.status or 'Draft')|title }}
+                      </span>
                     </p>
                     <p class="data-meta">
-                      Type: {{ test.test_type|replace('_', ' ')|title }} •
-                      Duration: {{ test.duration_minutes }} min
+                      Type: {{ (test.test_type or 'mock')|replace('_', ' ')|title }} •
+                      Duration: {{ test.duration_minutes or 0 }} min
                     </p>
                   </div>
                 </div>
