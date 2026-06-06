@@ -1,555 +1,722 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %}Question Bank | NEET Platform{% endblock %}
 
 {% block content %}
 <style>
-  .qb-page {
+  .questions-page {
     width: 100%;
-    max-width: 100%;
+    max-width: 1480px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
 
-  .qb-alerts {
-    display: grid;
-    gap: 12px;
-    margin-bottom: 20px;
+  .questions-hero,
+  .questions-grid-stats,
+  .questions-filter-bar,
+  .questions-card {
+    width: 100%;
   }
 
-  .qb-alert {
-    padding: 14px 16px;
-    border-radius: 14px;
-    font-weight: 600;
+  .questions-hero,
+  .questions-filter-bar,
+  .questions-card,
+  .questions-stat-card {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(226, 232, 240, 0.92);
+    border-radius: 22px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   }
 
-  .qb-alert.success {
-    background: #ecfdf3;
-    color: #166534;
-    border: 1px solid #bbf7d0;
+  .questions-hero {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
   }
 
-  .qb-alert.danger,
-  .qb-alert.error {
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+  .questions-hero h1 {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: #0f172a;
   }
 
-  .qb-alert.info {
+  .questions-hero p {
+    margin: 10px 0 0;
+    color: #64748b;
+    max-width: 820px;
+    line-height: 1.7;
+  }
+
+  .questions-hero-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .questions-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
     background: #eff6ff;
     color: #1d4ed8;
-    border: 1px solid #bfdbfe;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid #dbeafe;
   }
 
-  .qb-grid {
+  .questions-hero-side {
+    min-width: 260px;
+    max-width: 340px;
+    padding: 18px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+  }
+
+  .questions-hero-side-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .questions-hero-side-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .questions-hero-side-sub {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .questions-grid-stats {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
-    gap: 20px;
-    align-items: start;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
 
-  .qb-form,
-  .qb-sidecard {
-    min-width: 0;
-    overflow: hidden;
+  .questions-stat-card {
+    padding: 18px;
   }
 
-  .qb-form-grid {
+  .questions-stat-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+
+  .questions-stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .questions-filter-bar {
+    padding: 18px;
+  }
+
+  .questions-filter-grid {
     display: grid;
-    gap: 14px;
-  }
-
-  .qb-row-2 {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 2fr 1fr 1.2fr 1fr 1.2fr auto;
     gap: 12px;
+    align-items: end;
   }
 
-  .qb-field {
+  .questions-field {
     display: grid;
     gap: 8px;
-    min-width: 0;
   }
 
-  .qb-field label {
+  .questions-field label {
+    font-size: 13px;
     font-weight: 700;
+    color: #0f172a;
   }
 
-  .qb-input,
-  .qb-select,
-  .qb-textarea,
-  .qb-file {
+  .questions-field input,
+  .questions-field select {
     width: 100%;
-    max-width: 100%;
-    min-width: 0;
     padding: 12px;
     border-radius: 12px;
     border: 1px solid #d1d5db;
     background: #ffffff;
     color: #111827;
-    box-sizing: border-box;
+    min-height: 46px;
+    outline: none;
   }
 
-  .qb-textarea {
-    resize: vertical;
+  .questions-field input:focus,
+  .questions-field select:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
   }
 
-  .qb-toolbar {
+  .questions-filter-actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     flex-wrap: wrap;
-    margin-bottom: 8px;
   }
 
-  .qb-toolbar button {
-    border: 1px solid #dbeafe;
-    background: #eff6ff;
-    color: #1d4ed8;
-    padding: 8px 12px;
-    border-radius: 10px;
-    font-weight: 700;
-    cursor: pointer;
+  .questions-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-wrap: wrap;
   }
 
-  .qb-toolbar button:hover {
-    background: #dbeafe;
+  .questions-card-body {
+    padding: 20px;
   }
 
-  .qb-note {
-    font-size: 13px;
+  .questions-card-head-left h2 {
+    margin: 0 0 4px;
+  }
+
+  .questions-subtitle {
+    margin: 0;
     color: #64748b;
     line-height: 1.6;
   }
 
-  .qb-submit {
-    padding: 12px 18px;
-    border: none;
-    border-radius: 12px;
-    background: #0f766e;
-    color: #ffffff;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .qb-summary-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-
-  .qb-table-wrap {
+  .questions-table-wrap {
     overflow-x: auto;
-    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
   }
 
-  .qb-table {
+  .questions-table {
     width: 100%;
+    min-width: 1380px;
     border-collapse: collapse;
-    min-width: 860px;
+    background: #ffffff;
   }
 
-  .qb-table th,
-  .qb-table td {
-    padding: 12px;
+  .questions-table th,
+  .questions-table td {
+    padding: 14px 12px;
     border-bottom: 1px solid #e5e7eb;
     text-align: left;
     vertical-align: top;
   }
 
-  .qb-table thead tr {
+  .questions-table thead tr {
     background: #f8fafc;
-    color: #111827;
   }
 
-  .qb-math-grid {
-    display: grid;
-    gap: 12px;
-  }
-
-  .qb-math-preview {
-    min-height: 64px;
-  }
-
-  .qb-preview-title {
+  .questions-table th {
+    color: #475569;
     font-size: 12px;
-    font-weight: 700;
-    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    margin-bottom: 6px;
+    font-weight: 800;
   }
 
-  .qb-option-card {
-    padding: 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    background: #ffffff;
+  .questions-preview-cell {
+    min-width: 380px;
+    max-width: 560px;
   }
 
-  .qb-option-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+  .question-preview {
+    max-width: 480px;
+    color: #0f172a;
+    font-weight: 600;
+    line-height: 1.6;
   }
 
-  .qb-cheatsheet {
-    display: grid;
-    gap: 10px;
-  }
-
-  .qb-cheatsheet code {
-    padding: 2px 6px;
-    border-radius: 6px;
-    background: #eff6ff;
-    color: #1d4ed8;
-    font-size: 12px;
-  }
-
-  .qb-saved-stem {
-    min-width: 320px;
-    max-width: 520px;
-  }
-
-  .qb-saved-stem .math-content {
-    max-height: 84px;
+  .questions-preview-cell .math-content {
+    max-height: 92px;
     overflow: hidden;
   }
 
+  .question-meta {
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .question-small-stack {
+    display: grid;
+    gap: 6px;
+  }
+
+  .badge-soft {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+    width: fit-content;
+  }
+
+  .badge-easy {
+    background: #ecfdf3;
+    color: #166534;
+  }
+
+  .badge-medium {
+    background: #fff7ed;
+    color: #c2410c;
+  }
+
+  .badge-hard {
+    background: #fef2f2;
+    color: #991b1b;
+  }
+
+  .badge-subject {
+    background: #f5f3ff;
+    color: #6d28d9;
+  }
+
+  .badge-chapter {
+    background: #f8fafc;
+    color: #334155;
+  }
+
+  .badge-creator {
+    background: #eef2ff;
+    color: #4338ca;
+  }
+
+  .text-muted-small {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .btn-sm {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .btn-outline-primary {
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+
+  .btn-outline-danger {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+
+  .btn-outline-secondary {
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #334155;
+  }
+
+  .row-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    min-width: 180px;
+  }
+
+  .questions-summary-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .questions-summary-left,
+  .questions-summary-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .inline-note {
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 36px 18px;
+  }
+
+  .empty-state h3 {
+    margin-bottom: 8px;
+  }
+
   @media (max-width: 1200px) {
-    .qb-grid {
-      grid-template-columns: 1fr;
+    .questions-grid-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .questions-filter-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 768px) {
-    .qb-row-2,
-    .qb-option-grid {
+    .questions-grid-stats,
+    .questions-filter-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .questions-hero {
+      padding: 18px;
+    }
+
+    .questions-hero h1 {
+      font-size: 1.6rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .questions-grid-stats {
       grid-template-columns: 1fr;
     }
   }
 </style>
 
-<section class="dashboard-wrap qb-page">
-  <div class="topbar">
+<section class="questions-page">
+  {% set selected_subject_id = filters.subject_id|string if filters.subject_id else '' %}
+  {% set selected_chapter_id = filters.chapter_id|string if filters.chapter_id else '' %}
+  {% set selected_difficulty = filters.difficulty|string if filters.difficulty else '' %}
+  {% set selected_creator_id = filters.created_by|string if filters.created_by is defined and filters.created_by else '' %}
+
+  <div class="questions-hero">
     <div>
-      <div class="topbar-chip">Admin Module</div>
       <h1>Question Bank</h1>
-      <p>Add, organize, and manage NEET questions by subject, chapter, difficulty, formulas, and explanations.</p>
+      <p>
+        Manage all questions with faster chapter discovery, subject-based filtering, creator visibility,
+        and direct edit or delete actions for teacher and sub-admin workflows.
+      </p>
+
+      <div class="questions-hero-tags">
+        <span class="questions-hero-tag">Subject-first browsing</span>
+        <span class="questions-hero-tag">Chapter dependent dropdown</span>
+        <span class="questions-hero-tag">Creator tracking</span>
+        <span class="questions-hero-tag">Fast edit & delete</span>
+      </div>
+    </div>
+
+    <div class="questions-hero-side">
+      <div class="questions-hero-side-label">Visible questions</div>
+      <div class="questions-hero-side-value">{{ questions|length if questions else 0 }}</div>
+      <div class="questions-hero-side-sub">
+        Use search, subject, chapter, difficulty, and creator filters together to find questions faster.
+      </div>
     </div>
   </div>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="qb-alerts">
-        {% for category, message in messages %}
-          <div class="qb-alert {% if category in ['success'] %}success{% elif category in ['danger', 'error'] %}danger{% else %}info{% endif %}">
-            {{ message }}
-          </div>
-        {% endfor %}
+  <div class="questions-grid-stats">
+    <div class="questions-stat-card">
+      <div class="questions-stat-label">Total Questions</div>
+      <div class="questions-stat-value">{{ stats.total }}</div>
+    </div>
+    <div class="questions-stat-card">
+      <div class="questions-stat-label">Easy</div>
+      <div class="questions-stat-value">{{ stats.easy }}</div>
+    </div>
+    <div class="questions-stat-card">
+      <div class="questions-stat-label">Medium</div>
+      <div class="questions-stat-value">{{ stats.medium }}</div>
+    </div>
+    <div class="questions-stat-card">
+      <div class="questions-stat-label">Hard</div>
+      <div class="questions-stat-value">{{ stats.hard }}</div>
+    </div>
+  </div>
+
+  <div class="questions-filter-bar">
+    <form method="get" class="questions-filter-grid" id="questionsFilterForm">
+      <div class="questions-field">
+        <label for="q">Search question</label>
+        <input
+          type="text"
+          id="q"
+          name="q"
+          placeholder="Search by question text, question ID, chapter, or creator..."
+          value="{{ filters.q }}"
+        >
       </div>
-    {% endif %}
-  {% endwith %}
 
-  <section class="qb-grid">
-    <div class="panel-card qb-form">
-      <h3>Add Question</h3>
-      <p class="panel-text" style="margin-bottom:16px;">
-        Create a new NEET question with subject, chapter, options, answer key, explanation, and formula-ready scientific notation.
-      </p>
+      <div class="questions-field">
+        <label for="subject_id">Subject</label>
+        <select name="subject_id" id="subject_id">
+          <option value="">All subjects</option>
+          {% for subject in subjects %}
+          <option value="{{ subject.id }}" {% if selected_subject_id == subject.id|string %}selected{% endif %}>
+            {{ subject.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
 
-      <form method="POST" action="{{ url_for('admin.questions_page') }}" enctype="multipart/form-data" class="qb-form-grid">
-        <div class="qb-row-2">
-          <div class="qb-field">
-            <label for="subject_id">Subject</label>
-            <select name="subject_id" id="subject_id" required class="qb-select">
-              <option value="">Select subject</option>
-              {% for subject in subjects %}
-                <option value="{{ subject.id }}">{{ subject.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
+      <div class="questions-field">
+        <label for="chapter_id">Chapter</label>
+        <select name="chapter_id" id="chapter_id">
+          <option value="">All chapters</option>
+          {% for chapter in chapters %}
+          <option
+            value="{{ chapter.id }}"
+            data-subject-id="{{ chapter.subject_id }}"
+            {% if selected_chapter_id == chapter.id|string %}selected{% endif %}
+          >
+            {{ chapter.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
 
-          <div class="qb-field">
-            <label for="chapter_id">Chapter</label>
-            <select name="chapter_id" id="chapter_id" required class="qb-select">
-              <option value="">Select chapter</option>
-              {% for chapter in chapters %}
-                <option value="{{ chapter.id }}">
-                  {{ chapter.name }}{% if chapter.subject %} - {{ chapter.subject.name }}{% endif %}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
+      <div class="questions-field">
+        <label for="difficulty">Difficulty</label>
+        <select name="difficulty" id="difficulty">
+          <option value="">All difficulty</option>
+          <option value="easy" {% if selected_difficulty == 'easy' %}selected{% endif %}>Easy</option>
+          <option value="medium" {% if selected_difficulty == 'medium' %}selected{% endif %}>Medium</option>
+          <option value="hard" {% if selected_difficulty == 'hard' %}selected{% endif %}>Hard</option>
+        </select>
+      </div>
 
-        <div class="qb-field">
-          <label>Question Text</label>
-          <div class="qb-toolbar">
-            <button type="button" onclick="insertAtCursor('stem', '\\\\(x^2\\\\)')">Inline Formula</button>
-            <button type="button" onclick="insertAtCursor('stem', '\\\\[ \\\\frac{a}{b} \\\\]')">Block Formula</button>
-            <button type="button" onclick="insertAtCursor('stem', '\\\\mathrm{m/s^2}')">Unit</button>
-            <button type="button" onclick="insertAtCursor('stem', '\\\\times 10^{-3}')">Scientific Value</button>
-            <button type="button" onclick="wrapTextarea('stem', '<b>', '</b>')">Bold</button>
-            <button type="button" onclick="wrapTextarea('stem', '<i>', '</i>')">Italic</button>
-          </div>
-          <textarea
-            name="stem"
-            id="stem"
-            rows="5"
-            required
-            class="qb-textarea"
-            placeholder="Example: A body moves with acceleration \(a = \frac{F}{m}\). Find \(a\) when \(F=50\,\mathrm{N}\) and \(m=10\,\mathrm{kg}\)."
-            data-math-source
-            data-math-preview="#stem-preview"
-          ></textarea>
-          <div class="qb-note">
-            Use <code>\(...\)</code> for inline math, <code>\[...\]</code> for block math, <code>\mathrm{m/s^2}</code> for units, <code>H_2SO_4</code> for subscripts, and <code>10^{-3}</code> for powers. [web:1351][web:1346]
-          </div>
-          <div class="math-preview-box math-content qb-math-preview" id="stem-preview" data-render-math></div>
-        </div>
+      <div class="questions-field">
+        <label for="created_by">Created by</label>
+        <select name="created_by" id="created_by">
+          <option value="">All creators</option>
+          {% if creators %}
+            {% for creator in creators %}
+              <option value="{{ creator.id }}" {% if selected_creator_id == creator.id|string %}selected{% endif %}>
+                {{ creator.full_name or creator.username or ('User #' ~ creator.id) }}
+              </option>
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
 
-        <div class="qb-field">
-          <label for="question_image">Question Image / Diagram</label>
-          <input type="file" name="question_image" id="question_image" accept="image/*" class="qb-file">
-          <div class="qb-note">
-            Use this for diagrams, graphs, reaction schemes, or handwritten derivations.
-          </div>
-        </div>
+      <div class="questions-filter-actions">
+        <button class="btn btn-primary">Apply</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin.questions') }}">Reset</a>
+      </div>
+    </form>
+  </div>
 
-        <div class="qb-option-grid">
-          <div class="qb-option-card">
-            <div class="qb-field">
-              <label for="option_a">Option A</label>
-              <input
-                type="text"
-                name="option_a"
-                id="option_a"
-                required
-                class="qb-input"
-                data-math-source
-                data-math-preview="#option-a-preview"
-                placeholder="Example: \(5\,\mathrm{m/s^2}\)"
-              >
-              <div class="math-preview-box math-content" id="option-a-preview" data-render-math></div>
-            </div>
-          </div>
-
-          <div class="qb-option-card">
-            <div class="qb-field">
-              <label for="option_b">Option B</label>
-              <input
-                type="text"
-                name="option_b"
-                id="option_b"
-                required
-                class="qb-input"
-                data-math-source
-                data-math-preview="#option-b-preview"
-                placeholder="Example: \(10\,\mathrm{m/s^2}\)"
-              >
-              <div class="math-preview-box math-content" id="option-b-preview" data-render-math></div>
-            </div>
-          </div>
-
-          <div class="qb-option-card">
-            <div class="qb-field">
-              <label for="option_c">Option C</label>
-              <input
-                type="text"
-                name="option_c"
-                id="option_c"
-                required
-                class="qb-input"
-                data-math-source
-                data-math-preview="#option-c-preview"
-                placeholder="Example: \(2\,\mathrm{m/s^2}\)"
-              >
-              <div class="math-preview-box math-content" id="option-c-preview" data-render-math></div>
-            </div>
-          </div>
-
-          <div class="qb-option-card">
-            <div class="qb-field">
-              <label for="option_d">Option D</label>
-              <input
-                type="text"
-                name="option_d"
-                id="option_d"
-                required
-                class="qb-input"
-                data-math-source
-                data-math-preview="#option-d-preview"
-                placeholder="Example: \(50\,\mathrm{m/s^2}\)"
-              >
-              <div class="math-preview-box math-content" id="option-d-preview" data-render-math></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="qb-row-2">
-          <div class="qb-field">
-            <label for="correct_option">Correct Option</label>
-            <select name="correct_option" id="correct_option" required class="qb-select">
-              <option value="">Select correct option</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-              <option value="D">D</option>
-            </select>
-          </div>
-
-          <div class="qb-field">
-            <label for="difficulty_level">Difficulty Level</label>
-            <select name="difficulty_level" id="difficulty_level" class="qb-select">
-              <option value="easy">Easy</option>
-              <option value="medium" selected>Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="qb-field">
-          <label>Explanation</label>
-          <div class="qb-toolbar">
-            <button type="button" onclick="insertAtCursor('explanation', '\\\\(F = ma\\\\)')">Inline Formula</button>
-            <button type="button" onclick="insertAtCursor('explanation', '\\\\[ a = \\\\frac{F}{m} \\\\]')">Block Formula</button>
-            <button type="button" onclick="insertAtCursor('explanation', '\\\\therefore')">Therefore</button>
-            <button type="button" onclick="wrapTextarea('explanation', '<b>', '</b>')">Bold</button>
-            <button type="button" onclick="wrapTextarea('explanation', '<i>', '</i>')">Italic</button>
-          </div>
-          <textarea
-            name="explanation"
-            id="explanation"
-            rows="5"
-            class="qb-textarea"
-            placeholder="Example: Using \(F = ma\), we get \(a = \frac{50}{10} = 5\,\mathrm{m/s^2}\)."
-            data-math-source
-            data-math-preview="#explanation-preview"
-          ></textarea>
-          <div class="qb-note">
-            Explanations can include derivations, reaction equations, fractions, powers, roots, and units.
-          </div>
-          <div class="math-preview-box math-content qb-math-preview" id="explanation-preview" data-render-math></div>
-        </div>
-
-        <div class="qb-field">
-          <label for="explanation_image">Explanation Image</label>
-          <input type="file" name="explanation_image" id="explanation_image" accept="image/*" class="qb-file">
-          <div class="qb-note">
-            Upload worked solutions, diagrams, organic structures, graphs, or handwritten notes if needed.
-          </div>
-        </div>
-
-        <div>
-          <button type="submit" class="qb-submit">Save Question</button>
-        </div>
-      </form>
+  <div class="questions-card">
+    <div class="questions-card-head">
+      <div class="questions-card-head-left">
+        <h2>Questions</h2>
+        <p class="questions-subtitle">
+          Search faster, review subject-specific content, track creator ownership, and manage question quality from one place.
+        </p>
+      </div>
+      <a class="btn btn-primary" href="{{ url_for('admin.create_question') }}">
+        Add Question
+      </a>
     </div>
 
-    <div class="panel-card qb-sidecard">
-      <h3>Question Summary</h3>
-      <p class="panel-text" style="margin-bottom:16px;">
-        Track your current question bank and use math-ready formatting while authoring.
-      </p>
+    <div class="questions-card-body">
+      <div class="questions-summary-bar">
+        <div class="questions-summary-left">
+          <span class="badge-soft">{{ questions|length if questions else 0 }} shown</span>
+          {% if selected_subject_id %}
+            {% for subject in subjects %}
+              {% if selected_subject_id == subject.id|string %}
+                <span class="badge-soft badge-subject">Subject: {{ subject.name }}</span>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if selected_difficulty %}
+            <span class="badge-soft">Difficulty: {{ selected_difficulty|title }}</span>
+          {% endif %}
+        </div>
 
-      <div class="qb-summary-chips">
-        <span class="module-chip">Total: {{ questions|length }}</span>
-        <span class="module-chip">Subjects: {{ subjects|length }}</span>
-        <span class="module-chip">Chapters: {{ chapters|length }}</span>
+        <div class="questions-summary-right">
+          <span class="inline-note">Tip: search by ID like “123”, text phrase, creator name, or chapter name.</span>
+        </div>
       </div>
 
-      <div class="qb-cheatsheet">
-        <div class="panel-text"><strong>Formula cheatsheet</strong></div>
-        <div class="panel-text">Inline formula: <code>\(x^2 + y^2\)</code></div>
-        <div class="panel-text">Fraction: <code>\(\frac{a}{b}\)</code></div>
-        <div class="panel-text">Scientific notation: <code>\(6.02 \times 10^{23}\)</code></div>
-        <div class="panel-text">Units: <code>\(9.8\,\mathrm{m/s^2}\)</code></div>
-        <div class="panel-text">Chemistry: <code>\(\mathrm{H_2SO_4}\)</code></div>
-        <div class="panel-text">Block equation: <code>\[ E = mc^2 \]</code></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="panel-card" style="margin-top:20px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
-      <div>
-        <h3 style="margin-bottom:6px;">Saved Questions</h3>
-        <p class="panel-text">Recently added questions are listed below.</p>
-      </div>
-    </div>
-
-    {% if questions %}
-      <div class="qb-table-wrap">
-        <table class="qb-table">
+      {% if questions %}
+      <div class="questions-table-wrap">
+        <table class="questions-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th style="width: 34%">Question</th>
               <th>Subject</th>
               <th>Chapter</th>
-              <th>Question</th>
+              <th>Created By</th>
               <th>Correct</th>
               <th>Difficulty</th>
+              <th class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for question in questions %}
-              <tr>
-                <td>{{ question.id }}</td>
-                <td>{{ question.subject.name if question.subject else "-" }}</td>
-                <td>{{ question.chapter.name if question.chapter else "-" }}</td>
-                <td class="qb-saved-stem">
-                  <div class="math-content" data-render-math>{{ question.stem|safe }}</div>
-                </td>
-                <td><span class="module-chip">{{ question.correct_option }}</span></td>
-                <td>{{ question.difficulty_level|capitalize }}</td>
-              </tr>
+            <tr>
+              <td class="questions-preview-cell">
+                <div class="question-preview math-content" data-render-math>{{ question.stem|safe }}</div>
+                <div class="question-meta">
+                  QID #{{ question.id }}
+                  {% if question.created_at %}
+                    • Created {{ question.created_at.strftime('%d %b %Y') }}
+                  {% endif %}
+                  {% if question.updated_at %}
+                    • Updated {{ question.updated_at.strftime('%d %b %Y') }}
+                  {% endif %}
+                </div>
+              </td>
+
+              <td>
+                <div class="question-small-stack">
+                  <span class="badge-soft badge-subject">{{ question.subject.name if question.subject else '-' }}</span>
+                </div>
+              </td>
+
+              <td>
+                <div class="question-small-stack">
+                  <span class="badge-soft badge-chapter">{{ question.chapter.name if question.chapter else '-' }}</span>
+                </div>
+              </td>
+
+              <td>
+                <div class="question-small-stack">
+                  <span class="badge-soft badge-creator">
+                    {% if question.creator %}
+                      {{ question.creator.full_name or question.creator.username or ('User #' ~ question.creator.id) }}
+                    {% elif question.created_by_user %}
+                      {{ question.created_by_user.full_name or question.created_by_user.username or ('User #' ~ question.created_by_user.id) }}
+                    {% elif question.created_by %}
+                      User #{{ question.created_by }}
+                    {% else %}
+                      Unknown
+                    {% endif %}
+                  </span>
+                  <span class="text-muted-small">
+                    {% if question.creator and question.creator.username %}
+                      @{{ question.creator.username }}
+                    {% elif question.created_by_user and question.created_by_user.username %}
+                      @{{ question.created_by_user.username }}
+                    {% else %}
+                      Creator trace unavailable
+                    {% endif %}
+                  </span>
+                </div>
+              </td>
+
+              <td>
+                <span class="badge-soft">Option {{ question.correct_option }}</span>
+              </td>
+
+              <td>
+                <span class="badge-soft badge-{{ question.difficulty_level }}">
+                  {{ question.difficulty_level|title }}
+                </span>
+              </td>
+
+              <td class="text-end">
+                <div class="row-actions">
+                  <a href="{{ url_for('admin.edit_question', question_id=question.id) }}" class="btn btn-sm btn-outline-primary">
+                    Edit
+                  </a>
+                  <form
+                    method="post"
+                    action="{{ url_for('admin.delete_question', question_id=question.id) }}"
+                    class="d-inline"
+                    onsubmit="return confirm('Delete this question?');"
+                    style="display:inline-block;"
+                  >
+                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-    {% else %}
-      <div class="panel-text" style="margin-top:8px;">
-        No questions added yet. Use the form above to create your first question.
+      {% else %}
+      <div class="empty-state">
+        <div class="mb-3 fs-1">📚</div>
+        <h3 class="h5">No questions found</h3>
+        <p class="mb-3">Try changing subject, chapter, difficulty, creator, or search text.</p>
+        <a class="btn btn-primary" href="{{ url_for('admin.create_question') }}">Create Question</a>
       </div>
-    {% endif %}
-  </section>
+      {% endif %}
+    </div>
+  </div>
 </section>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  function wrapTextarea(id, startTag, endTag) {
-    const textarea = document.getElementById(id);
-    if (!textarea) return;
+  function filterChapterDropdown() {
+    const subjectSelect = document.getElementById('subject_id');
+    const chapterSelect = document.getElementById('chapter_id');
+    if (!subjectSelect || !chapterSelect) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const selected = text.substring(start, end);
-    const replacement = startTag + selected + endTag;
+    const selectedSubjectId = subjectSelect.value;
+    const options = chapterSelect.querySelectorAll('option[data-subject-id]');
+    let visibleCount = 0;
 
-    textarea.value = text.substring(0, start) + replacement + text.substring(end);
-    textarea.focus();
-    textarea.selectionStart = start + startTag.length;
-    textarea.selectionEnd = start + startTag.length + selected.length;
+    options.forEach((option) => {
+      const match = !selectedSubjectId || option.dataset.subjectId === selectedSubjectId;
+      option.hidden = !match;
+      option.disabled = !match;
+      if (match) visibleCount += 1;
+    });
 
-    if (window.renderMathEverywhere) {
-      window.renderMathEverywhere();
+    const selectedOption = chapterSelect.options[chapterSelect.selectedIndex];
+    if (selectedOption && (selectedOption.hidden || selectedOption.disabled)) {
+      chapterSelect.value = '';
+    }
+
+    const defaultOption = chapterSelect.querySelector('option[value=""]');
+    if (defaultOption) {
+      defaultOption.textContent = selectedSubjectId
+        ? (visibleCount ? 'All chapters in selected subject' : 'No chapters in selected subject')
+        : 'All chapters';
     }
   }
 
-  function insertAtCursor(id, value) {
-    const field = document.getElementById(id);
-    if (!field) return;
-
-    const start = field.selectionStart || 0;
-    const end = field.selectionEnd || 0;
-    const original = field.value || '';
-
-    field.value = original.slice(0, start) + value + original.slice(end);
-    field.focus();
-    field.selectionStart = field.selectionEnd = start + value.length;
-    field.dispatchEvent(new Event('input', { bubbles: true }));
-  }
+  document.addEventListener('DOMContentLoaded', function () {
+    const subjectSelect = document.getElementById('subject_id');
+    if (subjectSelect) {
+      subjectSelect.addEventListener('change', filterChapterDropdown);
+    }
+    filterChapterDropdown();
+  });
 </script>
 {% endblock %}
