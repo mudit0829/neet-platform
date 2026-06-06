@@ -1042,6 +1042,44 @@ def questions_page():
         creators=creators,
     )
 
+@admin_bp.route("/questions/create", methods=["GET", "POST"], endpoint="create_question")
+@login_required
+def create_question():
+
+    subjects = Subject.query.order_by(Subject.name.asc()).all()
+    chapters = Chapter.query.order_by(Chapter.name.asc()).all()
+
+    if request.method == "POST":
+
+        question = Question(
+            subject_id=int(request.form["subject_id"]),
+            chapter_id=int(request.form["chapter_id"]),
+            stem=request.form["stem"],
+            option_a=request.form["option_a"],
+            option_b=request.form["option_b"],
+            option_c=request.form["option_c"],
+            option_d=request.form["option_d"],
+            correct_option=request.form["correct_option"],
+            difficulty_level=request.form["difficulty_level"],
+            explanation=request.form.get("explanation", "")
+        )
+
+        db.session.add(question)
+        db.session.commit()
+
+        flash("Question created successfully.", "success")
+
+        return redirect(url_for("admin.questions"))
+
+    return render_template(
+        "question_form.html",
+        page_title="Add Question",
+        submit_label="Create Question",
+        subjects=subjects,
+        chapters=chapters,
+        question=None
+    )
+
 @admin_bp.route("/create-question", endpoint="create_question")
 @login_required
 def create_question():
