@@ -59,6 +59,14 @@
     border: 1px solid #d1d5db;
     background: #ffffff;
     color: #111827;
+    outline: none;
+  }
+
+  .qf-input:focus,
+  .qf-select:focus,
+  .qf-textarea:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
   }
 
   .qf-textarea {
@@ -137,6 +145,7 @@
     background: #ffffff;
     color: #0f172a;
     font-weight: 700;
+    text-decoration: none;
   }
 
   .qf-side-list {
@@ -144,6 +153,17 @@
     padding-left: 18px;
     color: #475569;
     line-height: 1.7;
+  }
+
+  .qf-helper-box {
+    border: 1px solid #dbeafe;
+    background: #f8fbff;
+    color: #334155;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 6px;
   }
 
   @media (max-width: 1200px) {
@@ -197,6 +217,9 @@
                 </option>
                 {% endfor %}
               </select>
+              <div class="qf-helper-box" id="chapterHelpText">
+                First select a subject to narrow the chapter list.
+              </div>
             </div>
           </div>
 
@@ -218,7 +241,7 @@
               data-math-preview="#qf-stem-preview"
             >{{ question.stem if question else '' }}</textarea>
             <div class="qf-note">
-              Example: <code>\(a=\frac{F}{m}\)</code>, <code>\(6.02 \times 10^{23}\)</code>, <code>\(\mathrm{NaCl}\)</code>. [web:1351][web:1346]
+              Example: <code>\(a=\frac{F}{m}\)</code>, <code>\(6.02 \times 10^{23}\)</code>, <code>\(\mathrm{NaCl}\)</code>.
             </div>
             <div id="qf-stem-preview" class="math-preview-box math-content" data-render-math></div>
           </div>
@@ -311,9 +334,9 @@
       <div class="qf-body">
         <h3 style="margin:0 0 14px;">Authoring tips</h3>
         <ul class="qf-side-list">
+          <li>Choose subject first, then chapter.</li>
           <li>Keep one concept per question.</li>
           <li>Use LaTeX syntax for formulas and scientific values.</li>
-          <li>Use chapters consistently for filtering later.</li>
           <li>Write clear explanations for review mode.</li>
           <li>Balance easy, medium, and hard levels.</li>
         </ul>
@@ -330,21 +353,46 @@
 {% block scripts %}
 <script>
   function filterChapters() {
-    const subjectId = document.getElementById("subject_id").value;
+    const subjectSelect = document.getElementById("subject_id");
     const chapterSelect = document.getElementById("chapter_id");
+    const chapterHelpText = document.getElementById("chapterHelpText");
+    if (!subjectSelect || !chapterSelect) return;
+
+    const subjectId = subjectSelect.value;
     const options = chapterSelect.querySelectorAll("option[data-subject-id]");
+    let visibleCount = 0;
 
     options.forEach(option => {
-      if (!subjectId || option.dataset.subjectId === subjectId) {
-        option.hidden = false;
-      } else {
-        option.hidden = true;
-      }
+      const visible = !subjectId || option.dataset.subjectId === subjectId;
+      option.hidden = !visible;
+      option.disabled = !visible;
+      if (visible) visibleCount += 1;
     });
 
     const selectedOption = chapterSelect.options[chapterSelect.selectedIndex];
-    if (selectedOption && selectedOption.hidden) {
+    if (selectedOption && (selectedOption.hidden || selectedOption.disabled)) {
       chapterSelect.value = "";
+    }
+
+    const placeholder = chapterSelect.querySelector('option[value=""]');
+    if (placeholder) {
+      if (!subjectId) {
+        placeholder.textContent = 'Select chapter';
+      } else if (visibleCount === 0) {
+        placeholder.textContent = 'No chapters available for selected subject';
+      } else {
+        placeholder.textContent = 'Select chapter from chosen subject';
+      }
+    }
+
+    if (chapterHelpText) {
+      if (!subjectId) {
+        chapterHelpText.textContent = 'First select a subject to narrow the chapter list.';
+      } else if (visibleCount === 0) {
+        chapterHelpText.textContent = 'No chapters are mapped to this subject yet.';
+      } else {
+        chapterHelpText.textContent = visibleCount + ' chapter(s) available for the selected subject.';
+      }
     }
   }
 
@@ -362,7 +410,12 @@
     field.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
-  document.getElementById("subject_id").addEventListener("change", filterChapters);
-  window.addEventListener("load", filterChapters);
+  document.addEventListener("DOMContentLoaded", function () {
+    const subjectField = document.getElementById("subject_id");
+    if (subjectField) {
+      subjectField.addEventListener("change", filterChapters);
+    }
+    filterChapters();
+  });
 </script>
 {% endblock %}
