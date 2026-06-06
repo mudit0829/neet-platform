@@ -977,70 +977,70 @@ def questions_page():
         return redirect(url_for("admin.questions_page"))
 
     subjects = Subject.query.order_by(Subject.name.asc()).all()
-chapters = Chapter.query.order_by(Chapter.name.asc()).all()
+    chapters = Chapter.query.order_by(Chapter.name.asc()).all()
 
-# Filters expected by template
-filters = {
-    "q": request.args.get("q", ""),
-    "subject_id": request.args.get("subject_id", type=int),
-    "chapter_id": request.args.get("chapter_id", type=int),
-    "difficulty": request.args.get("difficulty", ""),
-    "created_by": request.args.get("created_by", type=int),
-}
+    # Filters expected by template
+    filters = {
+        "q": request.args.get("q", ""),
+        "subject_id": request.args.get("subject_id", type=int),
+        "chapter_id": request.args.get("chapter_id", type=int),
+        "difficulty": request.args.get("difficulty", ""),
+        "created_by": request.args.get("created_by", type=int),
+    }
 
-questions_query = Question.query
+    questions_query = Question.query
 
-# Subject filter
-if filters["subject_id"]:
-    questions_query = questions_query.filter(
-        Question.subject_id == filters["subject_id"]
+     # Subject filter
+    if filters["subject_id"]:
+        questions_query = questions_query.filter(
+            Question.subject_id == filters["subject_id"]
+        )
+
+    # Chapter filter
+    if filters["chapter_id"]:
+        questions_query = questions_query.filter(
+            Question.chapter_id == filters["chapter_id"]
+        )
+
+    # Difficulty filter
+    if filters["difficulty"]:
+        questions_query = questions_query.filter(
+            Question.difficulty_level == filters["difficulty"]
+        )
+
+    # Search filter
+    if filters["q"]:
+        questions_query = questions_query.filter(
+            Question.stem.ilike(f"%{filters['q']}%")
+        )
+
+    questions = questions_query.order_by(
+        Question.id.desc()
+    ).all()
+
+    # Stats expected by template
+    stats = {
+        "total": len(questions),
+        "easy": len([q for q in questions if (q.difficulty_level or "").lower() == "easy"]),
+        "medium": len([q for q in questions if (q.difficulty_level or "").lower() == "medium"]),
+        "hard": len([q for q in questions if (q.difficulty_level or "").lower() == "hard"]),
+    }
+
+    # Creator dropdown expected by template
+    try:
+        creators = User.query.order_by(User.full_name.asc()).all()
+    except Exception:
+        creators = []
+
+    return render_template(
+        "admin_questions.html",
+        subjects=subjects,
+        chapters=chapters,
+        questions=questions,
+        filters=filters,
+        stats=stats,
+        creators=creators,
     )
-
-# Chapter filter
-if filters["chapter_id"]:
-    questions_query = questions_query.filter(
-        Question.chapter_id == filters["chapter_id"]
-    )
-
-# Difficulty filter
-if filters["difficulty"]:
-    questions_query = questions_query.filter(
-        Question.difficulty_level == filters["difficulty"]
-    )
-
-# Search filter
-if filters["q"]:
-    questions_query = questions_query.filter(
-        Question.stem.ilike(f"%{filters['q']}%")
-    )
-
-questions = questions_query.order_by(
-    Question.id.desc()
-).all()
-
-# Stats expected by template
-stats = {
-    "total": len(questions),
-    "easy": len([q for q in questions if (q.difficulty_level or "").lower() == "easy"]),
-    "medium": len([q for q in questions if (q.difficulty_level or "").lower() == "medium"]),
-    "hard": len([q for q in questions if (q.difficulty_level or "").lower() == "hard"]),
-}
-
-# Creator dropdown expected by template
-try:
-    creators = User.query.order_by(User.full_name.asc()).all()
-except Exception:
-    creators = []
-
-return render_template(
-    "admin_questions.html",
-    subjects=subjects,
-    chapters=chapters,
-    questions=questions,
-    filters=filters,
-    stats=stats,
-    creators=creators,
-)
 
 
 @admin_bp.route("/tests", methods=["GET", "POST"])
