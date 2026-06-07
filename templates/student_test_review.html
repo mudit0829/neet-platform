@@ -3,9 +3,25 @@
 
 {% block content %}
 <style>
+  .dashboard-wrap {
+    width: 100%;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+
   .review-wrap {
     display: grid;
     gap: 20px;
+  }
+
+  .review-hero,
+  .summary-card,
+  .panel-card,
+  .review-item,
+  .chart-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
   }
 
   .review-hero {
@@ -14,6 +30,18 @@
     border-radius: 28px;
     padding: 28px;
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+  }
+
+  .topbar-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.14);
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
   }
 
   .hero-title {
@@ -90,11 +118,8 @@
   }
 
   .summary-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
     border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
   }
 
   .summary-value {
@@ -111,6 +136,28 @@
     line-height: 1.6;
   }
 
+  .chart-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .chart-card {
+    border-radius: 22px;
+    padding: 22px;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 300px;
+  }
+
+  .chart-wrap.compact {
+    height: 260px;
+  }
+
   .review-layout {
     display: grid;
     grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.15fr);
@@ -119,11 +166,8 @@
   }
 
   .panel-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
     border-radius: 22px;
     padding: 22px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
   }
 
   .panel-title {
@@ -220,7 +264,6 @@
     margin-top: 18px;
     padding: 18px;
     border-radius: 18px;
-    border: 1px solid #e5e7eb;
     background: #ffffff;
   }
 
@@ -341,9 +384,24 @@
     font-size: 14px;
   }
 
+  .empty-chart-state {
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    color: #64748b;
+    font-size: 14px;
+    padding: 20px;
+  }
+
   @media (max-width: 1100px) {
     .summary-grid,
-    .review-layout {
+    .review-layout,
+    .chart-grid {
       grid-template-columns: 1fr;
     }
   }
@@ -356,7 +414,8 @@
     .review-hero,
     .summary-card,
     .panel-card,
-    .review-item {
+    .review-item,
+    .chart-card {
       padding: 18px;
       border-radius: 18px;
     }
@@ -367,6 +426,23 @@
 
     .summary-value {
       font-size: 28px;
+    }
+
+    .action-row,
+    .meta-row,
+    .review-head {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .btn-main,
+    .btn-light {
+      width: 100%;
+    }
+
+    .chart-wrap,
+    .chart-wrap.compact {
+      height: 240px;
     }
   }
 </style>
@@ -390,7 +466,7 @@
 <section class="dashboard-wrap">
   <div class="review-wrap">
     <div class="review-hero">
-      <div class="topbar-chip" style="background:rgba(255,255,255,0.14); color:#ffffff; border:none;">Question Review</div>
+      <div class="topbar-chip">Question Review</div>
       <h1 class="hero-title">{{ test.title }}</h1>
       <p class="hero-subtitle">
         Review each question carefully, compare your answer with the correct one, and use the explanation and timing data to spot avoidable mistakes.
@@ -429,10 +505,42 @@
       </div>
     </div>
 
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h2 class="panel-title">Time Spent by Subject</h2>
+        <p class="panel-subtitle">Compare how much time you spent across subjects in this attempt.</p>
+
+        {% if subject_stats %}
+          <div class="chart-wrap">
+            <canvas id="subjectTimingChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            No subject timing data available for this attempt.
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="chart-card">
+        <h2 class="panel-title">Accuracy by Subject</h2>
+        <p class="panel-subtitle">See which subject gave you the best and weakest response accuracy.</p>
+
+        {% if subject_stats %}
+          <div class="chart-wrap compact">
+            <canvas id="subjectAccuracyChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            No subject accuracy data available for this attempt.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
     <div class="review-layout">
       <div class="panel-card">
         <h2 class="panel-title">Review Navigator</h2>
-        <p class="panel-subtitle">Jump by subject and then inspect each question in detail below. Review works best when students can quickly spot patterns in mistakes and revisit specific items. [web:1056][web:1060]</p>
+        <p class="panel-subtitle">Jump by subject and then inspect each question in detail below.</p>
 
         <div class="legend">
           <span class="legend-item"><span class="legend-dot" style="background:#dcfce7;"></span> Correct</span>
@@ -462,7 +570,7 @@
 
       <div class="panel-card">
         <h2 class="panel-title">Question Breakdown</h2>
-        <p class="panel-subtitle">Focus first on wrong and skipped questions. Post-exam feedback is most useful when learners get specific explanations and actionable follow-up instead of only a score. [web:1056][web:1014]</p>
+        <p class="panel-subtitle">Focus first on wrong and skipped questions, then use the explanation and time spent to improve your next attempt.</p>
 
         {% for row in detailed_rows %}
           <div class="review-item {{ row.status }}" id="q{{ row.index }}">
@@ -535,4 +643,142 @@
     </div>
   </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+<script>
+  (() => {
+    const palette = {
+      blue: '#2563eb',
+      teal: '#0f766e',
+      green: '#16a34a',
+      amber: '#f59e0b',
+      red: '#ef4444',
+      purple: '#7c3aed',
+      cyan: '#0891b2',
+      slate: '#64748b',
+      grid: 'rgba(148, 163, 184, 0.18)',
+      text: '#334155'
+    };
+
+    Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    Chart.defaults.color = palette.text;
+    Chart.defaults.borderColor = palette.grid;
+
+    function toSeconds(value) {
+      if (typeof value === 'number') return value;
+      if (value === null || value === undefined) return 0;
+      const str = String(value).trim().toLowerCase();
+      if (!str) return 0;
+
+      if (/^\d+(\.\d+)?$/.test(str)) return Number(str);
+
+      let total = 0;
+      const hourMatch = str.match(/(\d+)\s*h/);
+      const minMatch = str.match(/(\d+)\s*m/);
+      const secMatch = str.match(/(\d+)\s*s/);
+
+      if (hourMatch) total += Number(hourMatch[1]) * 3600;
+      if (minMatch) total += Number(minMatch[1]) * 60;
+      if (secMatch) total += Number(secMatch[1]);
+
+      return total;
+    }
+
+    const subjectStats = [
+      {% for subject_name, stat in subject_stats.items() %}
+        {
+          subject: {{ subject_name|tojson }},
+          accuracy: {{ (stat.accuracy if stat.accuracy is not none else 0)|tojson }},
+          timeHuman: {{ (stat.time_spent_human if stat.time_spent_human is defined else '0s')|tojson }},
+          avgTimePerQuestion: {{ (stat.avg_time_per_question if stat.avg_time_per_question is not none else 0)|tojson }}
+        }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const subjectLabels = subjectStats.map(item => item.subject);
+    const subjectAccuracy = subjectStats.map(item => Number(item.accuracy || 0));
+    const subjectTimeSeconds = subjectStats.map(item => toSeconds(item.timeHuman));
+
+    if (document.getElementById('subjectTimingChart') && subjectLabels.length) {
+      new Chart(document.getElementById('subjectTimingChart'), {
+        type: 'bar',
+        data: {
+          labels: subjectLabels,
+          datasets: [{
+            label: 'Time Spent (minutes)',
+            data: subjectTimeSeconds.map(v => +(v / 60).toFixed(2)),
+            backgroundColor: ['#2563eb', '#0f766e', '#7c3aed', '#0891b2', '#16a34a'],
+            borderRadius: 10,
+            maxBarThickness: 42
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (context) => ` ${context.raw} min`
+              }
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: { color: palette.grid, drawBorder: false },
+              ticks: {
+                color: palette.slate,
+                callback: (value) => value + ' min'
+              }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: palette.slate }
+            }
+          }
+        }
+      });
+    }
+
+    if (document.getElementById('subjectAccuracyChart') && subjectLabels.length) {
+      new Chart(document.getElementById('subjectAccuracyChart'), {
+        type: 'bar',
+        data: {
+          labels: subjectLabels,
+          datasets: [{
+            label: 'Accuracy %',
+            data: subjectAccuracy,
+            backgroundColor: ['#16a34a', '#2563eb', '#f59e0b', '#ef4444', '#7c3aed'],
+            borderRadius: 10,
+            maxBarThickness: 42
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: palette.slate }
+            },
+            y: {
+              beginAtZero: true,
+              suggestedMax: 100,
+              grid: { color: palette.grid, drawBorder: false },
+              ticks: {
+                color: palette.slate,
+                callback: (value) => value + '%'
+              }
+            }
+          }
+        }
+      });
+    }
+  })();
+</script>
 {% endblock %}
