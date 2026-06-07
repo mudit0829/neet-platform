@@ -652,13 +652,13 @@
                     Edit
                   </a>
                   <form
-                    method="post"
-                    action="{{ url_for('admin.delete_question', question_id=question.id) }}"
-                    class="d-inline"
-                    onsubmit="return confirm('Delete this question?');"
-                    style="display:inline-block;"
+                     method="post"
+                     action="{{ url_for('admin.delete_question', question_id=question.id) }}"
+                     class="d-inline"
+                     onsubmit="return confirm('Delete this question? If it is linked to any published test, deletion will be blocked.');"
+                     style="display:inline-block;"
                   >
-                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                     <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                   </form>
                 </div>
               </td>
