@@ -3,17 +3,48 @@
 
 {% block content %}
 <style>
+  .dashboard-wrap {
+    width: 100%;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+
   .perf-wrap {
     display: grid;
     gap: 20px;
   }
 
+  .perf-hero,
+  .stat-card,
+  .panel-card,
+  .chart-card,
+  .attempt-item {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  }
+
   .perf-hero {
-    background: linear-gradient(135deg, #0f766e 0%, #059669 48%, #2563eb 100%);
-    color: #ffffff;
     border-radius: 28px;
     padding: 28px;
-    box-shadow: 0 18px 40px rgba(5, 150, 105, 0.14);
+    background:
+      radial-gradient(circle at top right, rgba(255,255,255,0.12), transparent 24%),
+      radial-gradient(circle at bottom left, rgba(255,255,255,0.08), transparent 18%),
+      linear-gradient(135deg, #0f766e 0%, #059669 48%, #2563eb 100%);
+    color: #ffffff;
+  }
+
+  .topbar-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.14);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .02em;
+    border: 1px solid rgba(255,255,255,0.18);
   }
 
   .hero-title {
@@ -25,8 +56,8 @@
 
   .hero-subtitle {
     margin: 0;
-    max-width: 780px;
-    line-height: 1.7;
+    max-width: 820px;
+    line-height: 1.75;
     opacity: 0.96;
   }
 
@@ -38,15 +69,17 @@
   }
 
   .btn-main,
-  .btn-light {
+  .btn-light,
+  .attempt-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
     padding: 12px 18px;
     border-radius: 12px;
-    font-weight: 700;
+    font-weight: 800;
     transition: all 0.18s ease;
+    border: 1px solid transparent;
   }
 
   .btn-main {
@@ -57,11 +90,12 @@
   .btn-light {
     background: rgba(255,255,255,0.14);
     color: #ffffff;
-    border: 1px solid rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.18);
   }
 
   .btn-main:hover,
-  .btn-light:hover {
+  .btn-light:hover,
+  .attempt-link:hover {
     transform: translateY(-1px);
   }
 
@@ -72,11 +106,8 @@
   }
 
   .stat-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
     border-radius: 22px;
     padding: 20px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
   }
 
   .stat-value {
@@ -91,34 +122,91 @@
     color: #64748b;
     line-height: 1.6;
     font-size: 14px;
+    font-weight: 700;
+  }
+
+  .stat-note {
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.45;
   }
 
   .layout-2 {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
     gap: 20px;
     align-items: start;
   }
 
-  .panel-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 22px;
+  .chart-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    gap: 20px;
+  }
+
+  .panel-card,
+  .chart-card {
+    border-radius: 24px;
     padding: 22px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
   }
 
   .panel-title {
-    margin: 0 0 8px;
+    margin: 0;
     color: #0f172a;
     font-size: 20px;
     font-weight: 800;
+    line-height: 1.2;
   }
 
   .panel-subtitle {
-    margin: 0;
+    margin: 6px 0 0;
     color: #64748b;
     line-height: 1.7;
+    font-size: 14px;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 300px;
+  }
+
+  .chart-wrap.compact {
+    height: 260px;
+  }
+
+  .chart-wrap.small {
+    height: 240px;
+  }
+
+  .empty-chart-state,
+  .empty-box {
+    padding: 18px;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    line-height: 1.7;
+    margin-top: 16px;
+  }
+
+  .empty-chart-state {
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 0;
   }
 
   .subject-row {
@@ -202,6 +290,35 @@
     color: #9a3412;
   }
 
+  .mini-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .mini-summary {
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 14px;
+  }
+
+  .mini-summary .k {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  .mini-summary .v {
+    color: #0f172a;
+    font-size: 20px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+
   .attempt-list {
     display: grid;
     gap: 14px;
@@ -209,8 +326,6 @@
   }
 
   .attempt-item {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
     border-radius: 18px;
     padding: 16px 18px;
   }
@@ -228,6 +343,18 @@
     color: #0f172a;
   }
 
+  .attempt-score-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid #dbeafe;
+  }
+
   .attempt-meta {
     margin-top: 8px;
     color: #64748b;
@@ -243,31 +370,17 @@
   }
 
   .attempt-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
     padding: 10px 14px;
-    border-radius: 10px;
-    font-weight: 700;
     font-size: 14px;
     background: #eff6ff;
     color: #1d4ed8;
-  }
-
-  .empty-box {
-    padding: 18px;
-    border-radius: 18px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    color: #475569;
-    line-height: 1.7;
-    margin-top: 16px;
+    border-color: #dbeafe;
   }
 
   @media (max-width: 1100px) {
     .stats-grid,
-    .layout-2 {
+    .layout-2,
+    .chart-grid {
       grid-template-columns: 1fr;
     }
   }
@@ -276,6 +389,7 @@
     .perf-hero,
     .stat-card,
     .panel-card,
+    .chart-card,
     .attempt-item {
       padding: 18px;
       border-radius: 18px;
@@ -288,16 +402,41 @@
     .stat-value {
       font-size: 28px;
     }
+
+    .hero-actions,
+    .subject-head,
+    .subject-foot,
+    .attempt-head,
+    .attempt-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .btn-main,
+    .btn-light,
+    .attempt-link {
+      width: 100%;
+    }
+
+    .mini-summary-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .chart-wrap,
+    .chart-wrap.compact,
+    .chart-wrap.small {
+      height: 240px;
+    }
   }
 </style>
 
 <section class="dashboard-wrap">
   <div class="perf-wrap">
     <div class="perf-hero">
-      <div class="topbar-chip" style="background:rgba(255,255,255,0.14); color:#ffffff; border:none;">Performance Review</div>
+      <div class="topbar-chip">Performance Review</div>
       <h1 class="hero-title">Your Progress Overview</h1>
       <p class="hero-subtitle">
-        This page brings together your completed test history, subject-wise accuracy, and time patterns so you can decide what to practice next. Learning analytics are most useful when they help students monitor progress and act on weak areas, not just view raw scores. [web:1014][web:1060]
+        This page brings together your completed test history, subject-wise accuracy, and time patterns so you can decide what to practice next.
       </p>
 
       <div class="hero-actions">
@@ -309,29 +448,77 @@
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-value">{{ overview.total_attempts }}</div>
-        <div class="stat-label">Completed submitted attempts in your account.</div>
+        <div class="stat-label">Completed Attempts</div>
+        <div class="stat-note">Submitted tests in your account</div>
       </div>
 
       <div class="stat-card">
         <div class="stat-value">{{ overview.avg_score }}</div>
-        <div class="stat-label">Average score across completed attempts.</div>
+        <div class="stat-label">Average Score</div>
+        <div class="stat-note">Across completed attempts</div>
       </div>
 
       <div class="stat-card">
         <div class="stat-value">{{ overview.avg_accuracy }}%</div>
-        <div class="stat-label">Average accuracy across all evaluated questions.</div>
+        <div class="stat-label">Average Accuracy</div>
+        <div class="stat-note">Across evaluated questions</div>
       </div>
 
       <div class="stat-card">
         <div class="stat-value">{{ overview.total_time_spent_human }}</div>
-        <div class="stat-label">Total tracked time spent across reviewed attempts.</div>
+        <div class="stat-label">Total Time Spent</div>
+        <div class="stat-note">Tracked review time so far</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="card-head">
+          <div>
+            <h2 class="panel-title">Attempt Score Trend</h2>
+            <p class="panel-subtitle">See how your submitted test scores are moving over time.</p>
+          </div>
+        </div>
+
+        {% if attempts %}
+          <div class="chart-wrap">
+            <canvas id="reviewScoreTrendChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            Complete and submit tests to unlock your score trend chart.
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="chart-card">
+        <div class="card-head">
+          <div>
+            <h2 class="panel-title">Answer Distribution</h2>
+            <p class="panel-subtitle">Correct, wrong, and skipped responses across completed tests.</p>
+          </div>
+        </div>
+
+        {% if attempts %}
+          <div class="chart-wrap compact">
+            <canvas id="reviewAnswerSplitChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            No submitted attempts available yet for answer distribution.
+          </div>
+        {% endif %}
       </div>
     </div>
 
     <div class="layout-2">
       <div class="panel-card">
-        <h2 class="panel-title">Subject Trends</h2>
-        <p class="panel-subtitle">Track long-term strengths and weak areas by subject. Clear subject-level summaries help learners prioritize revision and self-monitoring. [web:1014][web:1066]</p>
+        <div class="card-head">
+          <div>
+            <h2 class="panel-title">Subject Trends</h2>
+            <p class="panel-subtitle">Track long-term strengths and weak areas by subject.</p>
+          </div>
+        </div>
 
         {% if overview.subject_rollup %}
           {% for subject_name, stat in overview.subject_rollup.items() %}
@@ -366,8 +553,36 @@
       </div>
 
       <div class="panel-card">
-        <h2 class="panel-title">Key Insights</h2>
-        <p class="panel-subtitle">Use these signals to decide what to revise next.</p>
+        <div class="card-head">
+          <div>
+            <h2 class="panel-title">Key Insights</h2>
+            <p class="panel-subtitle">Use these signals to decide what to revise next.</p>
+          </div>
+        </div>
+
+        <div class="mini-summary-grid">
+          <div class="mini-summary">
+            <div class="k">Strongest Subject</div>
+            <div class="v">
+              {% if overview.strongest_subject %}
+                {{ overview.strongest_subject[0] }}
+              {% else %}
+                -
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mini-summary">
+            <div class="k">Weakest Subject</div>
+            <div class="v">
+              {% if overview.weakest_subject %}
+                {{ overview.weakest_subject[0] }}
+              {% else %}
+                -
+              {% endif %}
+            </div>
+          </div>
+        </div>
 
         <div class="insight-list">
           <div class="insight-item">
@@ -409,9 +624,62 @@
       </div>
     </div>
 
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="card-head">
+          <div>
+            <h2 class="panel-title">Subject Accuracy Comparison</h2>
+            <p class="panel-subtitle">Compare subject accuracy to decide where revision should go next.</p>
+          </div>
+        </div>
+
+        {% if overview.subject_rollup %}
+          <div class="chart-wrap">
+            <canvas id="reviewSubjectBarChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            Subject accuracy comparison will appear after you complete tests.
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="chart-card">
+        <div class="card-head">
+          <div>
+            <h2 class="panel-title">Score vs Accuracy</h2>
+            <p class="panel-subtitle">Quick scan of your current performance baseline.</p>
+          </div>
+        </div>
+
+        <div class="mini-summary-grid">
+          <div class="mini-summary">
+            <div class="k">Average Score</div>
+            <div class="v">{{ overview.avg_score }}</div>
+          </div>
+          <div class="mini-summary">
+            <div class="k">Average Accuracy</div>
+            <div class="v">{{ overview.avg_accuracy }}%</div>
+          </div>
+          <div class="mini-summary">
+            <div class="k">Total Attempts</div>
+            <div class="v">{{ overview.total_attempts }}</div>
+          </div>
+          <div class="mini-summary">
+            <div class="k">Time Spent</div>
+            <div class="v">{{ overview.total_time_spent_human }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="panel-card">
-      <h2 class="panel-title">Recent Completed Tests</h2>
-      <p class="panel-subtitle">Open any attempt to revisit its result summary or question review.</p>
+      <div class="card-head">
+        <div>
+          <h2 class="panel-title">Recent Completed Tests</h2>
+          <p class="panel-subtitle">Open any attempt to revisit its result summary or question review.</p>
+        </div>
+      </div>
 
       {% if attempts %}
         <div class="attempt-list">
@@ -419,7 +687,7 @@
             <div class="attempt-item">
               <div class="attempt-head">
                 <div class="attempt-title">{{ attempt.test.title if attempt.test else 'Test' }}</div>
-                <div class="topbar-chip">Score: {{ "%.0f"|format(attempt.total_score or 0) }}</div>
+                <div class="attempt-score-chip">Score: {{ "%.0f"|format(attempt.total_score or 0) }}</div>
               </div>
 
               <div class="attempt-meta">
@@ -443,4 +711,178 @@
     </div>
   </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+<script>
+  (() => {
+    const palette = {
+      blue: '#2563eb',
+      teal: '#0f766e',
+      green: '#16a34a',
+      amber: '#f59e0b',
+      red: '#ef4444',
+      purple: '#7c3aed',
+      cyan: '#0891b2',
+      slate: '#64748b',
+      grid: 'rgba(148, 163, 184, 0.18)',
+      text: '#334155'
+    };
+
+    Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    Chart.defaults.color = palette.text;
+    Chart.defaults.borderColor = palette.grid;
+
+    const attempts = [
+      {% for attempt in attempts %}
+        {
+          label: {{ (attempt.test.title if attempt.test and attempt.test.title else ('Attempt ' ~ attempt.id))|tojson }},
+          score: {{ (attempt.total_score if attempt.total_score is not none else 0)|tojson }},
+          correct: {{ (attempt.correct_count if attempt.correct_count is not none else 0)|tojson }},
+          wrong: {{ (attempt.wrong_count if attempt.wrong_count is not none else 0)|tojson }},
+          skipped: {{ (attempt.skipped_count if attempt.skipped_count is not none else 0)|tojson }}
+        }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const subjectRollup = [
+      {% if overview.subject_rollup %}
+        {% for subject_name, stat in overview.subject_rollup.items() %}
+          {
+            subject: {{ subject_name|tojson }},
+            accuracy: {{ (stat.accuracy if stat.accuracy is not none else 0)|tojson }},
+            score: {{ (stat.score if stat.score is not none else 0)|tojson }}
+          }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      {% endif %}
+    ];
+
+    const scoreLabels = attempts.map((item, index) => item.label || `Attempt ${index + 1}`);
+    const scoreData = attempts.map(item => Number(item.score || 0));
+
+    const totalCorrect = attempts.reduce((sum, item) => sum + Number(item.correct || 0), 0);
+    const totalWrong = attempts.reduce((sum, item) => sum + Number(item.wrong || 0), 0);
+    const totalSkipped = attempts.reduce((sum, item) => sum + Number(item.skipped || 0), 0);
+
+    const baseGrid = {
+      color: palette.grid,
+      drawBorder: false
+    };
+
+    if (document.getElementById('reviewScoreTrendChart') && scoreLabels.length) {
+      new Chart(document.getElementById('reviewScoreTrendChart'), {
+        type: 'line',
+        data: {
+          labels: scoreLabels,
+          datasets: [{
+            label: 'Score',
+            data: scoreData,
+            borderColor: palette.blue,
+            backgroundColor: 'rgba(37, 99, 235, 0.12)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointHoverRadius: 5,
+            pointBackgroundColor: palette.blue,
+            pointBorderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          interaction: {
+            mode: 'nearest',
+            intersect: false
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: palette.slate }
+            },
+            y: {
+              beginAtZero: true,
+              grid: baseGrid,
+              ticks: { color: palette.slate }
+            }
+          }
+        }
+      });
+    }
+
+    if (document.getElementById('reviewAnswerSplitChart') && (totalCorrect || totalWrong || totalSkipped)) {
+      new Chart(document.getElementById('reviewAnswerSplitChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Correct', 'Wrong', 'Skipped'],
+          datasets: [{
+            data: [totalCorrect, totalWrong, totalSkipped],
+            backgroundColor: [palette.green, palette.red, palette.amber],
+            borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+            borderWidth: 4,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                padding: 18
+              }
+            }
+          }
+        }
+      });
+    }
+
+    if (document.getElementById('reviewSubjectBarChart') && subjectRollup.length) {
+      new Chart(document.getElementById('reviewSubjectBarChart'), {
+        type: 'bar',
+        data: {
+          labels: subjectRollup.map(item => item.subject),
+          datasets: [{
+            label: 'Accuracy %',
+            data: subjectRollup.map(item => Number(item.accuracy || 0)),
+            backgroundColor: ['#2563eb', '#0f766e', '#7c3aed', '#0891b2', '#16a34a'],
+            borderRadius: 10,
+            maxBarThickness: 48
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: palette.slate }
+            },
+            y: {
+              beginAtZero: true,
+              suggestedMax: 100,
+              grid: baseGrid,
+              ticks: {
+                color: palette.slate,
+                callback: (value) => value + '%'
+              }
+            }
+          }
+        }
+      });
+    }
+  })();
+</script>
 {% endblock %}
