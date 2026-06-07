@@ -4,215 +4,504 @@
 
 {% block content %}
 <style>
-  .student-dashboard { display:grid; gap:20px; }
+  .dashboard-wrap {
+    width: 100%;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+
+  .student-dashboard {
+    display: grid;
+    gap: 20px;
+  }
+
+  .hero-card,
+  .stat-card,
+  .panel-card-soft,
+  .chart-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  }
+
   .hero-card {
-    background:#ffffff;
-    border:1px solid #e5e7eb;
-    border-radius:24px;
-    padding:24px;
-    box-shadow:0 8px 24px rgba(15,23,42,0.04);
+    border-radius: 28px;
+    padding: 26px;
+    background:
+      radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 28%),
+      radial-gradient(circle at bottom left, rgba(5, 150, 105, 0.08), transparent 24%),
+      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
   }
+
   .hero-row {
-    display:flex;
-    justify-content:space-between;
-    gap:16px;
-    flex-wrap:wrap;
-    align-items:center;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
   }
+
   .hero-user {
-    display:flex;
-    gap:18px;
-    align-items:center;
-    flex-wrap:wrap;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    flex-wrap: wrap;
   }
+
   .hero-avatar {
-    width:96px;
-    height:96px;
-    object-fit:cover;
-    border-radius:18px;
-    border:1px solid #e5e7eb;
-    background:#f8fafc;
-    overflow:hidden;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:800;
-    color:#475569;
-    font-size:28px;
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    object-fit: cover;
+    border-radius: 22px;
+    border: 1px solid #dbe2ea;
+    background: linear-gradient(135deg, #f8fafc, #eef4ff);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #475569;
+    font-size: 28px;
   }
+
+  .topbar-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #dbeafe;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-title {
+    margin: 8px 0 6px;
+    font-size: 32px;
+    line-height: 1.1;
+    color: #0f172a;
+    font-weight: 800;
+  }
+
   .hero-actions {
-    display:flex;
-    gap:12px;
-    flex-wrap:wrap;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
   }
-  .btn-main,.btn-light {
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    text-decoration:none;
-    padding:12px 18px;
-    border-radius:12px;
-    font-weight:700;
-    transition:all .18s ease;
-  }
-  .btn-main {
-    background:#2563eb;
-    color:#ffffff;
-  }
+
+  .btn-main,
   .btn-light {
-    background:#ffffff;
-    color:#0f172a;
-    border:1px solid #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-weight: 800;
+    transition: all .18s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
   }
-  .btn-main:hover,.btn-light:hover {
-    transform:translateY(-1px);
+
+  .btn-main {
+    background: linear-gradient(135deg, #2563eb, #0f766e);
+    color: #ffffff;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
   }
+
+  .btn-light {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #cbd5e1;
+  }
+
+  .btn-main:hover,
+  .btn-light:hover {
+    transform: translateY(-1px);
+  }
+
   .stats-grid {
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:16px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
   }
+
   .stat-card {
-    background:#ffffff;
-    border:1px solid #e5e7eb;
-    border-radius:20px;
-    padding:20px;
-    box-shadow:0 8px 24px rgba(15,23,42,0.04);
+    border-radius: 22px;
+    padding: 20px;
   }
+
   .stat-value {
-    font-size:32px;
-    font-weight:800;
-    color:#0f172a;
-    margin-bottom:6px;
-    line-height:1.1;
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+    line-height: 1.1;
   }
+
   .stat-label {
-    color:#64748b;
-    font-size:14px;
-    line-height:1.6;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 700;
   }
+
+  .stat-note {
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
   .dashboard-grid {
-    display:grid;
-    grid-template-columns:minmax(0,1.3fr) minmax(320px,0.9fr);
-    gap:20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.95fr);
+    gap: 20px;
   }
-  .panel-card-soft {
-    background:#ffffff;
-    border:1px solid #e5e7eb;
-    border-radius:22px;
-    padding:22px;
-    box-shadow:0 8px 24px rgba(15,23,42,0.04);
+
+  .chart-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.95fr);
+    gap: 20px;
   }
+
+  .panel-card-soft,
+  .chart-card {
+    border-radius: 24px;
+    padding: 22px;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    margin: 0;
+    color: #0f172a;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .card-subtitle {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
   .list-item {
-    padding:14px 0;
-    border-top:1px solid #e5e7eb;
+    padding: 15px 0;
+    border-top: 1px solid #e5e7eb;
   }
+
   .list-item:first-child {
-    border-top:none;
-    padding-top:0;
+    border-top: none;
+    padding-top: 0;
   }
+
   .badge-row {
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-top:8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
   }
+
   .badge {
-    display:inline-flex;
-    align-items:center;
-    padding:5px 10px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid transparent;
   }
-  .badge.live { background:#dcfce7; color:#166534; }
-  .badge.ongoing { background:#dbeafe; color:#1d4ed8; }
-  .badge.done { background:#e2e8f0; color:#334155; }
+
+  .badge.live {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+  }
+
+  .badge.ongoing {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+  }
+
+  .badge.done {
+    background: #e2e8f0;
+    color: #334155;
+    border-color: #cbd5e1;
+  }
+
   .subtle {
-    color:#64748b;
-    font-size:14px;
-    line-height:1.6;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
   }
+
+  .hero-next-step {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #dbeafe;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
   .metric-note {
-    margin-top:16px;
-    padding:14px 16px;
-    border-radius:16px;
-    background:#f8fafc;
-    border:1px solid #e2e8f0;
-    color:#334155;
-    line-height:1.7;
-    font-size:14px;
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    line-height: 1.7;
+    font-size: 14px;
   }
+
   .insight-good {
-    margin-top:14px;
-    padding:14px 16px;
-    border-radius:16px;
-    background:#ecfdf3;
-    border:1px solid #bbf7d0;
-    color:#166534;
-    line-height:1.7;
-    font-size:14px;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #ecfdf3;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    line-height: 1.7;
+    font-size: 14px;
   }
+
   .insight-warn {
-    margin-top:14px;
-    padding:14px 16px;
-    border-radius:16px;
-    background:#fff7ed;
-    border:1px solid #fed7aa;
-    color:#9a3412;
-    line-height:1.7;
-    font-size:14px;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+    line-height: 1.7;
+    font-size: 14px;
   }
+
+  .profile-grid {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .profile-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid #eef2f7;
+  }
+
+  .profile-row:first-child {
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .profile-key {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .profile-value {
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+    word-break: break-word;
+  }
+
   .subject-row {
-    margin-top:18px;
-    padding-top:18px;
-    border-top:1px solid #eef2f7;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #eef2f7;
   }
+
   .subject-row:first-child {
-    margin-top:0;
-    padding-top:0;
-    border-top:none;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
   }
+
   .subject-head {
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    align-items:center;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
   }
+
   .subject-title {
-    font-weight:800;
-    color:#0f172a;
+    font-weight: 800;
+    color: #0f172a;
   }
+
   .subject-meta {
-    color:#64748b;
-    font-size:14px;
+    color: #64748b;
+    font-size: 14px;
   }
+
   .bar {
-    width:100%;
-    height:12px;
-    border-radius:999px;
-    background:#e2e8f0;
-    overflow:hidden;
-    margin-top:10px;
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+    margin-top: 10px;
   }
+
   .bar-fill {
-    height:100%;
-    background:linear-gradient(90deg,#2563eb,#059669);
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb, #059669);
   }
+
   .subject-foot {
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-top:8px;
-    color:#475569;
-    font-size:14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    color: #475569;
+    font-size: 14px;
   }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 300px;
+  }
+
+  .chart-wrap.compact {
+    height: 260px;
+  }
+
+  .chart-wrap.small {
+    height: 240px;
+  }
+
+  .empty-chart-state {
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    color: #64748b;
+    font-size: 14px;
+    padding: 20px;
+  }
+
+  .mini-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .mini-summary {
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 14px;
+  }
+
+  .mini-summary .k {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  .mini-summary .v {
+    color: #0f172a;
+    font-size: 20px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+
+  .action-row {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   @media (max-width: 1100px) {
     .stats-grid,
-    .dashboard-grid {
-      grid-template-columns:1fr;
+    .dashboard-grid,
+    .chart-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-row,
+    .hero-user,
+    .hero-actions,
+    .subject-head,
+    .subject-foot {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .hero-title {
+      font-size: 26px;
+    }
+
+    .hero-avatar {
+      width: 76px;
+      height: 76px;
+      min-width: 76px;
+      font-size: 22px;
+    }
+
+    .btn-main,
+    .btn-light {
+      width: 100%;
+    }
+
+    .stat-value {
+      font-size: 26px;
+    }
+
+    .hero-card,
+    .panel-card-soft,
+    .chart-card,
+    .stat-card {
+      padding: 18px;
+    }
+
+    .profile-row {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+
+    .chart-wrap,
+    .chart-wrap.compact,
+    .chart-wrap.small {
+      height: 240px;
+    }
+
+    .mini-summary-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>
@@ -242,7 +531,7 @@
 
           <div>
             <div class="topbar-chip">Student Portal</div>
-            <h1 style="margin:8px 0 6px;">Welcome, {{ current_user.full_name }}</h1>
+            <h1 class="hero-title">Welcome, {{ current_user.full_name }}</h1>
             <p class="subtle" style="margin:0;">
               {% if current_user.batch %}
                 Batch: {{ current_user.batch.name }}
@@ -250,6 +539,17 @@
                 Your batch is not assigned yet.
               {% endif %}
             </p>
+
+            <div class="hero-next-step">
+              {% if ongoing_attempts %}
+                You have {{ ongoing_tests }} ongoing test{{ 's' if ongoing_tests != 1 else '' }}. Continue now before your active attempt window ends.
+              {% elif available_tests > 0 %}
+                You have {{ available_tests }} available test{{ 's' if available_tests != 1 else '' }} ready to start.
+              {% else %}
+                No active tests right now. Review your performance, recent results, and subject progress below.
+              {% endif %}
+            </div>
+
             <div class="badge-row">
               <span class="badge live">Available Tests: {{ available_tests }}</span>
               <span class="badge ongoing">Ongoing: {{ ongoing_tests }}</span>
@@ -259,10 +559,12 @@
         </div>
 
         <div class="hero-actions">
-          <a href="{{ url_for('student.tests_page') }}" class="btn-main">Open Tests</a>
-          <a href="{{ url_for('student.performance_review_page') }}" class="btn-light">Performance Review</a>
           {% if ongoing_attempts %}
-            <a href="{{ url_for('student.attempt_page', attempt_id=ongoing_attempts[0].id) }}" class="btn-light">Continue Ongoing Test</a>
+            <a href="{{ url_for('student.attempt_page', attempt_id=ongoing_attempts[0].id) }}" class="btn-main">Continue Ongoing Test</a>
+            <a href="{{ url_for('student.tests_page') }}" class="btn-light">View All Tests</a>
+          {% else %}
+            <a href="{{ url_for('student.tests_page') }}" class="btn-main">Open Tests</a>
+            <a href="{{ url_for('student.performance_review_page') }}" class="btn-light">Performance Review</a>
           {% endif %}
         </div>
       </div>
@@ -272,32 +574,81 @@
       <div class="stat-card">
         <div class="stat-value">{{ available_tests }}</div>
         <div class="stat-label">Available Tests</div>
+        <div class="stat-note">Ready to start now</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">{{ ongoing_tests }}</div>
         <div class="stat-label">Ongoing Attempts</div>
+        <div class="stat-note">Need completion</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">{{ completed_tests }}</div>
         <div class="stat-label">Completed Tests</div>
+        <div class="stat-note">Submitted so far</div>
       </div>
       <div class="stat-card">
         <div class="stat-value">{{ overview.avg_accuracy if overview else 0 }}%</div>
         <div class="stat-label">Average Accuracy</div>
+        <div class="stat-note">Across completed attempts</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Score Trend</h3>
+            <p class="card-subtitle">Track score movement across your most recent attempts.</p>
+          </div>
+        </div>
+
+        {% set submitted_attempts = latest_attempts | selectattr('status', 'equalto', 'submitted') | list %}
+        {% if submitted_attempts %}
+          <div class="chart-wrap">
+            <canvas id="scoreTrendChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            Complete a test to unlock your score trend chart.
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="chart-card">
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Attempt Outcome Split</h3>
+            <p class="card-subtitle">Correct, wrong, and skipped response mix.</p>
+          </div>
+        </div>
+
+        {% if latest_attempts %}
+          <div class="chart-wrap compact">
+            <canvas id="attemptSplitChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            No attempt data available yet for outcome breakdown.
+          </div>
+        {% endif %}
       </div>
     </div>
 
     <div class="dashboard-grid">
       <div class="panel-card-soft">
-        <h3 style="margin-top:0;">Ongoing Attempts</h3>
-        <p class="subtle">Continue unfinished tests before time expires.</p>
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Continue Your Tests</h3>
+            <p class="card-subtitle">Resume unfinished tests before the active window expires.</p>
+          </div>
+        </div>
 
         <div style="margin-top:16px;">
           {% for attempt in ongoing_attempts %}
             <div class="list-item">
-              <div style="font-weight:700;">{{ attempt.test.title }}</div>
+              <div style="font-weight:800; color:#0f172a;">{{ attempt.test.title }}</div>
               <div class="subtle">Status: {{ attempt.status|title }}</div>
-              <div style="margin-top:10px;">
+              <div class="action-row">
                 <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="btn-main">Continue</a>
               </div>
             </div>
@@ -308,48 +659,31 @@
       </div>
 
       <div class="panel-card-soft">
-        <h3 style="margin-top:0;">Profile Snapshot</h3>
-        <div style="display:grid; gap:10px; margin-top:16px;">
-          <div class="subtle"><strong style="color:#0f172a;">Username:</strong> {{ current_user.username or '-' }}</div>
-          <div class="subtle">
-            <strong style="color:#0f172a;">Admission No:</strong>
-            {% if current_user.student_profile and current_user.student_profile.admission_no %}
-              {{ current_user.student_profile.admission_no }}
-            {% else %}
-              -
-            {% endif %}
-          </div>
-          <div class="subtle">
-            <strong style="color:#0f172a;">Course:</strong>
-            {% if current_user.student_profile and current_user.student_profile.course_applied %}
-              {{ current_user.student_profile.course_applied }}
-            {% else %}
-              -
-            {% endif %}
-          </div>
-          <div class="subtle">
-            <strong style="color:#0f172a;">Batch:</strong>
-            {% if current_user.batch %}{{ current_user.batch.name }}{% else %}Not assigned{% endif %}
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Overall Performance</h3>
+            <p class="card-subtitle">Your current high-level learning snapshot.</p>
           </div>
         </div>
-
-        <div class="metric-note">
-          Dashboards are most useful when they surface quick progress indicators and direct the student to the next meaningful action. [web:1036][web:1080]
-        </div>
-      </div>
-    </div>
-
-    <div class="dashboard-grid">
-      <div class="panel-card-soft">
-        <h3 style="margin-top:0;">Performance Snapshot</h3>
-        <p class="subtle">A quick summary of your overall learning trend.</p>
 
         {% if overview and overview.total_attempts > 0 %}
-          <div style="display:grid; gap:14px; margin-top:16px;">
-            <div class="subtle"><strong style="color:#0f172a;">Total Attempts:</strong> {{ overview.total_attempts }}</div>
-            <div class="subtle"><strong style="color:#0f172a;">Average Score:</strong> {{ overview.avg_score }}</div>
-            <div class="subtle"><strong style="color:#0f172a;">Average Accuracy:</strong> {{ overview.avg_accuracy }}%</div>
-            <div class="subtle"><strong style="color:#0f172a;">Total Time Spent:</strong> {{ overview.total_time_spent_human }}</div>
+          <div class="mini-summary-grid">
+            <div class="mini-summary">
+              <div class="k">Total Attempts</div>
+              <div class="v">{{ overview.total_attempts }}</div>
+            </div>
+            <div class="mini-summary">
+              <div class="k">Average Score</div>
+              <div class="v">{{ overview.avg_score }}</div>
+            </div>
+            <div class="mini-summary">
+              <div class="k">Average Accuracy</div>
+              <div class="v">{{ overview.avg_accuracy }}%</div>
+            </div>
+            <div class="mini-summary">
+              <div class="k">Time Spent</div>
+              <div class="v">{{ overview.total_time_spent_human }}</div>
+            </div>
           </div>
 
           {% if overview.strongest_subject %}
@@ -367,14 +701,87 @@
           {% endif %}
         {% else %}
           <div class="metric-note">
-            Complete your first test to unlock performance trends, strongest subject insights, and weakness tracking. Learning dashboards help most when they support self-monitoring over time. [web:1014][web:1083]
+            Complete your first test to unlock score trends, subject insights, and performance tracking.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Subject Performance</h3>
+            <p class="card-subtitle">A quick comparison of accuracy across your subjects.</p>
+          </div>
+        </div>
+
+        {% if overview and overview.subject_rollup %}
+          <div class="chart-wrap">
+            <canvas id="subjectBarChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            No subject-wise performance data available yet.
           </div>
         {% endif %}
       </div>
 
       <div class="panel-card-soft">
-        <h3 style="margin-top:0;">Subject-wise Progress</h3>
-        <p class="subtle">See how you are doing across subjects.</p>
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Profile Snapshot</h3>
+            <p class="card-subtitle">Your core academic profile details.</p>
+          </div>
+        </div>
+
+        <div class="profile-grid">
+          <div class="profile-row">
+            <div class="profile-key">Username</div>
+            <div class="profile-value">{{ current_user.username or '-' }}</div>
+          </div>
+          <div class="profile-row">
+            <div class="profile-key">Admission No</div>
+            <div class="profile-value">
+              {% if current_user.student_profile and current_user.student_profile.admission_no %}
+                {{ current_user.student_profile.admission_no }}
+              {% else %}
+                -
+              {% endif %}
+            </div>
+          </div>
+          <div class="profile-row">
+            <div class="profile-key">Course</div>
+            <div class="profile-value">
+              {% if current_user.student_profile and current_user.student_profile.course_applied %}
+                {{ current_user.student_profile.course_applied }}
+              {% else %}
+                -
+              {% endif %}
+            </div>
+          </div>
+          <div class="profile-row">
+            <div class="profile-key">Batch</div>
+            <div class="profile-value">
+              {% if current_user.batch %}{{ current_user.batch.name }}{% else %}Not assigned{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-note">
+          Keep your profile updated and use the dashboard to jump quickly into your next important task.
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="panel-card-soft">
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Subject-wise Progress</h3>
+            <p class="card-subtitle">See how you are doing across subjects in detail.</p>
+          </div>
+        </div>
 
         {% if overview and overview.subject_rollup %}
           {% for subject_name, stat in overview.subject_rollup.items() %}
@@ -398,34 +805,215 @@
           <p class="subtle" style="margin-top:16px;">No subject performance data available yet.</p>
         {% endif %}
       </div>
-    </div>
 
-    <div class="panel-card-soft">
-      <h3 style="margin-top:0;">Recent Activity</h3>
-
-      <div style="margin-top:16px;">
-        {% for attempt in latest_attempts %}
-          <div class="list-item">
-            <div style="font-weight:700;">{{ attempt.test.title }}</div>
-            <div class="subtle">
-              Status: {{ attempt.status|title }} |
-              Score: {{ attempt.total_score }}
-            </div>
-
-            <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
-              {% if attempt.status == 'submitted' %}
-                <a href="{{ url_for('student.result_page', attempt_id=attempt.id) }}" class="btn-light">View Result</a>
-                <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="btn-light">Review Test</a>
-              {% else %}
-                <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="btn-main">Continue Attempt</a>
-              {% endif %}
-            </div>
+      <div class="panel-card-soft">
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Recent Results</h3>
+            <p class="card-subtitle">Open result or review pages from your latest attempts.</p>
           </div>
-        {% else %}
-          <p class="subtle" style="margin-top:10px;">No attempts yet.</p>
-        {% endfor %}
+        </div>
+
+        <div style="margin-top:16px;">
+          {% for attempt in latest_attempts %}
+            <div class="list-item">
+              <div style="font-weight:800; color:#0f172a;">{{ attempt.test.title }}</div>
+              <div class="subtle">
+                Status: {{ attempt.status|title }} |
+                Score: {{ attempt.total_score }}
+              </div>
+
+              <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                {% if attempt.status == 'submitted' %}
+                  <a href="{{ url_for('student.result_page', attempt_id=attempt.id) }}" class="btn-light">View Result</a>
+                  <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="btn-light">Review Test</a>
+                {% else %}
+                  <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="btn-main">Continue Attempt</a>
+                {% endif %}
+              </div>
+            </div>
+          {% else %}
+            <p class="subtle" style="margin-top:10px;">No attempts yet.</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+<script>
+  (() => {
+    const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    const palette = {
+      blue: '#2563eb',
+      teal: '#0f766e',
+      green: '#16a34a',
+      amber: '#f59e0b',
+      red: '#ef4444',
+      slate: '#64748b',
+      grid: 'rgba(148, 163, 184, 0.18)',
+      text: '#334155'
+    };
+
+    Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    Chart.defaults.color = palette.text;
+    Chart.defaults.borderColor = palette.grid;
+
+    const latestAttempts = [
+      {% for attempt in latest_attempts %}
+        {
+          label: {{ (attempt.test.title if attempt.test and attempt.test.title else ('Attempt ' ~ attempt.id))|tojson }},
+          status: {{ attempt.status|tojson }},
+          score: {{ (attempt.total_score if attempt.total_score is not none else 0)|tojson }},
+          correct: {{ (attempt.correct_count if attempt.correct_count is not none else 0)|tojson }},
+          wrong: {{ (attempt.wrong_count if attempt.wrong_count is not none else 0)|tojson }},
+          skipped: {{ (attempt.skipped_count if attempt.skipped_count is not none else 0)|tojson }}
+        }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const submittedAttempts = latestAttempts.filter(item => item.status === 'submitted');
+    const scoreLabels = submittedAttempts.map((item, index) => item.label || `Attempt ${index + 1}`);
+    const scoreData = submittedAttempts.map(item => Number(item.score || 0));
+
+    const totalCorrect = latestAttempts.reduce((sum, item) => sum + Number(item.correct || 0), 0);
+    const totalWrong = latestAttempts.reduce((sum, item) => sum + Number(item.wrong || 0), 0);
+    const totalSkipped = latestAttempts.reduce((sum, item) => sum + Number(item.skipped || 0), 0);
+
+    const subjectRollup = [
+      {% if overview and overview.subject_rollup %}
+        {% for subject_name, stat in overview.subject_rollup.items() %}
+          {
+            subject: {{ subject_name|tojson }},
+            accuracy: {{ (stat.accuracy if stat.accuracy is not none else 0)|tojson }},
+            score: {{ (stat.score if stat.score is not none else 0)|tojson }}
+          }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      {% endif %}
+    ];
+
+    const baseGrid = {
+      color: palette.grid,
+      drawBorder: false
+    };
+
+    if (document.getElementById('scoreTrendChart') && scoreLabels.length) {
+      new Chart(document.getElementById('scoreTrendChart'), {
+        type: 'line',
+        data: {
+          labels: scoreLabels,
+          datasets: [{
+            label: 'Score',
+            data: scoreData,
+            borderColor: palette.blue,
+            backgroundColor: 'rgba(37, 99, 235, 0.12)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointHoverRadius: 5,
+            pointBackgroundColor: palette.blue,
+            pointBorderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          interaction: {
+            mode: 'nearest',
+            intersect: false
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: palette.slate }
+            },
+            y: {
+              beginAtZero: true,
+              grid: baseGrid,
+              ticks: { color: palette.slate }
+            }
+          }
+        }
+      });
+    }
+
+    if (document.getElementById('attemptSplitChart') && (totalCorrect || totalWrong || totalSkipped)) {
+      new Chart(document.getElementById('attemptSplitChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Correct', 'Wrong', 'Skipped'],
+          datasets: [{
+            data: [totalCorrect, totalWrong, totalSkipped],
+            backgroundColor: [palette.green, palette.red, palette.amber],
+            borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+            borderWidth: 4,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                padding: 18
+              }
+            }
+          }
+        }
+      });
+    }
+
+    if (document.getElementById('subjectBarChart') && subjectRollup.length) {
+      new Chart(document.getElementById('subjectBarChart'), {
+        type: 'bar',
+        data: {
+          labels: subjectRollup.map(item => item.subject),
+          datasets: [{
+            label: 'Accuracy %',
+            data: subjectRollup.map(item => Number(item.accuracy || 0)),
+            backgroundColor: ['#2563eb', '#0f766e', '#7c3aed', '#0891b2', '#16a34a'],
+            borderRadius: 10,
+            maxBarThickness: 48
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: palette.slate }
+            },
+            y: {
+              beginAtZero: true,
+              suggestedMax: 100,
+              grid: baseGrid,
+              ticks: {
+                color: palette.slate,
+                callback: (value) => value + '%'
+              }
+            }
+          }
+        }
+      });
+    }
+  })();
+</script>
 {% endblock %}
