@@ -1336,7 +1336,7 @@ def delete_question(question_id):
 
     return redirect(url_for("admin.questions"))
 
-@adminbp.route("/questions/<int:question_id>/archive", methods=["POST"], endpoint="archivequestion")
+@admin_bp.route("/questions/<int:question_id>/archive", methods=["POST"], endpoint="archivequestion")
 @login_required
 def archivequestion(question_id):
     admin_required()
