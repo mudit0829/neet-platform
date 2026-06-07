@@ -1270,28 +1270,35 @@ def delete_question(question_id):
         explanation_image = getattr_compat(question, ("explanation_image", "explanationimage"))
 
         linked_rows = TestQuestion.query.filter_by(question_id=question.id).all()
+        affected_test_ids = sorted({row.test_id for row in linked_rows})
 
-        if linked_rows:
-            linked_test_ids = list({row.test_id for row in linked_rows})
-            linked_tests = Test.query.filter(Test.id.in_(linked_test_ids)).all() if linked_test_ids else []
+        if affected_test_ids:
+            affected_tests = Test.query.filter(Test.id.in_(affected_test_ids)).all()
+        else:
+            affected_tests = []
 
-            published_tests = [test for test in linked_tests if (getattr(test, "status", "") or "").lower() == "published"]
-            if published_tests:
-                published_titles = ", ".join(
-                    getattr(test, "title", f"Test #{test.id}") for test in published_tests[:5]
-                )
-                extra_count = max(len(published_tests) - 5, 0)
-                if extra_count:
-                    published_titles += f" and {extra_count} more"
+        published_tests = [
+            test for test in affected_tests
+            if (getattr(test, "status", "") or "").strip().lower() == "published"
+        ]
 
-                flash(
-                    f"Cannot delete question #{question.id}. It is used in published test(s): {published_titles}. "
-                    f"Remove it from those tests first or archive the question instead.",
-                    "danger"
-                )
-                return redirect(url_for("admin.questions"))
+        if published_tests:
+            published_names = [
+                getattr(test, "title", None) or f"Test #{test.id}"
+                for test in published_tests[:5]
+            ]
+            extra_count = len(published_tests) - len(published_names)
 
-        affected_test_ids = list({row.test_id for row in linked_rows})
+            message = (
+                f"Cannot delete Question #{question.id}. "
+                f"It is used in published test(s): {', '.join(published_names)}"
+            )
+            if extra_count > 0:
+                message += f" and {extra_count} more"
+            message += ". Unpublish/remove it from those tests first."
+
+            flash(message, "danger")
+            return redirect(url_for("admin.questions"))
 
         TestQuestion.query.filter_by(question_id=question.id).delete(synchronize_session=False)
         db.session.delete(question)
@@ -1302,18 +1309,26 @@ def delete_question(question_id):
         if explanation_image:
             delete_uploaded_static_file(explanation_image)
 
-        for test_id in affected_test_ids:
-            test = Test.query.get(test_id)
-            if not test:
-                continue
+        tests_moved_to_draft = []
 
-            is_valid, message = validate_test_publishable(test)
-            if not is_valid and (getattr(test, "status", "") or "").lower() == "published":
+        for test in affected_tests:
+            is_valid, validation_message = validate_test_publishable(test)
+            current_status = (getattr(test, "status", "") or "").strip().lower()
+
+            if current_status == "published" and not is_valid:
                 test.status = "draft"
+                tests_moved_to_draft.append(getattr(test, "title", None) or f"Test #{test.id}")
 
-        db.session.commit()
-
-        flash(f"Question #{question.id} deleted successfully.", "success")
+        if tests_moved_to_draft:
+            db.session.commit()
+            flash(
+                "Question deleted successfully. Some affected tests were moved to draft: "
+                + ", ".join(tests_moved_to_draft[:5])
+                + (f" and {len(tests_moved_to_draft) - 5} more" if len(tests_moved_to_draft) > 5 else ""),
+                "warning"
+            )
+        else:
+            flash(f"Question #{question.id} deleted successfully.", "success")
 
     except Exception as e:
         db.session.rollback()
