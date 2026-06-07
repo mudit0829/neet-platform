@@ -1080,11 +1080,6 @@ def create_question():
         question=None
     )
 
-@admin_bp.route("/create-question", endpoint="create_question")
-@login_required
-def create_question():
-    return redirect(url_for("admin.questions"))
-
 
 @admin_bp.route("/questions/<int:question_id>/edit", endpoint="edit_question")
 @login_required
