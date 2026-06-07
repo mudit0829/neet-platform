@@ -166,6 +166,76 @@
     margin-top: 6px;
   }
 
+  .qf-upload-box {
+    border: 1px solid #dbe3ee;
+    background: #fbfdff;
+    border-radius: 16px;
+    padding: 14px;
+    margin-top: 10px;
+  }
+
+  .qf-file-input {
+    padding: 10px 12px;
+    background: #ffffff;
+  }
+
+  .qf-image-preview-card {
+    margin-top: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .qf-image-preview-head {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .qf-image-frame {
+    padding: 14px;
+    background:
+      linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+  }
+
+  .qf-image-frame img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 320px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    background: #ffffff;
+  }
+
+  .qf-inline-preview-stack {
+    display: grid;
+    gap: 10px;
+  }
+
+  .math-preview-box {
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px;
+    min-height: 52px;
+  }
+
+  .math-preview-box.is-empty {
+    color: #94a3b8;
+    font-style: italic;
+  }
+
   @media (max-width: 1200px) {
     .qf-grid {
       grid-template-columns: 1fr;
@@ -176,6 +246,10 @@
     .qf-row-2,
     .qf-option-grid {
       grid-template-columns: 1fr;
+    }
+
+    .qf-image-frame img {
+      max-height: 260px;
     }
   }
 </style>
@@ -189,7 +263,7 @@
           Write clean, exam-grade questions with scientific notation, formulas, and clear explanations.
         </p>
 
-        <form method="post" class="qf-form-grid">
+        <form method="post" enctype="multipart/form-data" class="qf-form-grid">
           <div class="qf-row-2">
             <div class="qf-field">
               <label for="subject_id">Subject</label>
@@ -231,6 +305,7 @@
               <button type="button" onclick="insertAtCursor('stem', '\\\\times 10^{-3}')">Scientific Value</button>
               <button type="button" onclick="insertAtCursor('stem', '\\\\mathrm{m/s^2}')">Unit</button>
             </div>
+
             <textarea
               class="qf-textarea"
               name="stem"
@@ -240,10 +315,45 @@
               data-math-source
               data-math-preview="#qf-stem-preview"
             >{{ question.stem if question else '' }}</textarea>
+
             <div class="qf-note">
               Example: <code>\(a=\frac{F}{m}\)</code>, <code>\(6.02 \times 10^{23}\)</code>, <code>\(\mathrm{NaCl}\)</code>.
             </div>
-            <div id="qf-stem-preview" class="math-preview-box math-content" data-render-math></div>
+
+            <div class="qf-inline-preview-stack">
+              <div id="qf-stem-preview" class="math-preview-box math-content" data-render-math></div>
+
+              <div class="qf-upload-box">
+                <div class="qf-field">
+                  <label for="question_image">Question image (optional)</label>
+                  <input
+                    type="file"
+                    class="qf-input qf-file-input"
+                    id="question_image"
+                    name="question_image"
+                    accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp"
+                  >
+                  <div class="qf-note">
+                    This image will appear below the question text. Best results: clear diagram, white background, and medium resolution.
+                  </div>
+
+                  <div
+                    class="qf-image-preview-card"
+                    id="questionImagePreviewCard"
+                    {% if not (question and question.question_image) %}style="display:none;"{% endif %}
+                  >
+                    <div class="qf-image-preview-head">Question image preview</div>
+                    <div class="qf-image-frame">
+                      <img
+                        id="questionImagePreview"
+                        src="{% if question and question.question_image %}{{ url_for('static', filename=question.question_image) }}{% endif %}"
+                        alt="Question image preview"
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="qf-option-grid">
@@ -310,6 +420,7 @@
               <button type="button" onclick="insertAtCursor('explanation', '\\\\[ a = \\\\frac{F}{m} \\\\]')">Block Formula</button>
               <button type="button" onclick="insertAtCursor('explanation', '\\\\therefore')">Therefore</button>
             </div>
+
             <textarea
               class="qf-textarea"
               name="explanation"
@@ -319,12 +430,46 @@
               data-math-source
               data-math-preview="#qf-explanation-preview"
             >{{ question.explanation if question else '' }}</textarea>
-            <div id="qf-explanation-preview" class="math-preview-box math-content" data-render-math></div>
+
+            <div class="qf-inline-preview-stack">
+              <div id="qf-explanation-preview" class="math-preview-box math-content" data-render-math></div>
+
+              <div class="qf-upload-box">
+                <div class="qf-field">
+                  <label for="explanation_image">Explanation image (optional)</label>
+                  <input
+                    type="file"
+                    class="qf-input qf-file-input"
+                    id="explanation_image"
+                    name="explanation_image"
+                    accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp"
+                  >
+                  <div class="qf-note">
+                    This image will appear below the explanation text. Use for solved steps, graphs, mechanisms, or labelled diagrams.
+                  </div>
+
+                  <div
+                    class="qf-image-preview-card"
+                    id="explanationImagePreviewCard"
+                    {% if not (question and question.explanation_image) %}style="display:none;"{% endif %}
+                  >
+                    <div class="qf-image-preview-head">Explanation image preview</div>
+                    <div class="qf-image-frame">
+                      <img
+                        id="explanationImagePreview"
+                        src="{% if question and question.explanation_image %}{{ url_for('static', filename=question.explanation_image) }}{% endif %}"
+                        alt="Explanation image preview"
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="qf-actions">
-            <button class="qf-submit">{{ submit_label }}</button>
-            <a href="{{ url_for('admin.questions') }}" class="qf-cancel">Cancel</a>
+            <button class="qf-submit" type="submit">{{ submit_label }}</button>
+            <a href="{{ url_for('admin.questions_page') }}" class="qf-cancel">Cancel</a>
           </div>
         </form>
       </div>
@@ -337,6 +482,7 @@
           <li>Choose subject first, then chapter.</li>
           <li>Keep one concept per question.</li>
           <li>Use LaTeX syntax for formulas and scientific values.</li>
+          <li>Upload clean diagrams only when they improve clarity.</li>
           <li>Write clear explanations for review mode.</li>
           <li>Balance easy, medium, and hard levels.</li>
         </ul>
@@ -410,12 +556,72 @@
     field.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
+  function bindImagePreview(inputId, imageId, cardId) {
+    const input = document.getElementById(inputId);
+    const image = document.getElementById(imageId);
+    const card = document.getElementById(cardId);
+
+    if (!input || !image || !card) return;
+
+    input.addEventListener('change', function () {
+      const file = input.files && input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        image.src = e.target.result;
+        card.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function initMathPreviewPlaceholders() {
+    document.querySelectorAll('[data-math-preview]').forEach(function (source) {
+      const targetSelector = source.getAttribute('data-math-preview');
+      const target = document.querySelector(targetSelector);
+      if (!target) return;
+
+      const value = (source.value || '').trim();
+      if (!value) {
+        target.classList.add('is-empty');
+        target.innerHTML = 'Live preview will appear here.';
+      } else {
+        target.classList.remove('is-empty');
+        target.innerHTML = value;
+      }
+
+      source.addEventListener('input', function () {
+        const nextValue = (source.value || '').trim();
+        if (!nextValue) {
+          target.classList.add('is-empty');
+          target.innerHTML = 'Live preview will appear here.';
+        } else {
+          target.classList.remove('is-empty');
+          target.innerHTML = nextValue;
+        }
+
+        if (window.MathJax && window.MathJax.typesetPromise) {
+          window.MathJax.typesetPromise([target]).catch(function () {});
+        }
+      });
+
+      if (window.MathJax && window.MathJax.typesetPromise && value) {
+        window.MathJax.typesetPromise([target]).catch(function () {});
+      }
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     const subjectField = document.getElementById("subject_id");
     if (subjectField) {
       subjectField.addEventListener("change", filterChapters);
     }
+
     filterChapters();
+    bindImagePreview('question_image', 'questionImagePreview', 'questionImagePreviewCard');
+    bindImagePreview('explanation_image', 'explanationImagePreview', 'explanationImagePreviewCard');
+    initMathPreviewPlaceholders();
   });
 </script>
 {% endblock %}
