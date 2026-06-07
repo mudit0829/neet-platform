@@ -1266,19 +1266,55 @@ def delete_question(question_id):
     question = question_query.first_or_404()
 
     try:
-        question_image = _get_attr_compat(question, "question_image", "questionimage")
-        explanation_image = _get_attr_compat(question, "explanation_image", "explanationimage")
+        question_image = getattr_compat(question, ("question_image", "questionimage"))
+        explanation_image = getattr_compat(question, ("explanation_image", "explanationimage"))
+
+        linked_rows = TestQuestion.query.filter_by(question_id=question.id).all()
+
+        if linked_rows:
+            linked_test_ids = list({row.test_id for row in linked_rows})
+            linked_tests = Test.query.filter(Test.id.in_(linked_test_ids)).all() if linked_test_ids else []
+
+            published_tests = [test for test in linked_tests if (getattr(test, "status", "") or "").lower() == "published"]
+            if published_tests:
+                published_titles = ", ".join(
+                    getattr(test, "title", f"Test #{test.id}") for test in published_tests[:5]
+                )
+                extra_count = max(len(published_tests) - 5, 0)
+                if extra_count:
+                    published_titles += f" and {extra_count} more"
+
+                flash(
+                    f"Cannot delete question #{question.id}. It is used in published test(s): {published_titles}. "
+                    f"Remove it from those tests first or archive the question instead.",
+                    "danger"
+                )
+                return redirect(url_for("admin.questions"))
+
+        affected_test_ids = list({row.test_id for row in linked_rows})
 
         TestQuestion.query.filter_by(question_id=question.id).delete(synchronize_session=False)
         db.session.delete(question)
         db.session.commit()
 
         if question_image:
-            _delete_uploaded_static_file(question_image)
+            delete_uploaded_static_file(question_image)
         if explanation_image:
-            _delete_uploaded_static_file(explanation_image)
+            delete_uploaded_static_file(explanation_image)
+
+        for test_id in affected_test_ids:
+            test = Test.query.get(test_id)
+            if not test:
+                continue
+
+            is_valid, message = validate_test_publishable(test)
+            if not is_valid and (getattr(test, "status", "") or "").lower() == "published":
+                test.status = "draft"
+
+        db.session.commit()
 
         flash(f"Question #{question.id} deleted successfully.", "success")
+
     except Exception as e:
         db.session.rollback()
         flash(f"Error deleting question: {str(e)}", "danger")
