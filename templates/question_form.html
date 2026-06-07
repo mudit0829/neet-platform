@@ -1,495 +1,827 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ page_title }} | NEET Platform{% endblock %}
+{% block title %}{{ page_title or 'Question Form' }} | NEET Platform{% endblock %}
 
 {% block content %}
+{% set is_edit = question is not none %}
+
+{# compatibility getters for mixed model field names #}
+{% set q_subject_id = question.subject_id if question and question.subject_id is defined else (question.subjectid if question and question.subjectid is defined else '') %}
+{% set q_chapter_id = question.chapter_id if question and question.chapter_id is defined else (question.chapterid if question and question.chapterid is defined else '') %}
+{% set q_stem = question.stem if question and question.stem is defined else '' %}
+{% set q_option_a = question.option_a if question and question.option_a is defined else (question.optiona if question and question.optiona is defined else '') %}
+{% set q_option_b = question.option_b if question and question.option_b is defined else (question.optionb if question and question.optionb is defined else '') %}
+{% set q_option_c = question.option_c if question and question.option_c is defined else (question.optionc if question and question.optionc is defined else '') %}
+{% set q_option_d = question.option_d if question and question.option_d is defined else (question.optiond if question and question.optiond is defined else '') %}
+{% set q_correct_option = question.correct_option if question and question.correct_option is defined else (question.correctoption if question and question.correctoption is defined else '') %}
+{% set q_difficulty = question.difficulty_level if question and question.difficulty_level is defined else (question.difficultylevel if question and question.difficultylevel is defined else 'medium') %}
+{% set q_explanation = question.explanation if question and question.explanation is defined and question.explanation else '' %}
+{% set q_question_image = question.question_image if question and question.question_image is defined else (question.questionimage if question and question.questionimage is defined else '') %}
+{% set q_explanation_image = question.explanation_image if question and question.explanation_image is defined else (question.explanationimage if question and question.explanationimage is defined else '') %}
+
 <style>
-  .qf-page {
+  .question-form-page {
     width: 100%;
-    max-width: 1440px;
+    max-width: 1320px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
 
-  .qf-grid {
+  .question-hero,
+  .question-form-card,
+  .question-side-card,
+  .question-preview-card,
+  .question-tip-card {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    border-radius: 24px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+
+  .question-hero {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  }
+
+  .question-hero h1 {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .question-hero p {
+    margin: 10px 0 0;
+    color: #64748b;
+    max-width: 820px;
+    line-height: 1.7;
+  }
+
+  .hero-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid #dbeafe;
+  }
+
+  .hero-side {
+    min-width: 260px;
+    max-width: 340px;
+    padding: 18px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+  }
+
+  .hero-side-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .hero-side-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .hero-side-sub {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .question-layout {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    grid-template-columns: minmax(0, 1.45fr) 380px;
     gap: 20px;
     align-items: start;
   }
 
-  .qf-card {
-    background: rgba(255, 255, 255, 0.98);
-    border: 1px solid rgba(226, 232, 240, 0.92);
-    border-radius: 22px;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  .question-form-card {
     overflow: hidden;
   }
 
-  .qf-body {
-    padding: 20px;
-  }
-
-  .qf-form-grid {
-    display: grid;
-    gap: 14px;
-  }
-
-  .qf-row-2 {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .qf-field {
-    display: grid;
-    gap: 8px;
-  }
-
-  .qf-field label {
-    font-weight: 700;
-    color: #0f172a;
-  }
-
-  .qf-input,
-  .qf-select,
-  .qf-textarea {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid #d1d5db;
-    background: #ffffff;
-    color: #111827;
-    outline: none;
-  }
-
-  .qf-input:focus,
-  .qf-select:focus,
-  .qf-textarea:focus {
-    border-color: #93c5fd;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
-  }
-
-  .qf-textarea {
-    resize: vertical;
-  }
-
-  .qf-toolbar {
+  .card-head {
+    padding: 20px 22px;
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
-    gap: 8px;
+    justify-content: space-between;
+    align-items: start;
+    gap: 12px;
     flex-wrap: wrap;
-    margin-bottom: 8px;
   }
 
-  .qf-toolbar button {
-    border: 1px solid #dbeafe;
-    background: #eff6ff;
-    color: #1d4ed8;
-    padding: 8px 12px;
-    border-radius: 10px;
-    font-weight: 700;
-    cursor: pointer;
+  .card-head h2 {
+    margin: 0 0 4px;
+    color: #0f172a;
+    font-size: 1.2rem;
+    font-weight: 800;
   }
 
-  .qf-toolbar button:hover {
-    background: #dbeafe;
-  }
-
-  .qf-note {
-    font-size: 13px;
+  .card-head p {
+    margin: 0;
     color: #64748b;
     line-height: 1.6;
   }
 
-  .qf-option-grid {
+  .card-body {
+    padding: 22px;
+  }
+
+  .form-section {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .form-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+  }
+
+  .section-title h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .section-title span {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 700;
+  }
+
+  .form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .form-grid-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .full-span {
+    grid-column: 1 / -1;
+  }
+
+  .field-group {
+    display: grid;
+    gap: 8px;
+  }
+
+  .field-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .field-group input,
+  .field-group select,
+  .field-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #111827;
+    min-height: 48px;
+    outline: none;
+    transition: 0.18s ease;
+  }
+
+  .field-group textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .field-group input:focus,
+  .field-group select:focus,
+  .field-group textarea:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+  }
+
+  .field-help {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .choice-card {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 18px;
+    padding: 16px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .choice-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 12px;
   }
 
-  .qf-option-card {
-    padding: 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    background: #ffffff;
-  }
-
-  .qf-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-
-  .qf-submit {
+  .choice-label {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 12px 18px;
-    border-radius: 12px;
-    border: 1px solid transparent;
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-    color: #ffffff;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .qf-cancel {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 18px;
-    border-radius: 12px;
-    border: 1px solid #dbe3ee;
-    background: #ffffff;
-    color: #0f172a;
-    font-weight: 700;
-    text-decoration: none;
-  }
-
-  .qf-side-list {
-    margin: 0;
-    padding-left: 18px;
-    color: #475569;
-    line-height: 1.7;
-  }
-
-  .qf-helper-box {
+    min-width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 800;
+    font-size: 13px;
     border: 1px solid #dbeafe;
-    background: #f8fbff;
-    color: #334155;
-    border-radius: 14px;
-    padding: 12px 14px;
-    font-size: 13px;
-    line-height: 1.6;
-    margin-top: 6px;
   }
 
-  .qf-upload-box {
-    border: 1px solid #dbe3ee;
-    background: #fbfdff;
-    border-radius: 16px;
-    padding: 14px;
-    margin-top: 10px;
-  }
-
-  .qf-file-input {
-    padding: 10px 12px;
-    background: #ffffff;
-  }
-
-  .qf-image-preview-card {
-    margin-top: 12px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .qf-image-preview-head {
-    padding: 10px 14px;
-    border-bottom: 1px solid #e5e7eb;
-    background: #f8fafc;
+  .correct-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     color: #334155;
     font-size: 13px;
     font-weight: 700;
   }
 
-  .qf-image-frame {
+  .image-preview-box {
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
     padding: 14px;
-    background:
-      linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 180px;
-  }
-
-  .qf-image-frame img {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    max-height: 320px;
-    height: auto;
-    object-fit: contain;
-    border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-    background: #ffffff;
-  }
-
-  .qf-inline-preview-stack {
+    background: #f8fafc;
     display: grid;
     gap: 10px;
   }
 
-  .math-preview-box {
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
+  .image-preview-box img {
+    max-width: 100%;
     border-radius: 14px;
-    padding: 14px;
-    min-height: 52px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
   }
 
-  .math-preview-box.is-empty {
+  .image-preview-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 700;
+  }
+
+  .side-stack {
+    display: grid;
+    gap: 16px;
+  }
+
+  .question-side-card,
+  .question-preview-card,
+  .question-tip-card {
+    padding: 18px;
+  }
+
+  .side-title {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .side-text {
+    color: #64748b;
+    line-height: 1.65;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .badge-stack {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .badge-soft {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid #dbeafe;
+  }
+
+  .badge-muted {
+    background: #f8fafc;
+    color: #475569;
+    border-color: #e2e8f0;
+  }
+
+  .live-preview {
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #ffffff;
+    padding: 16px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .preview-question {
+    color: #0f172a;
+    font-weight: 700;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .preview-options {
+    display: grid;
+    gap: 10px;
+  }
+
+  .preview-option {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #f8fafc;
+    padding: 12px 14px;
+    color: #334155;
+    line-height: 1.6;
+  }
+
+  .preview-option.correct {
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+    color: #166534;
+    font-weight: 700;
+  }
+
+  .preview-placeholder {
     color: #94a3b8;
-    font-style: italic;
+    font-size: 14px;
+    line-height: 1.7;
   }
 
-  @media (max-width: 1200px) {
-    .qf-grid {
+  .action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-top: 6px;
+  }
+
+  .action-left,
+  .action-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn-lg {
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .btn-outline-secondary {
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #334155;
+  }
+
+  .btn-outline-danger {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+
+  .inline-note {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .danger-zone {
+    margin-top: 10px;
+    padding-top: 14px;
+    border-top: 1px dashed #e2e8f0;
+  }
+
+  @media (max-width: 1100px) {
+    .question-layout {
       grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 768px) {
-    .qf-row-2,
-    .qf-option-grid {
+    .form-grid,
+    .choice-grid {
       grid-template-columns: 1fr;
     }
 
-    .qf-image-frame img {
-      max-height: 260px;
+    .question-hero {
+      padding: 18px;
+    }
+
+    .question-hero h1 {
+      font-size: 1.6rem;
+    }
+
+    .card-body {
+      padding: 18px;
     }
   }
 </style>
 
-<section class="qf-page">
-  <div class="qf-grid">
-    <div class="qf-card">
-      <div class="qf-body">
-        <h2 style="margin:0 0 8px;">{{ page_title }}</h2>
-        <p class="panel-text" style="margin-bottom:18px;">
-          Write clean, exam-grade questions with scientific notation, formulas, and clear explanations.
-        </p>
+<section class="question-form-page">
+  <div class="question-hero">
+    <div>
+      <h1>{{ page_title or ('Edit Question' if is_edit else 'Add Question') }}</h1>
+      <p>
+        {{ 'Update subject, chapter, options, explanation, difficulty, and images without field-name mismatch.' if is_edit else 'Create a clean and reusable question with subject mapping, chapter tagging, difficulty control, and optional images.' }}
+      </p>
 
-        <form method="post" enctype="multipart/form-data" class="qf-form-grid">
-          <div class="qf-row-2">
-            <div class="qf-field">
-              <label for="subject_id">Subject</label>
-              <select class="qf-select" name="subject_id" id="subject_id" required>
-                <option value="">Select subject</option>
-                {% for subject in subjects %}
-                <option value="{{ subject.id }}" {% if question and question.subject_id == subject.id %}selected{% endif %}>
-                  {{ subject.name }}
-                </option>
-                {% endfor %}
-              </select>
+      <div class="hero-tags">
+        <span class="hero-tag">Create + Edit compatible</span>
+        <span class="hero-tag">Subject-chapter sync</span>
+        <span class="hero-tag">Image upload ready</span>
+        <span class="hero-tag">Correct option safe binding</span>
+      </div>
+    </div>
+
+    <div class="hero-side">
+      <div class="hero-side-label">{{ 'Editing question' if is_edit else 'New question' }}</div>
+      <div class="hero-side-value">
+        {% if is_edit %}
+          #{{ question.id }}
+        {% else %}
+          Draft
+        {% endif %}
+      </div>
+      <div class="hero-side-sub">
+        {% if is_edit %}
+          Review the existing values, update what changed, and submit to save the question.
+        {% else %}
+          Fill all required fields, then submit to create the new question in the bank.
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="question-layout">
+    <div class="question-form-card">
+      <div class="card-head">
+        <div>
+          <h2>Question details</h2>
+          <p>
+            This form uses backend field names expected by your routes, including
+            <code>subject_id</code>, <code>chapter_id</code>, <code>option_a</code>,
+            <code>correct_option</code>, <code>difficulty_level</code>,
+            <code>question_image</code>, and <code>explanation_image</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <form
+          method="post"
+          enctype="multipart/form-data"
+          action="{% if is_edit %}{{ url_for('admin.edit_question', question_id=question.id) }}{% else %}{{ url_for('admin.create_question') }}{% endif %}"
+          id="questionForm"
+        >
+          <div class="form-section">
+            <div class="section-title">
+              <h3>Classification</h3>
+              <span>Required mapping fields</span>
             </div>
 
-            <div class="qf-field">
-              <label for="chapter_id">Chapter</label>
-              <select class="qf-select" name="chapter_id" id="chapter_id" required>
-                <option value="">Select chapter</option>
-                {% for chapter in chapters %}
-                <option
-                  value="{{ chapter.id }}"
-                  data-subject-id="{{ chapter.subject_id }}"
-                  {% if question and question.chapter_id == chapter.id %}selected{% endif %}
-                >
-                  {{ chapter.name }}
-                </option>
-                {% endfor %}
-              </select>
-              <div class="qf-helper-box" id="chapterHelpText">
-                First select a subject to narrow the chapter list.
+            <div class="form-grid">
+              <div class="field-group">
+                <label for="subject_id">Subject *</label>
+                <select name="subject_id" id="subject_id" required>
+                  <option value="">Select subject</option>
+                  {% for subject in subjects %}
+                    <option value="{{ subject.id }}" {% if q_subject_id|string == subject.id|string %}selected{% endif %}>
+                      {{ subject.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="chapter_id">Chapter *</label>
+                <select name="chapter_id" id="chapter_id" required>
+                  <option value="">Select chapter</option>
+                  {% for chapter in chapters %}
+                    <option
+                      value="{{ chapter.id }}"
+                      data-subject-id="{{ chapter.subject_id }}"
+                      {% if q_chapter_id|string == chapter.id|string %}selected{% endif %}
+                    >
+                      {{ chapter.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="difficulty_level">Difficulty *</label>
+                <select name="difficulty_level" id="difficulty_level" required>
+                  <option value="easy" {% if q_difficulty == 'easy' %}selected{% endif %}>Easy</option>
+                  <option value="medium" {% if q_difficulty == 'medium' %}selected{% endif %}>Medium</option>
+                  <option value="hard" {% if q_difficulty == 'hard' %}selected{% endif %}>Hard</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="correct_option">Correct option *</label>
+                <select name="correct_option" id="correct_option" required>
+                  <option value="">Select correct option</option>
+                  <option value="A" {% if q_correct_option == 'A' %}selected{% endif %}>Option A</option>
+                  <option value="B" {% if q_correct_option == 'B' %}selected{% endif %}>Option B</option>
+                  <option value="C" {% if q_correct_option == 'C' %}selected{% endif %}>Option C</option>
+                  <option value="D" {% if q_correct_option == 'D' %}selected{% endif %}>Option D</option>
+                </select>
               </div>
             </div>
           </div>
 
-          <div class="qf-field">
-            <label for="stem">Question statement</label>
-            <div class="qf-toolbar">
-              <button type="button" onclick="insertAtCursor('stem', '\\\\(x^2\\\\)')">Inline Formula</button>
-              <button type="button" onclick="insertAtCursor('stem', '\\\\[ \\\\frac{a}{b} \\\\]')">Block Formula</button>
-              <button type="button" onclick="insertAtCursor('stem', '\\\\times 10^{-3}')">Scientific Value</button>
-              <button type="button" onclick="insertAtCursor('stem', '\\\\mathrm{m/s^2}')">Unit</button>
+          <div class="form-section">
+            <div class="section-title">
+              <h3>Question text</h3>
+              <span>Main prompt</span>
             </div>
 
-            <textarea
-              class="qf-textarea"
-              name="stem"
-              id="stem"
-              rows="5"
-              required
-              data-math-source
-              data-math-preview="#qf-stem-preview"
-            >{{ question.stem if question else '' }}</textarea>
-
-            <div class="qf-note">
-              Example: <code>\(a=\frac{F}{m}\)</code>, <code>\(6.02 \times 10^{23}\)</code>, <code>\(\mathrm{NaCl}\)</code>.
-            </div>
-
-            <div class="qf-inline-preview-stack">
-              <div id="qf-stem-preview" class="math-preview-box math-content" data-render-math></div>
-
-              <div class="qf-upload-box">
-                <div class="qf-field">
-                  <label for="question_image">Question image (optional)</label>
-                  <input
-                    type="file"
-                    class="qf-input qf-file-input"
-                    id="question_image"
-                    name="question_image"
-                    accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp"
-                  >
-                  <div class="qf-note">
-                    This image will appear below the question text. Best results: clear diagram, white background, and medium resolution.
-                  </div>
-
-                  <div
-                    class="qf-image-preview-card"
-                    id="questionImagePreviewCard"
-                    {% if not (question and question.question_image) %}style="display:none;"{% endif %}
-                  >
-                    <div class="qf-image-preview-head">Question image preview</div>
-                    <div class="qf-image-frame">
-                      <img
-                        id="questionImagePreview"
-                        src="{% if question and question.question_image %}{{ url_for('static', filename=question.question_image) }}{% endif %}"
-                        alt="Question image preview"
-                      >
-                    </div>
-                  </div>
+            <div class="form-grid-1">
+              <div class="field-group">
+                <label for="stem">Question stem *</label>
+                <textarea
+                  name="stem"
+                  id="stem"
+                  rows="6"
+                  placeholder="Type the full question text here..."
+                  required
+                >{{ q_stem }}</textarea>
+                <div class="field-help">
+                  You can paste plain text, formatted content, or math-ready content that your frontend renders later.
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="qf-option-grid">
-            <div class="qf-option-card">
-              <div class="qf-field">
-                <label for="option_a">Option A</label>
-                <input type="text" class="qf-input" id="option_a" name="option_a" value="{{ question.option_a if question else '' }}" required data-math-source data-math-preview="#qf-option-a-preview">
-                <div id="qf-option-a-preview" class="math-preview-box math-content" data-render-math></div>
+          <div class="form-section">
+            <div class="section-title">
+              <h3>Options</h3>
+              <span>All four are required</span>
+            </div>
+
+            <div class="choice-grid">
+              <div class="choice-card">
+                <div class="choice-card-head">
+                  <span class="choice-label">A</span>
+                  <label class="correct-choice" for="correct_option_a_hint">
+                    <input type="radio" id="correct_option_a_hint" name="correct_option_hint" value="A" {% if q_correct_option == 'A' %}checked{% endif %}>
+                    Mark correct
+                  </label>
+                </div>
+                <div class="field-group">
+                  <label for="option_a">Option A *</label>
+                  <textarea name="option_a" id="option_a" rows="4" required>{{ q_option_a }}</textarea>
+                </div>
               </div>
-            </div>
 
-            <div class="qf-option-card">
-              <div class="qf-field">
-                <label for="option_b">Option B</label>
-                <input type="text" class="qf-input" id="option_b" name="option_b" value="{{ question.option_b if question else '' }}" required data-math-source data-math-preview="#qf-option-b-preview">
-                <div id="qf-option-b-preview" class="math-preview-box math-content" data-render-math></div>
+              <div class="choice-card">
+                <div class="choice-card-head">
+                  <span class="choice-label">B</span>
+                  <label class="correct-choice" for="correct_option_b_hint">
+                    <input type="radio" id="correct_option_b_hint" name="correct_option_hint" value="B" {% if q_correct_option == 'B' %}checked{% endif %}>
+                    Mark correct
+                  </label>
+                </div>
+                <div class="field-group">
+                  <label for="option_b">Option B *</label>
+                  <textarea name="option_b" id="option_b" rows="4" required>{{ q_option_b }}</textarea>
+                </div>
               </div>
-            </div>
 
-            <div class="qf-option-card">
-              <div class="qf-field">
-                <label for="option_c">Option C</label>
-                <input type="text" class="qf-input" id="option_c" name="option_c" value="{{ question.option_c if question else '' }}" required data-math-source data-math-preview="#qf-option-c-preview">
-                <div id="qf-option-c-preview" class="math-preview-box math-content" data-render-math></div>
+              <div class="choice-card">
+                <div class="choice-card-head">
+                  <span class="choice-label">C</span>
+                  <label class="correct-choice" for="correct_option_c_hint">
+                    <input type="radio" id="correct_option_c_hint" name="correct_option_hint" value="C" {% if q_correct_option == 'C' %}checked{% endif %}>
+                    Mark correct
+                  </label>
+                </div>
+                <div class="field-group">
+                  <label for="option_c">Option C *</label>
+                  <textarea name="option_c" id="option_c" rows="4" required>{{ q_option_c }}</textarea>
+                </div>
               </div>
-            </div>
 
-            <div class="qf-option-card">
-              <div class="qf-field">
-                <label for="option_d">Option D</label>
-                <input type="text" class="qf-input" id="option_d" name="option_d" value="{{ question.option_d if question else '' }}" required data-math-source data-math-preview="#qf-option-d-preview">
-                <div id="qf-option-d-preview" class="math-preview-box math-content" data-render-math></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="qf-row-2">
-            <div class="qf-field">
-              <label for="correct_option">Correct option</label>
-              <select class="qf-select" name="correct_option" id="correct_option" required>
-                <option value="">Select correct option</option>
-                {% for option in ['A', 'B', 'C', 'D'] %}
-                <option value="{{ option }}" {% if question and question.correct_option == option %}selected{% endif %}>
-                  {{ option }}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <div class="qf-field">
-              <label for="difficulty_level">Difficulty</label>
-              <select class="qf-select" name="difficulty_level" id="difficulty_level" required>
-                <option value="easy" {% if question and question.difficulty_level == 'easy' %}selected{% endif %}>Easy</option>
-                <option value="medium" {% if not question or question.difficulty_level == 'medium' %}selected{% endif %}>Medium</option>
-                <option value="hard" {% if question and question.difficulty_level == 'hard' %}selected{% endif %}>Hard</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="qf-field">
-            <label for="explanation">Explanation</label>
-            <div class="qf-toolbar">
-              <button type="button" onclick="insertAtCursor('explanation', '\\\\(F = ma\\\\)')">Inline Formula</button>
-              <button type="button" onclick="insertAtCursor('explanation', '\\\\[ a = \\\\frac{F}{m} \\\\]')">Block Formula</button>
-              <button type="button" onclick="insertAtCursor('explanation', '\\\\therefore')">Therefore</button>
-            </div>
-
-            <textarea
-              class="qf-textarea"
-              name="explanation"
-              id="explanation"
-              rows="5"
-              placeholder="Write the detailed solution or concept explanation..."
-              data-math-source
-              data-math-preview="#qf-explanation-preview"
-            >{{ question.explanation if question else '' }}</textarea>
-
-            <div class="qf-inline-preview-stack">
-              <div id="qf-explanation-preview" class="math-preview-box math-content" data-render-math></div>
-
-              <div class="qf-upload-box">
-                <div class="qf-field">
-                  <label for="explanation_image">Explanation image (optional)</label>
-                  <input
-                    type="file"
-                    class="qf-input qf-file-input"
-                    id="explanation_image"
-                    name="explanation_image"
-                    accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp"
-                  >
-                  <div class="qf-note">
-                    This image will appear below the explanation text. Use for solved steps, graphs, mechanisms, or labelled diagrams.
-                  </div>
-
-                  <div
-                    class="qf-image-preview-card"
-                    id="explanationImagePreviewCard"
-                    {% if not (question and question.explanation_image) %}style="display:none;"{% endif %}
-                  >
-                    <div class="qf-image-preview-head">Explanation image preview</div>
-                    <div class="qf-image-frame">
-                      <img
-                        id="explanationImagePreview"
-                        src="{% if question and question.explanation_image %}{{ url_for('static', filename=question.explanation_image) }}{% endif %}"
-                        alt="Explanation image preview"
-                      >
-                    </div>
-                  </div>
+              <div class="choice-card">
+                <div class="choice-card-head">
+                  <span class="choice-label">D</span>
+                  <label class="correct-choice" for="correct_option_d_hint">
+                    <input type="radio" id="correct_option_d_hint" name="correct_option_hint" value="D" {% if q_correct_option == 'D' %}checked{% endif %}>
+                    Mark correct
+                  </label>
+                </div>
+                <div class="field-group">
+                  <label for="option_d">Option D *</label>
+                  <textarea name="option_d" id="option_d" rows="4" required>{{ q_option_d }}</textarea>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="qf-actions">
-            <button class="qf-submit" type="submit">{{ submit_label }}</button>
-            <a href="{{ url_for('admin.questions_page') }}" class="qf-cancel">Cancel</a>
+          <div class="form-section">
+            <div class="section-title">
+              <h3>Images</h3>
+              <span>Optional uploads</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="field-group">
+                <label for="question_image">Question image</label>
+                <input type="file" name="question_image" id="question_image" accept=".png,.jpg,.jpeg,.gif,.webp">
+                <div class="field-help">
+                  Supported formats: png, jpg, jpeg, gif, webp.
+                </div>
+
+                {% if q_question_image %}
+                  <div class="image-preview-box">
+                    <div class="image-preview-label">Current question image</div>
+                    <img src="{{ url_for('static', filename=q_question_image) }}" alt="Current question image">
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="field-group">
+                <label for="explanation_image">Explanation image</label>
+                <input type="file" name="explanation_image" id="explanation_image" accept=".png,.jpg,.jpeg,.gif,.webp">
+                <div class="field-help">
+                  Upload only if explanation needs a diagram, chart, or worked image.
+                </div>
+
+                {% if q_explanation_image %}
+                  <div class="image-preview-box">
+                    <div class="image-preview-label">Current explanation image</div>
+                    <img src="{{ url_for('static', filename=q_explanation_image) }}" alt="Current explanation image">
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">
+              <h3>Explanation</h3>
+              <span>Optional review content</span>
+            </div>
+
+            <div class="form-grid-1">
+              <div class="field-group">
+                <label for="explanation">Explanation</label>
+                <textarea
+                  name="explanation"
+                  id="explanation"
+                  rows="6"
+                  placeholder="Add explanation, solving approach, concept note, or shortcut..."
+                >{{ q_explanation }}</textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-bar">
+            <div class="action-left">
+              <button type="submit" class="btn-lg btn-primary">
+                {{ submit_label or ('Update Question' if is_edit else 'Create Question') }}
+              </button>
+              <a href="{{ url_for('admin.questions') }}" class="btn-lg btn-outline-secondary">Back to Questions</a>
+            </div>
+
+            <div class="action-right">
+              <span class="inline-note">
+                {{ 'You are updating an existing question.' if is_edit else 'You are creating a new question.' }}
+              </span>
+            </div>
           </div>
         </form>
       </div>
     </div>
 
-    <div class="qf-card">
-      <div class="qf-body">
-        <h3 style="margin:0 0 14px;">Authoring tips</h3>
-        <ul class="qf-side-list">
-          <li>Choose subject first, then chapter.</li>
-          <li>Keep one concept per question.</li>
-          <li>Use LaTeX syntax for formulas and scientific values.</li>
-          <li>Upload clean diagrams only when they improve clarity.</li>
-          <li>Write clear explanations for review mode.</li>
-          <li>Balance easy, medium, and hard levels.</li>
-        </ul>
+    <div class="side-stack">
+      <div class="question-side-card">
+        <h3 class="side-title">Record summary</h3>
+        <p class="side-text">
+          This side panel shows what the form is currently bound to and helps confirm edit mode values before saving.
+        </p>
 
-        <div class="math-preview-box math-content" style="margin-top:18px;" data-render-math>
-          Example render: \(a = \frac{F}{m}\), \(9.8\,\mathrm{m/s^2}\), \(\mathrm{H_2SO_4}\)
+        <div class="badge-stack">
+          <span class="badge-soft">{{ 'Edit mode' if is_edit else 'Create mode' }}</span>
+          <span class="badge-soft badge-muted">Subject: {{ q_subject_id or 'Not selected' }}</span>
+          <span class="badge-soft badge-muted">Chapter: {{ q_chapter_id or 'Not selected' }}</span>
+          <span class="badge-soft badge-muted">Difficulty: {{ q_difficulty|title if q_difficulty else 'Medium' }}</span>
         </div>
+      </div>
+
+      <div class="question-preview-card">
+        <h3 class="side-title">Live preview</h3>
+        <div class="live-preview">
+          <div id="previewStem" class="preview-question">
+            {% if q_stem %}{{ q_stem }}{% else %}<span class="preview-placeholder">Question stem preview will appear here.</span>{% endif %}
+          </div>
+
+          <div class="preview-options">
+            <div class="preview-option {% if q_correct_option == 'A' %}correct{% endif %}" id="previewOptionA">
+              <strong>A.</strong> {{ q_option_a if q_option_a else 'Option A preview' }}
+            </div>
+            <div class="preview-option {% if q_correct_option == 'B' %}correct{% endif %}" id="previewOptionB">
+              <strong>B.</strong> {{ q_option_b if q_option_b else 'Option B preview' }}
+            </div>
+            <div class="preview-option {% if q_correct_option == 'C' %}correct{% endif %}" id="previewOptionC">
+              <strong>C.</strong> {{ q_option_c if q_option_c else 'Option C preview' }}
+            </div>
+            <div class="preview-option {% if q_correct_option == 'D' %}correct{% endif %}" id="previewOptionD">
+              <strong>D.</strong> {{ q_option_d if q_option_d else 'Option D preview' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="question-tip-card">
+        <h3 class="side-title">Quick checks</h3>
+        <p class="side-text">
+          Before saving, confirm subject-chapter match, all four options filled, correct option selected, and images uploaded only when necessary.
+        </p>
+
+        {% if is_edit %}
+          <div class="danger-zone">
+            <form
+              method="post"
+              action="{{ url_for('admin.delete_question', question_id=question.id) }}"
+              onsubmit="return confirm('Delete this question permanently?');"
+            >
+              <button type="submit" class="btn-lg btn-outline-danger">Delete Question</button>
+            </form>
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -498,130 +830,109 @@
 
 {% block scripts %}
 <script>
-  function filterChapters() {
-    const subjectSelect = document.getElementById("subject_id");
-    const chapterSelect = document.getElementById("chapter_id");
-    const chapterHelpText = document.getElementById("chapterHelpText");
+  function filterChapterDropdown() {
+    const subjectSelect = document.getElementById('subject_id');
+    const chapterSelect = document.getElementById('chapter_id');
     if (!subjectSelect || !chapterSelect) return;
 
-    const subjectId = subjectSelect.value;
-    const options = chapterSelect.querySelectorAll("option[data-subject-id]");
+    const selectedSubjectId = subjectSelect.value;
+    const options = chapterSelect.querySelectorAll('option[data-subject-id]');
     let visibleCount = 0;
 
-    options.forEach(option => {
-      const visible = !subjectId || option.dataset.subjectId === subjectId;
-      option.hidden = !visible;
-      option.disabled = !visible;
-      if (visible) visibleCount += 1;
+    options.forEach((option) => {
+      const match = !selectedSubjectId || option.dataset.subjectId === selectedSubjectId;
+      option.hidden = !match;
+      option.disabled = !match;
+      if (match) visibleCount += 1;
     });
 
     const selectedOption = chapterSelect.options[chapterSelect.selectedIndex];
     if (selectedOption && (selectedOption.hidden || selectedOption.disabled)) {
-      chapterSelect.value = "";
+      chapterSelect.value = '';
     }
 
-    const placeholder = chapterSelect.querySelector('option[value=""]');
-    if (placeholder) {
-      if (!subjectId) {
-        placeholder.textContent = 'Select chapter';
-      } else if (visibleCount === 0) {
-        placeholder.textContent = 'No chapters available for selected subject';
-      } else {
-        placeholder.textContent = 'Select chapter from chosen subject';
-      }
-    }
-
-    if (chapterHelpText) {
-      if (!subjectId) {
-        chapterHelpText.textContent = 'First select a subject to narrow the chapter list.';
-      } else if (visibleCount === 0) {
-        chapterHelpText.textContent = 'No chapters are mapped to this subject yet.';
-      } else {
-        chapterHelpText.textContent = visibleCount + ' chapter(s) available for the selected subject.';
-      }
+    const defaultOption = chapterSelect.querySelector('option[value=""]');
+    if (defaultOption) {
+      defaultOption.textContent = selectedSubjectId
+        ? (visibleCount ? 'Select chapter in selected subject' : 'No chapters in selected subject')
+        : 'Select chapter';
     }
   }
 
-  function insertAtCursor(id, value) {
-    const field = document.getElementById(id);
-    if (!field) return;
+  function syncCorrectOptionFromRadios() {
+    const radios = document.querySelectorAll('input[name="correct_option_hint"]');
+    const correctSelect = document.getElementById('correct_option');
+    if (!correctSelect || !radios.length) return;
 
-    const start = field.selectionStart || 0;
-    const end = field.selectionEnd || 0;
-    const original = field.value || '';
-
-    field.value = original.slice(0, start) + value + original.slice(end);
-    field.focus();
-    field.selectionStart = field.selectionEnd = start + value.length;
-    field.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-
-  function bindImagePreview(inputId, imageId, cardId) {
-    const input = document.getElementById(inputId);
-    const image = document.getElementById(imageId);
-    const card = document.getElementById(cardId);
-
-    if (!input || !image || !card) return;
-
-    input.addEventListener('change', function () {
-      const file = input.files && input.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        image.src = e.target.result;
-        card.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function initMathPreviewPlaceholders() {
-    document.querySelectorAll('[data-math-preview]').forEach(function (source) {
-      const targetSelector = source.getAttribute('data-math-preview');
-      const target = document.querySelector(targetSelector);
-      if (!target) return;
-
-      const value = (source.value || '').trim();
-      if (!value) {
-        target.classList.add('is-empty');
-        target.innerHTML = 'Live preview will appear here.';
-      } else {
-        target.classList.remove('is-empty');
-        target.innerHTML = value;
-      }
-
-      source.addEventListener('input', function () {
-        const nextValue = (source.value || '').trim();
-        if (!nextValue) {
-          target.classList.add('is-empty');
-          target.innerHTML = 'Live preview will appear here.';
-        } else {
-          target.classList.remove('is-empty');
-          target.innerHTML = nextValue;
-        }
-
-        if (window.MathJax && window.MathJax.typesetPromise) {
-          window.MathJax.typesetPromise([target]).catch(function () {});
+    radios.forEach((radio) => {
+      radio.addEventListener('change', function () {
+        if (this.checked) {
+          correctSelect.value = this.value;
+          updatePreview();
         }
       });
+    });
 
-      if (window.MathJax && window.MathJax.typesetPromise && value) {
-        window.MathJax.typesetPromise([target]).catch(function () {});
-      }
+    correctSelect.addEventListener('change', function () {
+      radios.forEach((radio) => {
+        radio.checked = radio.value === correctSelect.value;
+      });
+      updatePreview();
     });
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const subjectField = document.getElementById("subject_id");
-    if (subjectField) {
-      subjectField.addEventListener("change", filterChapters);
+  function updatePreview() {
+    const stem = document.getElementById('stem')?.value || '';
+    const optionA = document.getElementById('option_a')?.value || '';
+    const optionB = document.getElementById('option_b')?.value || '';
+    const optionC = document.getElementById('option_c')?.value || '';
+    const optionD = document.getElementById('option_d')?.value || '';
+    const correct = document.getElementById('correct_option')?.value || '';
+
+    const previewStem = document.getElementById('previewStem');
+    const previewA = document.getElementById('previewOptionA');
+    const previewB = document.getElementById('previewOptionB');
+    const previewC = document.getElementById('previewOptionC');
+    const previewD = document.getElementById('previewOptionD');
+
+    if (previewStem) {
+      previewStem.textContent = stem || 'Question stem preview will appear here.';
+      if (!stem) {
+        previewStem.classList.add('preview-placeholder');
+      } else {
+        previewStem.classList.remove('preview-placeholder');
+      }
     }
 
-    filterChapters();
-    bindImagePreview('question_image', 'questionImagePreview', 'questionImagePreviewCard');
-    bindImagePreview('explanation_image', 'explanationImagePreview', 'explanationImagePreviewCard');
-    initMathPreviewPlaceholders();
+    if (previewA) previewA.innerHTML = '<strong>A.</strong> ' + (optionA || 'Option A preview');
+    if (previewB) previewB.innerHTML = '<strong>B.</strong> ' + (optionB || 'Option B preview');
+    if (previewC) previewC.innerHTML = '<strong>C.</strong> ' + (optionC || 'Option C preview');
+    if (previewD) previewD.innerHTML = '<strong>D.</strong> ' + (optionD || 'Option D preview');
+
+    [previewA, previewB, previewC, previewD].forEach((node) => node && node.classList.remove('correct'));
+
+    if (correct === 'A' && previewA) previewA.classList.add('correct');
+    if (correct === 'B' && previewB) previewB.classList.add('correct');
+    if (correct === 'C' && previewC) previewC.classList.add('correct');
+    if (correct === 'D' && previewD) previewD.classList.add('correct');
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const subjectSelect = document.getElementById('subject_id');
+    if (subjectSelect) {
+      subjectSelect.addEventListener('change', filterChapterDropdown);
+    }
+
+    ['stem', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_option'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', updatePreview);
+      el.addEventListener('change', updatePreview);
+    });
+
+    filterChapterDropdown();
+    syncCorrectOptionFromRadios();
+    updatePreview();
   });
 </script>
 {% endblock %}
