@@ -1336,6 +1336,35 @@ def delete_question(question_id):
 
     return redirect(url_for("admin.questions"))
 
+@adminbp.route("/questions/<int:question_id>/archive", methods=["POST"], endpoint="archivequestion")
+@login_required
+def archivequestion(question_id):
+    admin_required()
+
+    question_query = Question.query.filter(Question.id == question_id)
+    if getattr(current_user, "institute_id", None) and hasattr(Question, "institute_id"):
+        question_query = question_query.filter(Question.institute_id == current_user.institute_id)
+
+    question = question_query.first_or_404()
+
+    try:
+        if hasattr(question, "is_active"):
+            question.is_active = not bool(getattr(question, "is_active", True))
+            db.session.commit()
+
+            flash(
+                f"Question {question.id} {'activated' if question.is_active else 'archived'} successfully.",
+                "success"
+            )
+        else:
+            flash("Question model does not support archive status yet. Add is_active field first.", "danger")
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error updating question archive status: {str(e)}", "danger")
+
+    return redirect(request.referrer or url_for("admin.questions"))
+
 
 @admin_bp.route("/tests", methods=["GET", "POST"])
 @login_required
