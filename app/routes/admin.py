@@ -1081,17 +1081,208 @@ def create_question():
     )
 
 
-@admin_bp.route("/questions/<int:question_id>/edit", endpoint="edit_question")
+# add these helpers near your other helper functions
+
+def _form_value(*names, default=None, strip=True):
+    for name in names:
+        if name in request.form:
+            value = request.form.get(name)
+            if isinstance(value, str) and strip:
+                value = value.strip()
+            return value
+    return default
+
+
+def _set_attr_compat(obj, possible_names, value):
+    for name in possible_names:
+        if hasattr(obj, name):
+            setattr(obj, name, value)
+            return
+    setattr(obj, possible_names[0], value)
+
+
+def _get_attr_compat(obj, *possible_names):
+    for name in possible_names:
+        if hasattr(obj, name):
+            return getattr(obj, name)
+    return None
+
+
+def _delete_uploaded_static_file(relative_path):
+    if not relative_path:
+        return
+    try:
+        abs_path = os.path.join(current_app.root_path, "static", relative_path)
+        if os.path.exists(abs_path):
+            os.remove(abs_path)
+    except Exception:
+        pass
+
+
+@admin_bp.route("/questions/<int:question_id>/edit", methods=["GET", "POST"], endpoint="edit_question")
 @login_required
 def edit_question(question_id):
-    flash("Question editing is not available in this version yet.", "warning")
-    return redirect(url_for("admin.questions"))
+    admin_required()
+
+    question_query = Question.query.filter(Question.id == question_id)
+    if getattr(current_user, "institute_id", None) and hasattr(Question, "institute_id"):
+        question_query = question_query.filter(Question.institute_id == current_user.institute_id)
+
+    question = question_query.first_or_404()
+
+    subjects = Subject.query.order_by(Subject.name.asc()).all()
+    chapters = Chapter.query.order_by(Chapter.name.asc()).all()
+
+    if request.method == "POST":
+        try:
+            subject_id = request.form.get("subject_id", type=int) or request.form.get("subjectid", type=int)
+            chapter_id = request.form.get("chapter_id", type=int) or request.form.get("chapterid", type=int)
+
+            stem = _form_value("stem", default="")
+            option_a = _form_value("option_a", "optiona", default="")
+            option_b = _form_value("option_b", "optionb", default="")
+            option_c = _form_value("option_c", "optionc", default="")
+            option_d = _form_value("option_d", "optiond", default="")
+            correct_option = (_form_value("correct_option", "correctoption", default="") or "").upper()
+            explanation = _form_value("explanation", default="")
+            difficulty_level = (_form_value("difficulty_level", "difficultylevel", default="medium") or "medium").lower()
+
+            question_image_file = request.files.get("question_image") or request.files.get("questionimage")
+            explanation_image_file = request.files.get("explanation_image") or request.files.get("explanationimage")
+
+            if not subject_id:
+                flash("Subject is required.", "danger")
+                return redirect(url_for("admin.edit_question", question_id=question.id))
+
+            if not chapter_id:
+                flash("Chapter is required.", "danger")
+                return redirect(url_for("admin.edit_question", question_id=question.id))
+
+            if not stem:
+                flash("Question text is required.", "danger")
+                return redirect(url_for("admin.edit_question", question_id=question.id))
+
+            if not option_a or not option_b or not option_c or not option_d:
+                flash("All four options are required.", "danger")
+                return redirect(url_for("admin.edit_question", question_id=question.id))
+
+            if correct_option not in {"A", "B", "C", "D"}:
+                flash("Correct option must be A, B, C, or D.", "danger")
+                return redirect(url_for("admin.edit_question", question_id=question.id))
+
+            if difficulty_level not in {"easy", "medium", "hard"}:
+                difficulty_level = "medium"
+
+            subject = Subject.query.get(subject_id)
+            chapter = Chapter.query.get(chapter_id)
+
+            if not subject:
+                flash("Selected subject does not exist.", "danger")
+                return redirect(url_for("admin.edit_question", question_id=question.id))
+
+            if not chapter:
+                flash("Selected chapter does not exist.", "danger")
+                return redirect(url_for("admin.edit_question", question_id=question.id))
+
+            if getattr(chapter, "subject_id", None) != subject.id and getattr(chapter, "subjectid", None) != subject.id:
+                flash("Selected chapter does not belong to the chosen subject.", "danger")
+                return redirect(url_for("admin.edit_question", question_id=question.id))
+
+            current_question_image = _get_attr_compat(question, "question_image", "questionimage")
+            current_explanation_image = _get_attr_compat(question, "explanation_image", "explanationimage")
+
+            if question_image_file and question_image_file.filename:
+                if not allowed_image_file(question_image_file.filename):
+                    flash("Question image must be png, jpg, jpeg, gif, or webp.", "danger")
+                    return redirect(url_for("admin.edit_question", question_id=question.id))
+
+                new_question_image = save_uploaded_image(question_image_file, "questions")
+                if not new_question_image:
+                    flash("Unable to upload question image.", "danger")
+                    return redirect(url_for("admin.edit_question", question_id=question.id))
+
+                if current_question_image:
+                    _delete_uploaded_static_file(current_question_image)
+
+                _set_attr_compat(question, ["question_image", "questionimage"], new_question_image)
+
+            if explanation_image_file and explanation_image_file.filename:
+                if not allowed_image_file(explanation_image_file.filename):
+                    flash("Explanation image must be png, jpg, jpeg, gif, or webp.", "danger")
+                    return redirect(url_for("admin.edit_question", question_id=question.id))
+
+                new_explanation_image = save_uploaded_image(explanation_image_file, "questions")
+                if not new_explanation_image:
+                    flash("Unable to upload explanation image.", "danger")
+                    return redirect(url_for("admin.edit_question", question_id=question.id))
+
+                if current_explanation_image:
+                    _delete_uploaded_static_file(current_explanation_image)
+
+                _set_attr_compat(question, ["explanation_image", "explanationimage"], new_explanation_image)
+
+            _set_attr_compat(question, ["subject_id", "subjectid"], subject_id)
+            _set_attr_compat(question, ["chapter_id", "chapterid"], chapter_id)
+            _set_attr_compat(question, ["stem"], stem)
+            _set_attr_compat(question, ["option_a", "optiona"], option_a)
+            _set_attr_compat(question, ["option_b", "optionb"], option_b)
+            _set_attr_compat(question, ["option_c", "optionc"], option_c)
+            _set_attr_compat(question, ["option_d", "optiond"], option_d)
+            _set_attr_compat(question, ["correct_option", "correctoption"], correct_option)
+            _set_attr_compat(question, ["explanation"], explanation or None)
+            _set_attr_compat(question, ["difficulty_level", "difficultylevel"], difficulty_level)
+
+            if hasattr(question, "updated_at"):
+                question.updated_at = datetime.utcnow()
+
+            db.session.commit()
+            flash("Question updated successfully.", "success")
+            return redirect(url_for("admin.questions"))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error updating question: {str(e)}", "danger")
+            return redirect(url_for("admin.edit_question", question_id=question.id))
+
+    return render_template(
+        "question_form.html",
+        page_title="Edit Question",
+        submit_label="Update Question",
+        subjects=subjects,
+        chapters=chapters,
+        question=question,
+    )
 
 
 @admin_bp.route("/questions/<int:question_id>/delete", methods=["POST"], endpoint="delete_question")
 @login_required
 def delete_question(question_id):
-    flash("Question deletion is not available in this version yet.", "warning")
+    admin_required()
+
+    question_query = Question.query.filter(Question.id == question_id)
+    if getattr(current_user, "institute_id", None) and hasattr(Question, "institute_id"):
+        question_query = question_query.filter(Question.institute_id == current_user.institute_id)
+
+    question = question_query.first_or_404()
+
+    try:
+        question_image = _get_attr_compat(question, "question_image", "questionimage")
+        explanation_image = _get_attr_compat(question, "explanation_image", "explanationimage")
+
+        TestQuestion.query.filter_by(question_id=question.id).delete(synchronize_session=False)
+        db.session.delete(question)
+        db.session.commit()
+
+        if question_image:
+            _delete_uploaded_static_file(question_image)
+        if explanation_image:
+            _delete_uploaded_static_file(explanation_image)
+
+        flash(f"Question #{question.id} deleted successfully.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting question: {str(e)}", "danger")
+
     return redirect(url_for("admin.questions"))
 
 
