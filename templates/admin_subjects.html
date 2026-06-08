@@ -17,12 +17,14 @@
       padding: 26px;
       color: #ffffff;
       box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+      min-width: 0;
     }
 
     .page-intro h2 {
       margin: 0 0 10px;
       font-size: 28px;
       font-weight: 800;
+      line-height: 1.15;
     }
 
     .page-intro p {
@@ -46,6 +48,7 @@
       border-radius: 20px;
       padding: 22px;
       box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+      min-width: 0;
     }
 
     .panel-card h3 {
@@ -53,6 +56,7 @@
       font-size: 18px;
       font-weight: 800;
       color: #0f172a;
+      line-height: 1.25;
     }
 
     .panel-text {
@@ -83,6 +87,7 @@
       border: 1px solid #cbd5e1;
       border-radius: 12px;
       padding: 12px 14px;
+      min-height: 48px;
       font-size: 14px;
       color: #0f172a;
       background: #ffffff;
@@ -100,6 +105,7 @@
       border: 0;
       border-radius: 12px;
       padding: 13px 16px;
+      min-height: 48px;
       background: linear-gradient(135deg, #2563eb, #0f766e);
       color: #ffffff;
       font-size: 14px;
@@ -125,6 +131,7 @@
       padding: 18px;
       background: #f8fafc;
       transition: 0.2s ease;
+      min-width: 0;
     }
 
     .subject-card:hover {
@@ -138,6 +145,7 @@
       font-weight: 700;
       color: #64748b;
       margin-bottom: 10px;
+      line-height: 1.4;
     }
 
     .subject-name {
@@ -145,12 +153,15 @@
       font-weight: 800;
       color: #0f172a;
       margin: 0 0 8px;
+      line-height: 1.25;
+      word-break: break-word;
     }
 
     .subject-meta {
       font-size: 13px;
       color: #64748b;
       line-height: 1.6;
+      word-break: break-word;
     }
 
     .empty-state {
@@ -160,11 +171,119 @@
       background: #f8fafc;
       color: #64748b;
       font-size: 14px;
+      line-height: 1.6;
     }
 
     @media (max-width: 1024px) {
       .two-col-grid {
         grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .admin-page {
+        gap: 18px;
+      }
+
+      .page-intro {
+        padding: 20px;
+        border-radius: 20px;
+      }
+
+      .page-intro h2 {
+        font-size: 24px;
+      }
+
+      .page-intro p {
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .panel-card {
+        padding: 18px;
+        border-radius: 18px;
+      }
+
+      .subject-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .admin-page {
+        gap: 16px;
+      }
+
+      .page-intro {
+        padding: 18px 16px;
+        border-radius: 18px;
+      }
+
+      .page-intro h2 {
+        font-size: 22px;
+        margin-bottom: 8px;
+      }
+
+      .page-intro p {
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .panel-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .panel-card h3 {
+        font-size: 17px;
+      }
+
+      .panel-text {
+        font-size: 13px;
+        margin-bottom: 16px;
+      }
+
+      .subject-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .subject-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .subject-name {
+        font-size: 17px;
+      }
+
+      .subject-meta {
+        font-size: 12.5px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .page-intro {
+        padding: 16px 14px;
+      }
+
+      .page-intro h2 {
+        font-size: 20px;
+      }
+
+      .panel-card {
+        padding: 14px;
+      }
+
+      .form-control,
+      .btn-primary {
+        min-height: 46px;
+        font-size: 14px;
+      }
+
+      .subject-card {
+        padding: 14px;
       }
     }
   </style>
