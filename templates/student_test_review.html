@@ -31,7 +31,9 @@
   }
 
   .review-hero {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 52%, #334155 100%);
+    background:
+      radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 22%),
+      linear-gradient(135deg, #0f172a 0%, #1e293b 52%, #334155 100%);
     color: #ffffff;
     border-radius: 24px;
     padding: 24px;
@@ -114,6 +116,7 @@
   .btn-main {
     background: #ffffff;
     color: #0f172a;
+    border: 1px solid #ffffff;
   }
 
   .btn-light {
@@ -136,6 +139,89 @@
   .summary-card {
     border-radius: 18px;
     padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .summary-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    border-radius: 18px 0 0 18px;
+    background: #cbd5e1;
+  }
+
+  .summary-card.score {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border-color: #dbeafe;
+  }
+
+  .summary-card.score::before {
+    background: #3b82f6;
+  }
+
+  .summary-card.accuracy {
+    background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+    border-color: #bbf7d0;
+  }
+
+  .summary-card.accuracy::before {
+    background: #16a34a;
+  }
+
+  .summary-card.attempted {
+    background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%);
+    border-color: #fde68a;
+  }
+
+  .summary-card.attempted::before {
+    background: #d97706;
+  }
+
+  .summary-card.time {
+    background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
+    border-color: #e9d5ff;
+  }
+
+  .summary-card.time::before {
+    background: #7c3aed;
+  }
+
+  .summary-kicker {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+  }
+
+  .summary-card.score .summary-kicker {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+  }
+
+  .summary-card.accuracy .summary-kicker {
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+
+  .summary-card.attempted .summary-kicker {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #c2410c;
+  }
+
+  .summary-card.time .summary-kicker {
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+    color: #6d28d9;
   }
 
   .summary-value {
@@ -164,6 +250,15 @@
     border-radius: 20px;
     padding: 18px;
     min-width: 0;
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  }
+
+  .chart-card.timing-card {
+    border-color: #dbeafe;
+  }
+
+  .chart-card.accuracy-card {
+    border-color: #dcfce7;
   }
 
   .chart-wrap {
@@ -179,7 +274,7 @@
 
   .review-layout {
     display: grid;
-    grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.15fr);
+    grid-template-columns: minmax(260px, 0.86fr) minmax(0, 1.14fr);
     gap: 16px;
     align-items: start;
   }
@@ -188,6 +283,15 @@
     border-radius: 20px;
     padding: 18px;
     min-width: 0;
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  }
+
+  .navigator-panel {
+    border-color: #e0e7ff;
+  }
+
+  .breakdown-panel {
+    border-color: #e2e8f0;
   }
 
   .panel-title {
@@ -205,6 +309,49 @@
     font-size: 14px;
   }
 
+  .legend {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    margin-bottom: 14px;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #475569;
+    min-height: 36px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex: 0 0 14px;
+  }
+
+  .legend-item.correct-tag {
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+  }
+
+  .legend-item.wrong-tag {
+    background: #fef2f2;
+    border-color: #fecaca;
+  }
+
+  .legend-item.skipped-tag {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
   .subject-block {
     margin-top: 18px;
     padding-top: 18px;
@@ -218,11 +365,55 @@
   }
 
   .subject-title {
-    font-weight: 800;
-    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
     margin-bottom: 12px;
     line-height: 1.5;
     word-break: break-word;
+  }
+
+  .subject-title-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .subject-accent {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    flex: 0 0 auto;
+  }
+
+  .subject-name {
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .subject-score {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .subject-block.physics .subject-accent {
+    background: #2563eb;
+  }
+
+  .subject-block.chemistry .subject-accent {
+    background: #0f766e;
+  }
+
+  .subject-block.biology .subject-accent {
+    background: #16a34a;
+  }
+
+  .subject-block.general .subject-accent {
+    background: #7c3aed;
   }
 
   .question-grid {
@@ -242,6 +433,7 @@
     border: 1px solid transparent;
     transition: all 0.15s ease;
     font-size: 14px;
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.4);
   }
 
   .question-pill:hover {
@@ -252,62 +444,44 @@
   .question-pill.correct {
     background: #dcfce7;
     color: #166534;
+    border-color: #bbf7d0;
   }
 
   .question-pill.wrong {
     background: #fee2e2;
     color: #b91c1c;
+    border-color: #fecaca;
   }
 
   .question-pill.skipped {
     background: #e2e8f0;
     color: #475569;
-  }
-
-  .legend {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 16px;
-  }
-
-  .legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #475569;
-    min-height: 36px;
-  }
-
-  .legend-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 4px;
-    flex: 0 0 14px;
+    border-color: #cbd5e1;
   }
 
   .review-item {
     margin-top: 18px;
     padding: 16px;
-    border-radius: 16px;
+    border-radius: 18px;
     background: #ffffff;
     overflow: hidden;
+    border-width: 1px;
+    border-style: solid;
   }
 
   .review-item.correct {
     border-color: #bbf7d0;
-    background: #f0fdf4;
+    background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
   }
 
   .review-item.wrong {
     border-color: #fecaca;
-    background: #fef2f2;
+    background: linear-gradient(180deg, #ffffff 0%, #fef2f2 100%);
   }
 
   .review-item.skipped {
     border-color: #cbd5e1;
-    background: #f8fafc;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   }
 
   .review-item:first-child {
@@ -341,20 +515,24 @@
     font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
+    border: 1px solid transparent;
   }
 
   .status-chip.correct {
     background: #dcfce7;
+    border-color: #bbf7d0;
     color: #166534;
   }
 
   .status-chip.wrong {
     background: #fee2e2;
+    border-color: #fecaca;
     color: #b91c1c;
   }
 
   .status-chip.skipped {
     background: #e2e8f0;
+    border-color: #cbd5e1;
     color: #475569;
   }
 
@@ -459,6 +637,10 @@
       padding: 0 10px;
     }
 
+    .review-wrap {
+      gap: 14px;
+    }
+
     .review-hero,
     .summary-card,
     .panel-card,
@@ -478,7 +660,8 @@
 
     .action-row,
     .meta-row,
-    .review-head {
+    .review-head,
+    .subject-title {
       flex-direction: column;
       align-items: stretch;
     }
@@ -499,11 +682,24 @@
     .chart-wrap.compact {
       height: 230px;
     }
+
+    .legend {
+      gap: 8px;
+    }
+
+    .legend-item {
+      width: calc(50% - 4px);
+      justify-content: flex-start;
+    }
+
+    .review-item {
+      margin-top: 14px;
+    }
   }
 
   @media (max-width: 520px) {
     .review-wrap {
-      gap: 14px;
+      gap: 12px;
     }
 
     .review-hero,
@@ -533,13 +729,19 @@
       grid-template-columns: 1fr;
     }
 
+    .summary-kicker {
+      font-size: 10px;
+      min-height: 26px;
+      padding: 5px 9px;
+    }
+
     .question-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
     }
 
     .question-pill {
-      min-height: 44px;
+      min-height: 42px;
       font-size: 13px;
       border-radius: 10px;
     }
@@ -556,6 +758,7 @@
 
     .review-question {
       font-size: 15px;
+      line-height: 1.6;
     }
 
     .chart-wrap {
@@ -564,6 +767,10 @@
 
     .chart-wrap.compact {
       height: 210px;
+    }
+
+    .legend-item {
+      width: 100%;
     }
   }
 </style>
@@ -608,26 +815,30 @@
     </div>
 
     <div class="summary-grid">
-      <div class="summary-card">
+      <div class="summary-card score">
+        <div class="summary-kicker">Score</div>
         <div class="summary-value">{{ "%.0f"|format(attempt.total_score) }}</div>
         <div class="summary-label">Final score from this attempt.</div>
       </div>
-      <div class="summary-card">
+      <div class="summary-card accuracy">
+        <div class="summary-kicker">Accuracy</div>
         <div class="summary-value">{{ accuracy }}%</div>
         <div class="summary-label">Overall accuracy across all questions.</div>
       </div>
-      <div class="summary-card">
+      <div class="summary-card attempted">
+        <div class="summary-kicker">Attempted</div>
         <div class="summary-value">{{ attempt.correct_count + attempt.wrong_count }}</div>
         <div class="summary-label">Questions attempted with a selected answer.</div>
       </div>
-      <div class="summary-card">
+      <div class="summary-card time">
+        <div class="summary-kicker">Time Taken</div>
         <div class="summary-value">{{ time_taken_human }}</div>
         <div class="summary-label">Total recorded test time for this attempt.</div>
       </div>
     </div>
 
     <div class="chart-grid">
-      <div class="chart-card">
+      <div class="chart-card timing-card">
         <h2 class="panel-title">Time Spent by Subject</h2>
         <p class="panel-subtitle">Compare how much time you spent across subjects in this attempt.</p>
 
@@ -642,7 +853,7 @@
         {% endif %}
       </div>
 
-      <div class="chart-card">
+      <div class="chart-card accuracy-card">
         <h2 class="panel-title">Accuracy by Subject</h2>
         <p class="panel-subtitle">See which subject gave you the best and weakest response accuracy.</p>
 
@@ -659,22 +870,27 @@
     </div>
 
     <div class="review-layout">
-      <div class="panel-card">
+      <div class="panel-card navigator-panel">
         <h2 class="panel-title">Review Navigator</h2>
         <p class="panel-subtitle">Jump by subject and then inspect each question in detail below.</p>
 
         <div class="legend">
-          <span class="legend-item"><span class="legend-dot" style="background:#dcfce7;"></span> Correct</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#fee2e2;"></span> Wrong</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#e2e8f0;"></span> Skipped</span>
+          <span class="legend-item correct-tag"><span class="legend-dot" style="background:#22c55e;"></span> Correct</span>
+          <span class="legend-item wrong-tag"><span class="legend-dot" style="background:#ef4444;"></span> Wrong</span>
+          <span class="legend-item skipped-tag"><span class="legend-dot" style="background:#94a3b8;"></span> Skipped</span>
         </div>
 
         {% for subject_name, rows in grouped_rows.items() %}
-          <div class="subject-block">
+          {% set subject_key = subject_name|lower %}
+          <div class="subject-block {% if 'physics' in subject_key %}physics{% elif 'chemistry' in subject_key %}chemistry{% elif 'biology' in subject_key %}biology{% else %}general{% endif %}">
             <div class="subject-title">
-              {{ subject_name }}
+              <div class="subject-title-left">
+                <span class="subject-accent"></span>
+                <span class="subject-name">{{ subject_name }}</span>
+              </div>
+
               {% if subject_stats[subject_name] is defined %}
-                — {{ subject_stats[subject_name].correct }}/{{ subject_stats[subject_name].total }} correct
+                <span class="subject-score">{{ subject_stats[subject_name].correct }}/{{ subject_stats[subject_name].total }} correct</span>
               {% endif %}
             </div>
 
@@ -689,7 +905,7 @@
         {% endfor %}
       </div>
 
-      <div class="panel-card">
+      <div class="panel-card breakdown-panel">
         <h2 class="panel-title">Question Breakdown</h2>
         <p class="panel-subtitle">Focus first on wrong and skipped questions, then use the explanation and time spent to improve your next attempt.</p>
 
@@ -826,7 +1042,9 @@
           datasets: [{
             label: 'Time Spent (minutes)',
             data: subjectTimeSeconds.map(v => +(v / 60).toFixed(2)),
-            backgroundColor: ['#2563eb', '#0f766e', '#7c3aed', '#0891b2', '#16a34a'],
+            backgroundColor: ['#60a5fa', '#2dd4bf', '#a78bfa', '#38bdf8', '#4ade80'],
+            borderColor: ['#2563eb', '#0f766e', '#7c3aed', '#0891b2', '#16a34a'],
+            borderWidth: 1,
             borderRadius: 10,
             maxBarThickness: 36
           }]
@@ -872,7 +1090,9 @@
           datasets: [{
             label: 'Accuracy %',
             data: subjectAccuracy,
-            backgroundColor: ['#16a34a', '#2563eb', '#f59e0b', '#ef4444', '#7c3aed'],
+            backgroundColor: ['#86efac', '#93c5fd', '#fde68a', '#fca5a5', '#c4b5fd'],
+            borderColor: ['#16a34a', '#2563eb', '#d97706', '#ef4444', '#7c3aed'],
+            borderWidth: 1,
             borderRadius: 10,
             maxBarThickness: 36
           }]
