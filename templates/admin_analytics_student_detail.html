@@ -8,8 +8,8 @@
     .admin-student-detail-page {
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      padding: 24px;
+      gap: 20px;
+      padding: 20px;
     }
 
     .profile-card,
@@ -17,20 +17,26 @@
     .metric-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 24px;
-      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+      border-radius: 22px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
     }
 
     .detail-layout {
       display: grid;
-      grid-template-columns: 360px minmax(0, 1fr);
-      gap: 24px;
+      grid-template-columns: 340px minmax(0, 1fr);
+      gap: 20px;
       align-items: start;
     }
 
     .profile-card,
     .panel-card {
-      padding: 22px;
+      padding: 20px;
+    }
+
+    .profile-card {
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.10), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
 
     .profile-top {
@@ -39,9 +45,9 @@
 
     .profile-photo,
     .profile-fallback {
-      width: 112px;
-      height: 112px;
-      border-radius: 30px;
+      width: 108px;
+      height: 108px;
+      border-radius: 28px;
       margin: 0 auto 14px;
       border: 1px solid #cbd5e1;
     }
@@ -66,6 +72,8 @@
       color: #0f172a;
       font-size: 26px;
       font-weight: 800;
+      line-height: 1.2;
+      word-break: break-word;
     }
 
     .profile-subtitle {
@@ -73,6 +81,7 @@
       color: #64748b;
       font-size: 14px;
       line-height: 1.7;
+      word-break: break-word;
     }
 
     .badge-row,
@@ -140,6 +149,7 @@
       align-items: center;
       justify-content: center;
       padding: 10px 14px;
+      min-height: 42px;
       border-radius: 12px;
       text-decoration: none;
       font-size: 13px;
@@ -189,7 +199,7 @@
       padding: 12px 14px;
       border-radius: 14px;
       border: 1px solid #e2e8f0;
-      background: #f8fafc;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     }
 
     .detail-label {
@@ -210,6 +220,11 @@
       word-break: break-word;
     }
 
+    .metrics-stack {
+      display: grid;
+      gap: 16px;
+    }
+
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -218,7 +233,26 @@
 
     .metric-card {
       padding: 18px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
     }
+
+    .metric-card.blue::before,
+    .metric-card.green::before,
+    .metric-card.violet::before,
+    .metric-card.peach::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 4px;
+    }
+
+    .metric-card.blue::before { background: #60a5fa; }
+    .metric-card.green::before { background: #34d399; }
+    .metric-card.violet::before { background: #a78bfa; }
+    .metric-card.peach::before { background: #fb923c; }
 
     .metric-label {
       margin: 0 0 8px;
@@ -232,9 +266,10 @@
     .metric-value {
       margin: 0 0 8px;
       color: #0f172a;
-      font-size: 30px;
+      font-size: 28px;
       line-height: 1;
       font-weight: 800;
+      word-break: break-word;
     }
 
     .metric-meta {
@@ -242,6 +277,10 @@
       color: #64748b;
       font-size: 13px;
       line-height: 1.6;
+    }
+
+    .panel-card {
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
     }
 
     .panel-head {
@@ -270,8 +309,8 @@
     .insight-box {
       padding: 16px;
       border-radius: 18px;
-      border: 1px solid #e2e8f0;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid #dbeafe;
+      background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
       margin-bottom: 18px;
       color: #334155;
       font-size: 14px;
@@ -284,11 +323,15 @@
 
     .table-wrap {
       overflow-x: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
     }
 
     .data-table {
       width: 100%;
       border-collapse: collapse;
+      min-width: 860px;
     }
 
     .data-table thead th {
@@ -301,6 +344,7 @@
       letter-spacing: 0.05em;
       font-weight: 800;
       white-space: nowrap;
+      background: #f8fbff;
     }
 
     .data-table tbody td {
@@ -315,14 +359,71 @@
       background: #f8fafc;
     }
 
+    .attempt-mobile-list {
+      display: none;
+      gap: 14px;
+    }
+
+    .attempt-mobile-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    }
+
+    .attempt-mobile-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.45;
+      margin-bottom: 6px;
+    }
+
+    .attempt-mobile-sub {
+      color: #64748b;
+      font-size: 12px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .attempt-mobile-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .attempt-mobile-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+    }
+
+    .attempt-mobile-label {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .attempt-mobile-value {
+      color: #0f172a;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: right;
+    }
+
     .empty-state {
-      padding: 26px;
+      padding: 24px;
       border-radius: 18px;
       border: 1px dashed #cbd5e1;
       background: #f8fafc;
       text-align: center;
       color: #64748b;
       font-size: 14px;
+      line-height: 1.65;
     }
 
     .action-row form {
@@ -341,11 +442,73 @@
 
     @media (max-width: 780px) {
       .admin-student-detail-page {
+        padding: 14px;
+        gap: 16px;
+      }
+
+      .profile-card,
+      .panel-card,
+      .metric-card {
+        border-radius: 18px;
+      }
+
+      .profile-card,
+      .panel-card {
         padding: 16px;
       }
 
       .metrics-grid {
         grid-template-columns: 1fr;
+      }
+
+      .profile-name {
+        font-size: 22px;
+      }
+
+      .metric-value {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .action-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-content: stretch;
+      }
+
+      .action-row a,
+      .action-row form,
+      .action-row button {
+        width: 100%;
+      }
+
+      .badge-row {
+        justify-content: flex-start;
+      }
+
+      .table-wrap {
+        display: none;
+      }
+
+      .attempt-mobile-list {
+        display: grid;
+      }
+
+      .attempt-mobile-row {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .attempt-mobile-value {
+        text-align: left;
+      }
+
+      .profile-photo,
+      .profile-fallback {
+        width: 96px;
+        height: 96px;
+        border-radius: 24px;
       }
     }
   </style>
@@ -471,27 +634,27 @@
       </div>
     </aside>
 
-    <div style="display:grid; gap:24px;">
+    <div class="metrics-stack">
       <section class="metrics-grid">
-        <article class="metric-card">
+        <article class="metric-card blue">
           <p class="metric-label">Total attempts</p>
           <p class="metric-value">{{ total_attempts }}</p>
           <p class="metric-meta">Submitted tests completed by this student.</p>
         </article>
 
-        <article class="metric-card">
+        <article class="metric-card green">
           <p class="metric-label">Average score</p>
           <p class="metric-value">{{ avg_score }}</p>
           <p class="metric-meta">Average score across all submitted attempts.</p>
         </article>
 
-        <article class="metric-card">
+        <article class="metric-card violet">
           <p class="metric-label">Best score</p>
           <p class="metric-value">{{ best_score }}</p>
           <p class="metric-meta">Highest score achieved so far.</p>
         </article>
 
-        <article class="metric-card">
+        <article class="metric-card peach">
           <p class="metric-label">Average accuracy</p>
           <p class="metric-value">{{ avg_accuracy }}%</p>
           <p class="metric-meta">Correct answers as a share of attempted question volume.</p>
@@ -499,25 +662,25 @@
       </section>
 
       <section class="metrics-grid">
-        <article class="metric-card">
+        <article class="metric-card blue">
           <p class="metric-label">Average percentile</p>
           <p class="metric-value">{{ avg_percentile if avg_percentile is not none else '-' }}</p>
           <p class="metric-meta">Percentile trend based on available submitted attempts.</p>
         </article>
 
-        <article class="metric-card">
+        <article class="metric-card green">
           <p class="metric-label">Latest percentile</p>
           <p class="metric-value">{{ latest_percentile if latest_percentile is not none else '-' }}</p>
           <p class="metric-meta">Most recent percentile recorded in analytics data.</p>
         </article>
 
-        <article class="metric-card">
+        <article class="metric-card violet">
           <p class="metric-label">Best rank</p>
           <p class="metric-value">{{ best_rank if best_rank is not none else '-' }}</p>
           <p class="metric-meta">Best overall rank achieved across attempts.</p>
         </article>
 
-        <article class="metric-card">
+        <article class="metric-card peach">
           <p class="metric-label">Latest rank</p>
           <p class="metric-value">{{ latest_rank if latest_rank is not none else '-' }}</p>
           <p class="metric-meta">Most recent overall rank captured from the latest attempt.</p>
@@ -582,6 +745,56 @@
                 {% endfor %}
               </tbody>
             </table>
+          </div>
+
+          <div class="attempt-mobile-list">
+            {% for attempt in attempts %}
+              <article class="attempt-mobile-card">
+                <div class="attempt-mobile-title">
+                  {% if attempt.test %}
+                    {{ attempt.test.title }}
+                  {% else %}
+                    Test #{{ attempt.test_id }}
+                  {% endif %}
+                </div>
+                <div class="attempt-mobile-sub">Attempt #{{ attempt.id }}</div>
+
+                <div class="attempt-mobile-grid">
+                  <div class="attempt-mobile-row">
+                    <span class="attempt-mobile-label">Score</span>
+                    <span class="attempt-mobile-value">{{ attempt.total_score or 0 }}</span>
+                  </div>
+                  <div class="attempt-mobile-row">
+                    <span class="attempt-mobile-label">Correct</span>
+                    <span class="attempt-mobile-value">{{ attempt.correct_count or 0 }}</span>
+                  </div>
+                  <div class="attempt-mobile-row">
+                    <span class="attempt-mobile-label">Wrong</span>
+                    <span class="attempt-mobile-value">{{ attempt.wrong_count or 0 }}</span>
+                  </div>
+                  <div class="attempt-mobile-row">
+                    <span class="attempt-mobile-label">Skipped</span>
+                    <span class="attempt-mobile-value">{{ attempt.skipped_count or 0 }}</span>
+                  </div>
+                  <div class="attempt-mobile-row">
+                    <span class="attempt-mobile-label">Percentile</span>
+                    <span class="attempt-mobile-value">{{ attempt.percentile_overall if attempt.percentile_overall is not none else '-' }}</span>
+                  </div>
+                  <div class="attempt-mobile-row">
+                    <span class="attempt-mobile-label">Overall Rank</span>
+                    <span class="attempt-mobile-value">{{ attempt.rank_overall if attempt.rank_overall is not none else '-' }}</span>
+                  </div>
+                  <div class="attempt-mobile-row">
+                    <span class="attempt-mobile-label">Batch Rank</span>
+                    <span class="attempt-mobile-value">{{ attempt.rank_batch if attempt.rank_batch is not none else '-' }}</span>
+                  </div>
+                  <div class="attempt-mobile-row">
+                    <span class="attempt-mobile-label">Status</span>
+                    <span class="attempt-mobile-value">{{ attempt.status or 'submitted' }}</span>
+                  </div>
+                </div>
+              </article>
+            {% endfor %}
           </div>
         {% else %}
           <div class="empty-state">No submitted attempts are available for this student yet.</div>
