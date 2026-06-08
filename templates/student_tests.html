@@ -3,80 +3,281 @@
 
 {% block content %}
 <style>
-  .student-wrap { display:grid; gap:20px; }
-  .student-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:18px; }
-  .test-card { background:#fff; border:1px solid #e5e7eb; border-radius:20px; padding:20px; }
-  .meta { color:#64748b; font-size:14px; margin-top:8px; line-height:1.6; }
-  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
-  .btn-main,.btn-light,.btn-disabled {
-    display:inline-flex;
-    text-decoration:none;
-    align-items:center;
-    justify-content:center;
-    padding:12px 16px;
-    border-radius:12px;
-    font-weight:700;
+  .student-tests-wrap {
+    display: grid;
+    gap: 20px;
   }
-  .btn-main { background:#2563eb; color:#fff; border:none; }
-  .btn-light { background:#fff; color:#0f172a; border:1px solid #cbd5e1; }
-  .btn-disabled {
-    background:#e2e8f0;
-    color:#64748b;
-    border:1px solid #cbd5e1;
-    cursor:not-allowed;
+
+  .student-tests-hero {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 2px;
   }
+
+  .student-tests-title {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(28px, 3.3vw, 36px);
+    line-height: 1.1;
+    font-weight: 800;
+  }
+
+  .student-tests-subtitle {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 760px;
+  }
+
+  .student-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .test-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 20px;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    min-width: 0;
+  }
+
+  .test-title {
+    margin: 0;
+    color: #0f172a;
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .meta {
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 10px;
+    line-height: 1.7;
+  }
+
   .badge-row {
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
   }
+
   .badge {
-    display:inline-flex;
-    align-items:center;
-    padding:5px 10px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid transparent;
   }
-  .badge.mode { background:#ecfeff; color:#155e75; }
-  .badge.schedule { background:#fef3c7; color:#92400e; }
-  .badge.live { background:#dcfce7; color:#166534; }
-  .badge.closed { background:#fee2e2; color:#991b1b; }
-  .badge.ongoing { background:#dbeafe; color:#1d4ed8; }
+
+  .badge.mode {
+    background: #ecfeff;
+    border-color: #bae6fd;
+    color: #155e75;
+  }
+
+  .badge.schedule {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+  }
+
+  .badge.live {
+    background: #dcfce7;
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+
+  .badge.closed {
+    background: #fee2e2;
+    border-color: #fecaca;
+    color: #991b1b;
+  }
+
+  .badge.ongoing {
+    background: #dbeafe;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+  }
+
   .note {
-    margin-top:14px;
-    padding:12px 14px;
-    border-radius:14px;
-    background:#f8fafc;
-    border:1px solid #e2e8f0;
-    color:#334155;
-    font-size:14px;
-    line-height:1.6;
+    margin-top: 14px;
+    padding: 13px 14px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.7;
   }
+
   .note.warning {
-    background:#fff7ed;
-    border-color:#fed7aa;
-    color:#9a3412;
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #9a3412;
   }
+
   .note.info {
-    background:#eff6ff;
-    border-color:#bfdbfe;
-    color:#1d4ed8;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
   }
+
   .note.success {
-    background:#ecfdf3;
-    border-color:#bbf7d0;
-    color:#166534;
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .btn-main,
+  .btn-light,
+  .btn-disabled {
+    display: inline-flex;
+    text-decoration: none;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 11px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.16s ease;
+    border: 1px solid transparent;
+  }
+
+  .btn-main {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.14);
+  }
+
+  .btn-light {
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+  }
+
+  .btn-disabled {
+    background: #e2e8f0;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    cursor: not-allowed;
+  }
+
+  .btn-main:hover,
+  .btn-light:hover {
+    transform: translateY(-1px);
+  }
+
+  .empty-card {
+    grid-column: 1 / -1;
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+  }
+
+  .empty-title {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .empty-text {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 1180px) {
+    .student-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .student-tests-wrap {
+      gap: 16px;
+    }
+
+    .student-tests-title {
+      font-size: 26px;
+    }
+
+    .student-grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .test-card,
+    .empty-card {
+      padding: 16px;
+      border-radius: 18px;
+    }
+
+    .actions {
+      flex-direction: column;
+    }
+
+    .btn-main,
+    .btn-light,
+    .btn-disabled {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .student-tests-title {
+      font-size: 24px;
+    }
+
+    .student-tests-subtitle,
+    .meta,
+    .note,
+    .empty-text {
+      font-size: 13px;
+    }
+
+    .test-title {
+      font-size: 17px;
+    }
+
+    .badge {
+      font-size: 11px;
+      min-height: 28px;
+    }
   }
 </style>
 
 <section class="dashboard-wrap">
-  <div class="student-wrap">
-    <div>
+  <div class="student-tests-wrap">
+    <div class="student-tests-hero">
       <div class="topbar-chip">Student Panel</div>
-      <h1 style="margin:8px 0 6px;">Available Tests</h1>
-      <p class="panel-text">Start published tests, resume ongoing attempts, or review completed results.</p>
+      <h1 class="student-tests-title">Available Tests</h1>
+      <p class="student-tests-subtitle">
+        Start published tests, resume ongoing attempts, or review completed results.
+      </p>
     </div>
 
     <div class="student-grid">
@@ -85,7 +286,7 @@
         {% set submitted_attempt = submitted_attempts.get(test.id) %}
 
         <div class="test-card">
-          <h3>{{ test.title }}</h3>
+          <h3 class="test-title">{{ test.title }}</h3>
 
           <div class="meta">
             {{ test.test_type|replace('_', ' ')|title }} •
@@ -124,16 +325,16 @@
               <strong>End:</strong>
               {{ test.end_at.strftime('%d %b %Y %I:%M %p') if test.end_at else 'Auto by duration' }}
               <br>
-              This is a fixed start test. Late start may reduce your remaining time. [web:885]
+              This is a fixed start test. Late start may reduce your remaining time.
             {% elif test.schedule_type == 'window' %}
               <strong>Window:</strong>
               {{ test.start_at.strftime('%d %b %Y %I:%M %p') if test.start_at else 'Not set' }}
               to
               {{ test.end_at.strftime('%d %b %Y %I:%M %p') if test.end_at else 'Not set' }}
               <br>
-              You can start only within this window. Once started, the timer continues until expiry. [web:876][web:882]
+              You can start only within this window. Once started, the timer continues until expiry.
             {% else %}
-              This test is available for instant start after publication. Once started, the timer continues until submission or expiry. [web:882][web:896]
+              This test is available for instant start after publication. Once started, the timer continues until submission or expiry.
             {% endif %}
           </div>
 
@@ -141,7 +342,7 @@
             <strong>Attempt Rule:</strong>
             Max attempts {{ test.max_attempts if test.max_attempts is defined else 1 }}.
             Resume {% if test.is_resume_allowed %}is allowed{% else %}is not allowed{% endif %}.
-            Auto-submit happens when time ends. [web:877][web:882]
+            Auto-submit happens when time ends.
           </div>
 
           <div class="actions">
@@ -157,9 +358,9 @@
           </div>
         </div>
       {% else %}
-        <div class="test-card">
-          <h3>No tests available</h3>
-          <div class="meta">Published tests will appear here.</div>
+        <div class="empty-card">
+          <h3 class="empty-title">No tests available</h3>
+          <p class="empty-text">Published tests will appear here when your institute shares them.</p>
         </div>
       {% endfor %}
     </div>
