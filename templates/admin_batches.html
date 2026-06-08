@@ -25,6 +25,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 22px;
       box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+      min-width: 0;
     }
 
     .page-hero {
@@ -218,6 +219,7 @@
       background: #ffffff;
       outline: none;
       transition: 0.2s ease;
+      min-height: 48px;
     }
 
     .form-control:focus {
@@ -263,6 +265,7 @@
       cursor: pointer;
       transition: 0.2s ease;
       box-shadow: 0 12px 24px rgba(37, 99, 235, 0.16);
+      min-height: 48px;
     }
 
     .btn-primary:hover {
@@ -400,6 +403,63 @@
       border-color: #fecaca;
     }
 
+    .mobile-batch-list {
+      display: none;
+      gap: 12px;
+    }
+
+    .mobile-batch-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      background: #ffffff;
+      padding: 14px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .mobile-batch-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mobile-batch-id {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .mobile-batch-meta {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mobile-meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #eef2f7;
+    }
+
+    .mobile-meta-label {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .mobile-meta-value {
+      color: #0f172a;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+    }
+
     .empty-state {
       padding: 22px;
       border: 1px dashed #cbd5e1;
@@ -417,7 +477,21 @@
       }
     }
 
+    @media (max-width: 820px) {
+      .two-col-grid {
+        gap: 16px;
+      }
+
+      .panel-card {
+        padding: 18px;
+      }
+    }
+
     @media (max-width: 700px) {
+      .admin-page {
+        gap: 16px;
+      }
+
       .page-hero,
       .page-side-card,
       .panel-card {
@@ -427,6 +501,49 @@
 
       .page-hero h2 {
         font-size: 24px;
+      }
+
+      .hero-chips,
+      .table-summary {
+        gap: 8px;
+      }
+
+      .mini-chip,
+      .table-pill {
+        width: fit-content;
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-hero,
+      .page-side-card,
+      .panel-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .page-hero h2 {
+        font-size: 22px;
+      }
+
+      .page-hero p,
+      .panel-subtext {
+        font-size: 13px;
+      }
+
+      .table-wrap {
+        display: none;
+      }
+
+      .mobile-batch-list {
+        display: grid;
+      }
+
+      .helper-note,
+      .side-point,
+      .mobile-meta-row {
+        border-radius: 12px;
       }
     }
   </style>
@@ -565,6 +682,35 @@
             {% endfor %}
           </tbody>
         </table>
+      </div>
+
+      <div class="mobile-batch-list">
+        {% for batch in batches %}
+        <article class="mobile-batch-card">
+          <div class="mobile-batch-top">
+            <div class="batch-name">
+              <div class="batch-icon">{{ loop.index }}</div>
+              <div class="batch-copy">
+                <strong>{{ batch.name }}</strong>
+                <span class="mobile-batch-id">#{{ batch.id }} • Institute batch record</span>
+              </div>
+            </div>
+
+            <span class="status-badge {% if batch.status == 'active' %}status-active{% else %}status-inactive{% endif %}">
+              {{ batch.status|title }}
+            </span>
+          </div>
+
+          <div class="mobile-batch-meta">
+            <div class="mobile-meta-row">
+              <span class="mobile-meta-label">Academic year</span>
+              <span class="mobile-meta-value">
+                {{ batch.academicyear if batch.academicyear is defined else batch.academic_year }}
+              </span>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
       </div>
       {% else %}
       <div class="empty-state">No batches created yet.</div>
