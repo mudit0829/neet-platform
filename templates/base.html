@@ -72,17 +72,9 @@
     --tab-green-text: #047857;
     --tab-green-border: #bbf7d0;
 
-    --tab-yellow-bg: #fffbeb;
-    --tab-yellow-text: #b45309;
-    --tab-yellow-border: #fde68a;
-
     --tab-peach-bg: #fff7ed;
     --tab-peach-text: #c2410c;
     --tab-peach-border: #fdba74;
-
-    --tab-orange-bg: #fff1f2;
-    --tab-orange-text: #c2410c;
-    --tab-orange-border: #fecdd3;
 
     --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
     --shadow-md: 0 10px 30px rgba(15, 23, 42, 0.06);
@@ -102,7 +94,6 @@
     --text-2xl: 30px;
 
     --sidebar-width: 258px;
-    --topbar-height: 74px;
   }
 
   * {
@@ -154,7 +145,7 @@
     flex-direction: column;
     justify-content: space-between;
     padding: 16px 12px;
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     border-right: 1px solid rgba(226, 232, 240, 0.95);
     backdrop-filter: blur(12px);
     box-shadow: 0 4px 24px rgba(15, 23, 42, 0.03);
@@ -410,6 +401,22 @@
     color: var(--text-muted);
     text-transform: capitalize;
     line-height: 1.2;
+  }
+
+  .student-mobile-bar {
+    display: none;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .student-mobile-menu-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid #dbe3ee;
+    background: #ffffff;
+    color: #334155;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
   }
 
   .dashboard-wrap {
@@ -702,12 +709,6 @@
       padding: 4px 8px 14px;
     }
 
-    .logo-mark {
-      width: 40px;
-      height: 40px;
-      border-radius: 13px;
-    }
-
     .sidebar-group-label {
       padding: 10px 12px 6px;
     }
@@ -758,6 +759,10 @@
       width: 100%;
       justify-content: flex-start;
       padding: 10px 12px;
+    }
+
+    .student-mobile-bar {
+      display: flex;
     }
   }
 
@@ -991,43 +996,14 @@
       {% endif %}
 
       {% if is_student %}
-      <div class="topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Open menu" aria-controls="appSidebar" aria-expanded="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-              <path d="M4 7h16"></path>
-              <path d="M4 12h16"></path>
-              <path d="M4 17h16"></path>
-            </svg>
-          </button>
-
-          <div>
-            <h1 class="topbar-title">Student Dashboard</h1>
-            <p class="topbar-subtitle">
-              Access your tests, continue attempts, and review your recent performance from one place.
-            </p>
-          </div>
-        </div>
-
-        <div class="topbar-user">
-          <div class="topbar-avatar">
-            {% if current_user.full_name %}
-              {{ current_user.full_name[:1] }}
-            {% elif current_user.username %}
-              {{ current_user.username[:1] }}
-            {% else %}
-              S
-            {% endif %}
-          </div>
-          <div>
-            <div class="topbar-user-name">
-              {{ current_user.full_name if current_user.full_name else 'Student User' }}
-            </div>
-            <div class="topbar-user-role">
-              {{ current_user.role if current_user.role else 'student' }}
-            </div>
-          </div>
-        </div>
+      <div class="student-mobile-bar">
+        <button class="mobile-menu-btn student-mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Open menu" aria-controls="appSidebar" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M4 7h16"></path>
+            <path d="M4 12h16"></path>
+            <path d="M4 17h16"></path>
+          </svg>
+        </button>
       </div>
       {% endif %}
 
