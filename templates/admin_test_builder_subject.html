@@ -4,19 +4,43 @@
 
 {% block content %}
 <style>
-  .page-wrap { display: grid; gap: 20px; }
+  .page-wrap {
+    display: grid;
+    gap: 20px;
+  }
+
   .top-row {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
+    gap: 16px;
     flex-wrap: wrap;
     align-items: flex-start;
   }
+
+  .title-block {
+    min-width: 0;
+    flex: 1 1 420px;
+  }
+
+  .title-block h1 {
+    margin: 8px 0 6px;
+    line-height: 1.15;
+    word-break: break-word;
+  }
+
+  .top-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
   .subject-tabs {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
   }
+
   .subject-tab {
     display: inline-flex;
     align-items: center;
@@ -28,39 +52,101 @@
     background: #ffffff;
     color: #0f172a;
     font-weight: 700;
+    min-height: 44px;
   }
+
   .subject-tab.active {
-    background: #0f766e;
-    color: #ffffff;
-    border-color: #0f766e;
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
   }
+
+  .flash-stack {
+    display: grid;
+    gap: 12px;
+  }
+
+  .flash-inline {
+    padding: 14px 16px;
+    border-radius: 14px;
+    font-weight: 600;
+    line-height: 1.55;
+  }
+
+  .flash-inline.success {
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+
+  .flash-inline.danger {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  .flash-inline.info {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+  }
+
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
   }
+
   .stat-box {
     border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    background: #ffffff;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     padding: 16px;
+    min-width: 0;
   }
+
+  .stat-box:nth-child(1) {
+    background: linear-gradient(180deg, #ffffff 0%, #f5f3ff 100%);
+    border-color: #ddd6fe;
+  }
+
+  .stat-box:nth-child(2) {
+    background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
+    border-color: #bfdbfe;
+  }
+
+  .stat-box:nth-child(3) {
+    background: linear-gradient(180deg, #ffffff 0%, #ecfdf5 100%);
+    border-color: #bbf7d0;
+  }
+
+  .stat-box:nth-child(4) {
+    background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
+    border-color: #fed7aa;
+  }
+
   .stat-label {
     color: #64748b;
     font-size: 13px;
     margin-bottom: 6px;
+    line-height: 1.4;
   }
+
   .stat-value {
     font-size: 28px;
     font-weight: 800;
     color: #0f172a;
+    line-height: 1.1;
+    word-break: break-word;
   }
+
   .main-grid {
     display: grid;
     grid-template-columns: minmax(280px, 330px) minmax(0, 1fr);
     gap: 20px;
     align-items: start;
   }
+
   .panel-box {
     border: 1px solid #e5e7eb;
     border-radius: 18px;
@@ -68,26 +154,52 @@
     padding: 18px;
     min-width: 0;
     overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
   }
+
+  .panel-box.filters-panel {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border-color: #dbeafe;
+  }
+
+  .panel-box.bank-panel {
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  }
+
   .filter-form {
     display: grid;
     gap: 12px;
   }
+
   .field {
     display: grid;
     gap: 8px;
   }
+
   .field input,
   .field select {
     width: 100%;
-    padding: 12px;
+    padding: 12px 13px;
+    min-height: 46px;
     border: 1px solid #d1d5db;
     border-radius: 12px;
     background: #ffffff;
     color: #111827;
     box-sizing: border-box;
   }
-  .btn-main, .btn-light, .btn-danger, .icon-btn {
+
+  .field input:focus,
+  .field select:focus,
+  .marks-input:focus {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.12);
+  }
+
+  .btn-main,
+  .btn-light,
+  .btn-danger,
+  .icon-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -96,69 +208,37 @@
     padding: 10px 14px;
     font-weight: 700;
     cursor: pointer;
+    min-height: 44px;
+    font-size: 14px;
   }
+
   .btn-main {
-    background: #0f766e;
+    background: #14b8a6;
     color: #ffffff;
     border: none;
+    box-shadow: 0 10px 20px rgba(20, 184, 166, 0.16);
   }
+
   .btn-light {
     background: #ffffff;
     color: #0f172a;
     border: 1px solid #cbd5e1;
   }
+
   .btn-danger {
     background: #fff1f2;
     color: #9f1239;
     border: 1px solid #fecaca;
   }
+
   .icon-btn {
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    color: #0f172a;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
     padding: 8px 10px;
+    min-width: 42px;
   }
-  .question-table-wrap {
-    overflow-x: auto;
-    width: 100%;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    background: #ffffff;
-  }
-  .question-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 1200px;
-  }
-  .question-table th,
-  .question-table td {
-    padding: 12px;
-    border-bottom: 1px solid #e5e7eb;
-    text-align: left;
-    vertical-align: top;
-  }
-  .question-table thead tr {
-    background: #f8fafc;
-    color: #111827;
-  }
-  .question-preview {
-    max-width: 480px;
-    line-height: 1.5;
-    color: #1f2937;
-  }
-  .usage-badge, .meta-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-  }
-  .usage-0 { background: #dcfce7; color: #166534; }
-  .usage-1, .usage-2 { background: #fef3c7; color: #92400e; }
-  .usage-3, .usage-4 { background: #fee2e2; color: #b91c1c; }
-  .usage-5 { background: #e9d5ff; color: #7e22ce; }
-  .meta-chip { background: #e2e8f0; color: #334155; }
+
   .bulk-bar {
     display: flex;
     justify-content: space-between;
@@ -166,20 +246,184 @@
     flex-wrap: wrap;
     align-items: center;
     margin-bottom: 14px;
+    padding: 14px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
   }
+
   .bulk-controls {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     align-items: center;
   }
-  .builder-list { display: grid; gap: 12px; }
+
+  .marks-input {
+    width: 110px;
+    padding: 10px 12px;
+    min-height: 44px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: #ffffff;
+  }
+
+  .question-table-wrap {
+    overflow-x: auto;
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #ffffff;
+  }
+
+  .question-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1200px;
+  }
+
+  .question-table th,
+  .question-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .question-table thead tr {
+    background: #f8fafc;
+    color: #111827;
+  }
+
+  .question-preview {
+    max-width: 480px;
+    line-height: 1.5;
+    color: #1f2937;
+  }
+
+  .usage-badge,
+  .meta-chip,
+  .difficulty-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .usage-0 { background: #dcfce7; color: #166534; }
+  .usage-1, .usage-2 { background: #fef3c7; color: #92400e; }
+  .usage-3, .usage-4 { background: #fee2e2; color: #b91c1c; }
+  .usage-5 { background: #ede9fe; color: #6d28d9; }
+
+  .meta-chip {
+    background: #e2e8f0;
+    color: #334155;
+  }
+
+  .difficulty-chip.easy {
+    background: #ecfdf5;
+    color: #166534;
+  }
+
+  .difficulty-chip.medium {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .difficulty-chip.hard {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .mobile-question-list {
+    display: none;
+    gap: 12px;
+  }
+
+  .mobile-question-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  }
+
+  .mobile-question-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .mobile-question-title {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .mobile-check {
+    margin-top: 3px;
+  }
+
+  .mobile-question-id {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .mobile-question-text {
+    color: #111827;
+    font-size: 14px;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  .mobile-question-meta {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .mobile-meta-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+  }
+
+  .mobile-meta-label {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .mobile-meta-value {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .builder-list {
+    display: grid;
+    gap: 12px;
+  }
+
   .builder-item {
     border: 1px solid #e5e7eb;
     border-radius: 16px;
     padding: 14px;
-    background: #ffffff;
+    background: linear-gradient(180deg, #ffffff 0%, #fffdfa 100%);
   }
+
   .builder-item-top {
     display: flex;
     justify-content: space-between;
@@ -187,19 +431,23 @@
     flex-wrap: wrap;
     margin-bottom: 8px;
   }
+
   .builder-meta {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     margin-top: 10px;
   }
+
   .empty-box {
     padding: 18px;
     border: 1px dashed #cbd5e1;
     border-radius: 14px;
     color: #64748b;
     background: #f8fafc;
+    line-height: 1.6;
   }
+
   .modal {
     display: none;
     position: fixed;
@@ -209,9 +457,11 @@
     padding: 24px;
     overflow-y: auto;
   }
+
   .modal.show {
     display: block;
   }
+
   .modal-dialog {
     max-width: 900px;
     margin: 40px auto;
@@ -220,6 +470,7 @@
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.20);
   }
+
   .modal-head {
     display: flex;
     justify-content: space-between;
@@ -227,12 +478,15 @@
     align-items: center;
     padding: 18px 20px;
     border-bottom: 1px solid #e5e7eb;
+    background: #f8fafc;
   }
+
   .modal-body {
     padding: 20px;
     display: grid;
     gap: 16px;
   }
+
   .modal-close {
     border: 1px solid #cbd5e1;
     background: #ffffff;
@@ -242,10 +496,159 @@
     cursor: pointer;
     font-weight: 700;
   }
+
   @media (max-width: 1200px) {
-    .main-grid,
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 820px) {
+    .top-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .top-actions {
+      width: 100%;
+    }
+
+    .top-actions a {
+      width: 100%;
+    }
+
+    .panel-box {
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .bulk-bar {
+      padding: 12px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .page-wrap {
+      gap: 16px;
+    }
+
+    .subject-tabs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .subject-tab {
+      width: 100%;
+      justify-content: flex-start;
+      padding: 12px 14px;
+    }
+
     .stats-grid {
       grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .stat-box {
+      padding: 14px;
+      border-radius: 16px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+    }
+
+    .field input,
+    .field select,
+    .btn-main,
+    .btn-light,
+    .btn-danger {
+      width: 100%;
+    }
+
+    .filter-form > div:last-child {
+      display: grid !important;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .bulk-bar {
+      display: grid;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .bulk-controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .marks-input {
+      width: 100%;
+    }
+
+    .question-table-wrap {
+      display: none;
+    }
+
+    .mobile-question-list {
+      display: grid;
+    }
+
+    .builder-item-top {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .builder-item-top form,
+    .builder-item-top button {
+      width: 100%;
+    }
+
+    .modal {
+      padding: 12px;
+    }
+
+    .modal-dialog {
+      margin: 18px auto;
+      border-radius: 16px;
+    }
+
+    .modal-head,
+    .modal-body {
+      padding: 16px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .title-block h1 {
+      font-size: 22px;
+    }
+
+    .panel-box,
+    .builder-item,
+    .mobile-question-card {
+      padding: 14px;
+      border-radius: 14px;
+    }
+
+    .mobile-meta-row {
+      padding: 9px 10px;
+    }
+
+    .modal-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .modal-close {
+      width: 100%;
     }
   }
 </style>
@@ -253,14 +656,14 @@
 <section class="dashboard-wrap">
   <div class="page-wrap">
     <div class="top-row">
-      <div>
+      <div class="title-block">
         <div class="topbar-chip">{{ selected_subject_name }} Question Bank</div>
-        <h1 style="margin:8px 0 6px;">{{ test.title }}</h1>
+        <h1>{{ test.title }}</h1>
         <p class="panel-text">
           Build {{ selected_subject_name }} questions with filters, preview, and bulk add.
         </p>
       </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <div class="top-actions">
         <a href="{{ url_for('admin.test_builder_page', test_id=test.id) }}" class="btn-light">Back to Builder</a>
       </div>
     </div>
@@ -279,15 +682,15 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div style="display:grid; gap:12px;">
+        <div class="flash-stack">
           {% for category, message in messages %}
-            <div style="padding:14px 16px; border-radius:14px; font-weight:600;
+            <div class="flash-inline
               {% if category in ['success'] %}
-                background:#ecfdf3; color:#166534; border:1px solid #bbf7d0;
+                success
               {% elif category in ['danger', 'error'] %}
-                background:#fef2f2; color:#991b1b; border:1px solid #fecaca;
+                danger
               {% else %}
-                background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;
+                info
               {% endif %}">
               {{ message }}
             </div>
@@ -316,7 +719,7 @@
     </div>
 
     <div class="main-grid">
-      <div class="panel-box">
+      <div class="panel-box filters-panel">
         <h3>Filters</h3>
         <p class="panel-text" style="margin-bottom:14px;">
           Filter {{ selected_subject_name }} bank before selecting questions.
@@ -362,8 +765,8 @@
           </div>
 
           <div class="field">
-            <label style="display:flex; align-items:center; gap:8px;">
-              <input type="checkbox" name="only_unused" value="1" {% if only_unused == '1' %}checked{% endif %}>
+            <label style="display:flex; align-items:flex-start; gap:8px;">
+              <input type="checkbox" name="only_unused" value="1" {% if only_unused == '1' %}checked{% endif %} style="width:auto; min-height:auto; margin-top:2px;">
               <strong>Show only unused questions</strong>
             </label>
           </div>
@@ -375,7 +778,7 @@
         </form>
       </div>
 
-      <div class="panel-box">
+      <div class="panel-box bank-panel">
         <h3>{{ selected_subject_name }} Question Bank</h3>
         <p class="panel-text" style="margin-bottom:14px;">
           Preview long questions with the eye button and add multiple questions at once.
@@ -390,8 +793,8 @@
               </label>
             </div>
             <div class="bulk-controls">
-              <input type="number" step="0.25" name="marks" value="4" placeholder="Marks" style="width:110px; padding:10px 12px; border:1px solid #d1d5db; border-radius:12px;">
-              <input type="number" step="0.25" name="negative_marks" value="1" placeholder="Negative" style="width:130px; padding:10px 12px; border:1px solid #d1d5db; border-radius:12px;">
+              <input type="number" step="0.25" name="marks" value="4" placeholder="Marks" class="marks-input">
+              <input type="number" step="0.25" name="negative_marks" value="1" placeholder="Negative" class="marks-input">
               <button type="submit" class="btn-main">Add Selected</button>
             </div>
           </div>
@@ -438,7 +841,11 @@
                       </td>
                       <td><div class="question-preview">{{ question.stem[:180] }}{% if question.stem|length > 180 %}...{% endif %}</div></td>
                       <td><span class="meta-chip">{{ question.chapter_name }}</span></td>
-                      <td><span class="meta-chip">{{ question.difficulty_level|title }}</span></td>
+                      <td>
+                        <span class="difficulty-chip {{ question.difficulty_level }}">
+                          {{ question.difficulty_level|title }}
+                        </span>
+                      </td>
                       <td>
                         <span class="usage-badge {% if question.usage_count == 0 %}usage-0{% elif question.usage_count in [1,2] %}usage-1{% elif question.usage_count in [3,4] %}usage-3{% else %}usage-5{% endif %}">
                           {{ question.usage_count }} time{% if question.usage_count != 1 %}s{% endif %}
@@ -449,6 +856,64 @@
                   {% endfor %}
                 </tbody>
               </table>
+            </div>
+
+            <div class="mobile-question-list">
+              {% for question in available_questions %}
+              <article class="mobile-question-card">
+                <div class="mobile-question-top">
+                  <div class="mobile-question-title">
+                    <input type="checkbox" name="question_ids" value="{{ question.id }}" class="question-checkbox mobile-check">
+                    <div>
+                      <div class="mobile-question-id">Question ID: {{ question.id }}</div>
+                      <div class="mobile-question-text">
+                        {{ question.stem[:180] }}{% if question.stem|length > 180 %}...{% endif %}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="icon-btn preview-btn"
+                    data-qid="{{ question.id }}"
+                    data-stem="{{ question.stem|e }}"
+                    data-chapter="{{ question.chapter_name|e }}"
+                    data-difficulty="{{ question.difficulty_level|title|e }}"
+                    data-correct="{{ question.correct_option|e }}"
+                    data-option-a="{{ question.option_a|e }}"
+                    data-option-b="{{ question.option_b|e }}"
+                    data-option-c="{{ question.option_c|e }}"
+                    data-option-d="{{ question.option_d|e }}"
+                    data-explanation="{{ (question.explanation or '')|e }}"
+                  >
+                    👁
+                  </button>
+                </div>
+
+                <div class="mobile-question-meta">
+                  <div class="mobile-meta-row">
+                    <span class="mobile-meta-label">Chapter</span>
+                    <span class="mobile-meta-value">{{ question.chapter_name }}</span>
+                  </div>
+                  <div class="mobile-meta-row">
+                    <span class="mobile-meta-label">Difficulty</span>
+                    <span class="difficulty-chip {{ question.difficulty_level }}">
+                      {{ question.difficulty_level|title }}
+                    </span>
+                  </div>
+                  <div class="mobile-meta-row">
+                    <span class="mobile-meta-label">Usage</span>
+                    <span class="usage-badge {% if question.usage_count == 0 %}usage-0{% elif question.usage_count in [1,2] %}usage-1{% elif question.usage_count in [3,4] %}usage-3{% else %}usage-5{% endif %}">
+                      {{ question.usage_count }} time{% if question.usage_count != 1 %}s{% endif %}
+                    </span>
+                  </div>
+                  <div class="mobile-meta-row">
+                    <span class="mobile-meta-label">Correct</span>
+                    <span class="mobile-meta-value">{{ question.correct_option }}</span>
+                  </div>
+                </div>
+              </article>
+              {% endfor %}
             </div>
           {% else %}
             <div class="empty-box">No {{ selected_subject_name }} questions found for current filters.</div>
