@@ -7,20 +7,22 @@
     .analytics-overview-page {
       display: flex;
       flex-direction: column;
-      gap: 22px;
+      gap: 20px;
     }
 
     .analytics-hero {
-      background: linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 24%),
+        linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
       border: 1px solid #e4ebf5;
       border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 20px;
-      flex-wrap: wrap;
+      padding: 24px;
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.05);
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
+      gap: 18px;
+      align-items: stretch;
     }
 
     .analytics-hero h1 {
@@ -29,14 +31,15 @@
       font-weight: 800;
       color: #0f172a;
       letter-spacing: -0.03em;
+      line-height: 1.12;
     }
 
     .analytics-hero p {
       margin: 10px 0 0;
       color: #64748b;
       max-width: 760px;
-      line-height: 1.6;
-      font-size: 0.98rem;
+      line-height: 1.65;
+      font-size: 0.96rem;
     }
 
     .hero-badges {
@@ -50,28 +53,53 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 14px;
+      padding: 9px 13px;
       border-radius: 999px;
-      background: #eef4ff;
-      color: #1e3a8a;
-      font-size: 0.86rem;
-      font-weight: 700;
-      border: 1px solid #dbe7ff;
+      font-size: 0.82rem;
+      font-weight: 800;
+      border: 1px solid transparent;
+    }
+
+    .hero-badge.blue {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #dbeafe;
+    }
+
+    .hero-badge.green {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #bbf7d0;
+    }
+
+    .hero-badge.violet {
+      background: #f5f3ff;
+      color: #7c3aed;
+      border-color: #ddd6fe;
+    }
+
+    .hero-badge.peach {
+      background: #fff7ed;
+      color: #c2410c;
+      border-color: #fed7aa;
     }
 
     .analytics-hero-side {
-      min-width: 260px;
-      max-width: 340px;
-      background: #ffffff;
+      min-width: 0;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
       border: 1px solid #e5edf6;
       border-radius: 20px;
       padding: 18px;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
     }
 
     .mini-meta-label {
       font-size: 0.72rem;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: #94a3b8;
@@ -79,29 +107,57 @@
     }
 
     .mini-meta-value {
-      font-size: 1.5rem;
+      font-size: 1.7rem;
       font-weight: 800;
       color: #0f172a;
       margin-bottom: 6px;
+      line-height: 1.1;
     }
 
     .mini-meta-sub {
       color: #64748b;
       font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .snapshot-meter {
+      display: grid;
+      gap: 8px;
+    }
+
+    .snapshot-meter-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+
+    .snapshot-meter-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #14b8a6 0%, #2563eb 100%);
+      width: {{ participation_rate|default(0) }}%;
+      max-width: 100%;
+    }
+
+    .snapshot-meter-note {
+      font-size: 0.83rem;
+      color: #64748b;
       line-height: 1.5;
     }
 
     .analytics-kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 18px;
+      gap: 16px;
     }
 
     .analytics-kpi-card {
-      background: #ffffff;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
       border: 1px solid #e7edf6;
-      border-radius: 22px;
-      padding: 22px;
+      border-radius: 20px;
+      padding: 20px;
       box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
       position: relative;
       overflow: hidden;
@@ -112,14 +168,31 @@
       position: absolute;
       top: 0;
       right: 0;
-      width: 90px;
-      height: 90px;
+      width: 88px;
+      height: 88px;
       background: radial-gradient(circle at top right, rgba(59,130,246,0.10), transparent 70%);
       pointer-events: none;
     }
 
+    .analytics-kpi-card.blue::before,
+    .analytics-kpi-card.green::before,
+    .analytics-kpi-card.violet::before,
+    .analytics-kpi-card.peach::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 4px;
+    }
+
+    .analytics-kpi-card.blue::before { background: #60a5fa; }
+    .analytics-kpi-card.green::before { background: #34d399; }
+    .analytics-kpi-card.violet::before { background: #a78bfa; }
+    .analytics-kpi-card.peach::before { background: #fb923c; }
+
     .analytics-kpi-label {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: #94a3b8;
@@ -128,7 +201,7 @@
     }
 
     .analytics-kpi-value {
-      font-size: 2rem;
+      font-size: 1.9rem;
       font-weight: 800;
       color: #0f172a;
       line-height: 1.1;
@@ -137,22 +210,30 @@
 
     .analytics-kpi-sub {
       color: #64748b;
-      font-size: 0.9rem;
-      line-height: 1.5;
+      font-size: 0.88rem;
+      line-height: 1.55;
     }
 
     .analytics-layout-two {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
+      grid-template-columns: 1.12fr 0.88fr;
       gap: 20px;
     }
 
     .analytics-card {
       background: #ffffff;
       border: 1px solid #e8eef7;
-      border-radius: 24px;
-      padding: 22px;
+      border-radius: 22px;
+      padding: 20px;
       box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+    }
+
+    .analytics-card.soft-blue {
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .analytics-card.soft-peach {
+      background: linear-gradient(180deg, #ffffff 0%, #fffdfa 100%);
     }
 
     .analytics-card-head {
@@ -166,7 +247,7 @@
 
     .analytics-card-head h3 {
       margin: 0;
-      font-size: 1.15rem;
+      font-size: 1.12rem;
       font-weight: 800;
       color: #0f172a;
     }
@@ -175,7 +256,7 @@
       margin: 6px 0 0;
       color: #64748b;
       font-size: 0.92rem;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .analytics-chip {
@@ -204,6 +285,22 @@
       background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     }
 
+    .health-tile.blue {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .health-tile.green {
+      background: linear-gradient(180deg, #ffffff 0%, #f3fff8 100%);
+    }
+
+    .health-tile.violet {
+      background: linear-gradient(180deg, #ffffff 0%, #faf7ff 100%);
+    }
+
+    .health-tile.peach {
+      background: linear-gradient(180deg, #ffffff 0%, #fff8f2 100%);
+    }
+
     .health-label {
       color: #94a3b8;
       font-size: 0.78rem;
@@ -215,16 +312,152 @@
 
     .health-value {
       color: #0f172a;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 800;
       margin-bottom: 6px;
+      line-height: 1.35;
     }
 
     .health-sub {
       color: #64748b;
       font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .analytics-mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .mini-chart-card {
+      border: 1px solid #e8eef7;
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .mini-chart-title {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .donut-chart {
+      --donut-participation: {{ participation_rate|default(0) }};
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background:
+        conic-gradient(#2563eb 0 calc(var(--donut-participation) * 1%),
+        #dbeafe calc(var(--donut-participation) * 1%) 100%);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .donut-chart::after {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    .donut-center {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .donut-center strong {
+      display: block;
+      font-size: 1.1rem;
+      color: #0f172a;
+    }
+
+    .donut-center span {
+      display: block;
+      margin-top: 2px;
+      color: #64748b;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .donut-legend {
+      display: grid;
+      gap: 10px;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .legend-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.86rem;
+      color: #475569;
       line-height: 1.45;
     }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .legend-dot.blue { background: #2563eb; }
+    .legend-dot.soft { background: #dbeafe; }
+
+    .comparison-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .comparison-row {
+      display: grid;
+      gap: 6px;
+    }
+
+    .comparison-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.86rem;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .comparison-track {
+      height: 11px;
+      width: 100%;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .comparison-fill {
+      height: 100%;
+      border-radius: inherit;
+      min-width: 2%;
+    }
+
+    .comparison-fill.score { width: {{ avg_score|default(0) if avg_score|default(0) <= 100 else 100 }}%; background: linear-gradient(90deg, #60a5fa, #2563eb); }
+    .comparison-fill.accuracy { width: {{ avg_accuracy|default(0) }}%; background: linear-gradient(90deg, #34d399, #059669); }
+    .comparison-fill.percentile { width: {{ avg_percentile|default(0) if avg_percentile|default(0) <= 100 else 100 }}%; background: linear-gradient(90deg, #c4b5fd, #7c3aed); }
 
     .attention-list {
       display: flex;
@@ -253,7 +486,7 @@
     .attention-meta {
       color: #64748b;
       font-size: 0.9rem;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .status-pill {
@@ -286,6 +519,7 @@
       overflow-x: auto;
       border: 1px solid #e8eef7;
       border-radius: 18px;
+      background: #ffffff;
     }
 
     .analytics-table {
@@ -354,13 +588,78 @@
     }
 
     .empty-state {
-      padding: 24px;
+      padding: 22px;
       border: 1px dashed #dbe4ef;
       border-radius: 18px;
       background: #fbfdff;
       color: #64748b;
       text-align: center;
       font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .batch-mobile-list {
+      display: none;
+      gap: 14px;
+    }
+
+    .batch-mobile-card {
+      border: 1px solid #e7edf6;
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    }
+
+    .batch-mobile-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .batch-mobile-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .batch-mobile-sub {
+      color: #64748b;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .batch-mobile-meta {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .batch-mobile-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid #eef2f7;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+
+    .batch-mobile-label {
+      color: #64748b;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .batch-mobile-value {
+      color: #0f172a;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-align: right;
     }
 
     .recent-test-grid {
@@ -381,12 +680,13 @@
       font-weight: 800;
       color: #0f172a;
       margin-bottom: 8px;
+      line-height: 1.4;
     }
 
     .recent-test-meta {
       color: #64748b;
       font-size: 0.9rem;
-      line-height: 1.6;
+      line-height: 1.65;
       margin-bottom: 14px;
     }
 
@@ -442,7 +742,9 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .analytics-layout-two {
+      .analytics-layout-two,
+      .analytics-mini-grid,
+      .analytics-hero {
         grid-template-columns: 1fr;
       }
 
@@ -452,10 +754,15 @@
     }
 
     @media (max-width: 768px) {
+      .analytics-overview-page {
+        gap: 16px;
+      }
+
       .analytics-hero,
       .analytics-card,
       .analytics-kpi-card {
         padding: 18px;
+        border-radius: 18px;
       }
 
       .analytics-kpi-grid,
@@ -464,11 +771,72 @@
       }
 
       .analytics-hero h1 {
-        font-size: 1.6rem;
+        font-size: 1.55rem;
+      }
+
+      .mini-meta-value,
+      .analytics-kpi-value {
+        font-size: 1.65rem;
       }
 
       .analytics-table {
         min-width: 760px;
+      }
+
+      .donut-wrap {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .analytics-hero,
+      .analytics-card,
+      .analytics-kpi-card,
+      .recent-test-card,
+      .batch-mobile-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .analytics-hero h1 {
+        font-size: 1.35rem;
+      }
+
+      .analytics-hero p,
+      .analytics-card-head p,
+      .recent-test-meta,
+      .attention-meta,
+      .health-sub,
+      .analytics-kpi-sub,
+      .mini-meta-sub {
+        font-size: 0.88rem;
+      }
+
+      .analytics-table-wrap {
+        display: none;
+      }
+
+      .batch-mobile-list {
+        display: grid;
+      }
+
+      .batch-mobile-row {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .batch-mobile-value {
+        text-align: left;
+      }
+
+      .btn-main-soft,
+      .btn-lite,
+      .table-link {
+        width: 100%;
+      }
+
+      .recent-test-actions {
+        display: grid;
       }
     }
   </style>
@@ -501,75 +869,144 @@
       </p>
 
       <div class="hero-badges">
-        <span class="hero-badge">Center-wide monitoring</span>
-        <span class="hero-badge">Batch comparison</span>
-        <span class="hero-badge">At-risk detection</span>
-        <span class="hero-badge">Test drilldowns</span>
+        <span class="hero-badge blue">Center-wide monitoring</span>
+        <span class="hero-badge green">Batch comparison</span>
+        <span class="hero-badge violet">At-risk detection</span>
+        <span class="hero-badge peach">Test drilldowns</span>
       </div>
     </div>
 
     <div class="analytics-hero-side">
-      <div class="mini-meta-label">Quick snapshot</div>
-      <div class="mini-meta-value">{{ participation_rate }}%</div>
-      <div class="mini-meta-sub">
-        Participation rate across submitted attempts. Use this page to identify low-engagement
-        students, weak cohorts, and tests needing review.
+      <div>
+        <div class="mini-meta-label">Quick snapshot</div>
+        <div class="mini-meta-value">{{ participation_rate }}%</div>
+        <div class="mini-meta-sub">
+          Participation rate across submitted attempts. Use this page to identify low-engagement
+          students, weak cohorts, and tests needing review.
+        </div>
+      </div>
+
+      <div class="snapshot-meter">
+        <div class="snapshot-meter-track">
+          <div class="snapshot-meter-fill"></div>
+        </div>
+        <div class="snapshot-meter-note">Participation visual meter</div>
       </div>
     </div>
   </div>
 
   <div class="analytics-kpi-grid">
-    <div class="analytics-kpi-card">
+    <div class="analytics-kpi-card blue">
       <div class="analytics-kpi-label">Total Students</div>
       <div class="analytics-kpi-value">{{ total_students }}</div>
       <div class="analytics-kpi-sub">All registered students mapped to the platform.</div>
     </div>
 
-    <div class="analytics-kpi-card">
+    <div class="analytics-kpi-card green">
       <div class="analytics-kpi-label">Active Students</div>
       <div class="analytics-kpi-value">{{ active_students }}</div>
       <div class="analytics-kpi-sub">Students currently marked active in the institute.</div>
     </div>
 
-    <div class="analytics-kpi-card">
+    <div class="analytics-kpi-card violet">
       <div class="analytics-kpi-label">Total Batches</div>
       <div class="analytics-kpi-value">{{ total_batches }}</div>
       <div class="analytics-kpi-sub">Current academic groups available for comparison.</div>
     </div>
 
-    <div class="analytics-kpi-card">
+    <div class="analytics-kpi-card peach">
       <div class="analytics-kpi-label">Published Tests</div>
       <div class="analytics-kpi-value">{{ total_tests }}</div>
       <div class="analytics-kpi-sub">Tests available in the published analytics pool.</div>
     </div>
 
-    <div class="analytics-kpi-card">
+    <div class="analytics-kpi-card blue">
       <div class="analytics-kpi-label">Submitted Attempts</div>
       <div class="analytics-kpi-value">{{ total_submitted }}</div>
       <div class="analytics-kpi-sub">Completed attempts included in performance analysis.</div>
     </div>
 
-    <div class="analytics-kpi-card">
+    <div class="analytics-kpi-card green">
       <div class="analytics-kpi-label">Average Score</div>
       <div class="analytics-kpi-value">{{ avg_score }}</div>
       <div class="analytics-kpi-sub">Mean score across all submitted attempts.</div>
     </div>
 
-    <div class="analytics-kpi-card">
+    <div class="analytics-kpi-card violet">
       <div class="analytics-kpi-label">Average Accuracy</div>
       <div class="analytics-kpi-value">{{ avg_accuracy }}%</div>
       <div class="analytics-kpi-sub">Correct answers as a share of attempted question outcomes.</div>
     </div>
 
-    <div class="analytics-kpi-card">
+    <div class="analytics-kpi-card peach">
       <div class="analytics-kpi-label">Average Percentile</div>
       <div class="analytics-kpi-value">{{ avg_percentile }}</div>
       <div class="analytics-kpi-sub">Overall percentile benchmark across scored attempts.</div>
     </div>
   </div>
 
+  <div class="analytics-mini-grid">
+    <div class="mini-chart-card">
+      <h3 class="mini-chart-title">Participation Snapshot</h3>
+      <div class="donut-wrap">
+        <div class="donut-chart">
+          <div class="donut-center">
+            <strong>{{ participation_rate }}%</strong>
+            <span>Participated</span>
+          </div>
+        </div>
+
+        <div class="donut-legend">
+          <div class="legend-row">
+            <div><span class="legend-dot blue"></span>Participated</div>
+            <strong>{{ participation_rate }}%</strong>
+          </div>
+          <div class="legend-row">
+            <div><span class="legend-dot soft"></span>Remaining gap</div>
+            <strong>{{ 100 - (participation_rate|int if participation_rate|int <= 100 else 100) }}%</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mini-chart-card">
+      <h3 class="mini-chart-title">Performance Comparison</h3>
+      <div class="comparison-bars">
+        <div class="comparison-row">
+          <div class="comparison-head">
+            <span>Average Score</span>
+            <span>{{ avg_score }}</span>
+          </div>
+          <div class="comparison-track">
+            <div class="comparison-fill score"></div>
+          </div>
+        </div>
+
+        <div class="comparison-row">
+          <div class="comparison-head">
+            <span>Accuracy</span>
+            <span>{{ avg_accuracy }}%</span>
+          </div>
+          <div class="comparison-track">
+            <div class="comparison-fill accuracy"></div>
+          </div>
+        </div>
+
+        <div class="comparison-row">
+          <div class="comparison-head">
+            <span>Percentile</span>
+            <span>{{ avg_percentile }}</span>
+          </div>
+          <div class="comparison-track">
+            <div class="comparison-fill percentile"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="analytics-layout-two">
-    <div class="analytics-card">
+    <div class="analytics-card soft-blue">
       <div class="analytics-card-head">
         <div>
           <h3>Center Health</h3>
@@ -579,7 +1016,7 @@
       </div>
 
       <div class="health-grid">
-        <div class="health-tile">
+        <div class="health-tile blue">
           <div class="health-label">Best Batch</div>
           <div class="health-value">
             {{ best_batch.name if best_batch and best_batch.name else 'Not available yet' }}
@@ -594,7 +1031,7 @@
           </div>
         </div>
 
-        <div class="health-tile">
+        <div class="health-tile peach">
           <div class="health-label">Weakest Batch</div>
           <div class="health-value">
             {{ weakest_batch.name if weakest_batch and weakest_batch.name else 'Not available yet' }}
@@ -609,7 +1046,7 @@
           </div>
         </div>
 
-        <div class="health-tile">
+        <div class="health-tile green">
           <div class="health-label">Top Student</div>
           <div class="health-value">
             {{ center_top_student.full_name if center_top_student and center_top_student.full_name else 'Not available yet' }}
@@ -624,7 +1061,7 @@
           </div>
         </div>
 
-        <div class="health-tile">
+        <div class="health-tile violet">
           <div class="health-label">Weak Subject</div>
           <div class="health-value">{{ weak_subject }}</div>
           <div class="health-sub">
@@ -634,7 +1071,7 @@
       </div>
     </div>
 
-    <div class="analytics-card">
+    <div class="analytics-card soft-peach">
       <div class="analytics-card-head">
         <div>
           <h3>Students Needing Attention</h3>
@@ -732,6 +1169,53 @@
             {% endfor %}
           </tbody>
         </table>
+      </div>
+
+      <div class="batch-mobile-list">
+        {% for batch in batch_rows %}
+          <article class="batch-mobile-card">
+            <div class="batch-mobile-top">
+              <div>
+                <div class="batch-mobile-title">{{ batch.name|default('Unnamed Batch') }}</div>
+                <div class="batch-mobile-sub">{{ batch.academic_year|default('') }}</div>
+              </div>
+              <span class="analytics-chip">{{ batch.participation_rate|default(0) }}% participation</span>
+            </div>
+
+            <div class="batch-mobile-meta">
+              <div class="batch-mobile-row">
+                <span class="batch-mobile-label">Students</span>
+                <span class="batch-mobile-value">{{ batch.student_count|default(0) }}</span>
+              </div>
+              <div class="batch-mobile-row">
+                <span class="batch-mobile-label">Attempts</span>
+                <span class="batch-mobile-value">{{ batch.attempt_count|default(0) }}</span>
+              </div>
+              <div class="batch-mobile-row">
+                <span class="batch-mobile-label">Average Score</span>
+                <span class="batch-mobile-value">{{ batch.avg_score|default(0) }}</span>
+              </div>
+              <div class="batch-mobile-row">
+                <span class="batch-mobile-label">Accuracy</span>
+                <span class="batch-mobile-value">{{ batch.avg_accuracy|default(0) }}%</span>
+              </div>
+              <div class="batch-mobile-row">
+                <span class="batch-mobile-label">Percentile</span>
+                <span class="batch-mobile-value">{{ batch.avg_percentile|default(0) }}</span>
+              </div>
+            </div>
+
+            <div style="margin-top:14px;">
+              {% if batch.id %}
+                <a href="{{ url_for('admin.analytics_students_page', batch_id=batch.id) }}" class="table-link">
+                  View Students
+                </a>
+              {% else %}
+                <span class="analytics-chip">Pending</span>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
       </div>
     {% else %}
       <div class="empty-state">
