@@ -12,25 +12,27 @@
 
   .top-summary-bar {
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
     gap: 18px;
   }
 
   .welcome-card,
   .focus-card,
   .section-card,
-  .metric-card {
+  .metric-card,
+  .chart-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 20px;
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    min-width: 0;
   }
 
   .welcome-card {
     padding: 22px 24px;
     background:
-      radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 28%),
-      radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 25%),
+      radial-gradient(circle at top right, rgba(59, 130, 246, 0.10), transparent 28%),
+      radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.08), transparent 24%),
       linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
   }
 
@@ -71,6 +73,42 @@
     color: #64748b;
     font-size: 14px;
     line-height: 1.7;
+  }
+
+  .hero-mini-stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .hero-mini-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .hero-mini-chip.blue {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+  }
+
+  .hero-mini-chip.green {
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+
+  .hero-mini-chip.orange {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #c2410c;
   }
 
   .admin-badge {
@@ -192,34 +230,22 @@
     opacity: 0.12;
   }
 
-  .metric-card.students {
-    background: linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%);
-  }
+  .metric-card.students { background: linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%); }
   .metric-card.students::after { background: #3b82f6; }
 
-  .metric-card.questions {
-    background: linear-gradient(180deg, #ffffff 0%, #f3fffb 100%);
-  }
+  .metric-card.questions { background: linear-gradient(180deg, #ffffff 0%, #f3fffb 100%); }
   .metric-card.questions::after { background: #14b8a6; }
 
-  .metric-card.tests {
-    background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
-  }
+  .metric-card.tests { background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%); }
   .metric-card.tests::after { background: #8b5cf6; }
 
-  .metric-card.batches {
-    background: linear-gradient(180deg, #ffffff 0%, #fff8f1 100%);
-  }
+  .metric-card.batches { background: linear-gradient(180deg, #ffffff 0%, #fff8f1 100%); }
   .metric-card.batches::after { background: #f59e0b; }
 
-  .metric-card.subjects {
-    background: linear-gradient(180deg, #ffffff 0%, #f4fdf7 100%);
-  }
+  .metric-card.subjects { background: linear-gradient(180deg, #ffffff 0%, #f4fdf7 100%); }
   .metric-card.subjects::after { background: #22c55e; }
 
-  .metric-card.chapters {
-    background: linear-gradient(180deg, #ffffff 0%, #fff5f7 100%);
-  }
+  .metric-card.chapters { background: linear-gradient(180deg, #ffffff 0%, #fff5f7 100%); }
   .metric-card.chapters::after { background: #ec4899; }
 
   .metric-top {
@@ -268,6 +294,110 @@
     color: #64748b;
     font-size: 13px;
     line-height: 1.5;
+  }
+
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: 18px;
+  }
+
+  .chart-stack {
+    display: grid;
+    gap: 18px;
+  }
+
+  .chart-card {
+    padding: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  }
+
+  .chart-card.blue { border-color: #dbeafe; }
+  .chart-card.green { border-color: #bbf7d0; }
+  .chart-card.purple { border-color: #e9d5ff; }
+  .chart-card.orange { border-color: #fed7aa; }
+
+  .chart-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .chart-head h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 19px;
+    font-weight: 800;
+  }
+
+  .chart-note {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .chart-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    border: 1px solid transparent;
+  }
+
+  .chart-badge.blue { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+  .chart-badge.green { background: #ecfdf3; border-color: #bbf7d0; color: #166534; }
+  .chart-badge.purple { background: #f5f3ff; border-color: #ddd6fe; color: #6d28d9; }
+  .chart-badge.orange { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 290px;
+  }
+
+  .chart-wrap.tall {
+    height: 340px;
+  }
+
+  .chart-wrap.compact {
+    height: 240px;
+  }
+
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .mini-kpi {
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+  }
+
+  .mini-kpi-label {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    letter-spacing: 0.04em;
+  }
+
+  .mini-kpi-value {
+    color: #0f172a;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
   }
 
   .dashboard-main-grid {
@@ -500,7 +630,8 @@
   @media (max-width: 1180px) {
     .top-summary-bar,
     .dashboard-main-grid,
-    .two-col {
+    .two-col,
+    .analytics-grid {
       grid-template-columns: 1fr;
     }
 
@@ -511,19 +642,69 @@
 
   @media (max-width: 720px) {
     .metric-grid,
-    .action-grid {
+    .action-grid,
+    .kpi-strip {
       grid-template-columns: 1fr;
     }
 
     .welcome-card,
     .focus-card,
     .section-card,
-    .metric-card {
+    .metric-card,
+    .chart-card {
       border-radius: 18px;
     }
 
     .welcome-title {
       font-size: 24px;
+    }
+
+    .chart-wrap {
+      height: 260px;
+    }
+
+    .chart-wrap.tall {
+      height: 300px;
+    }
+
+    .chart-wrap.compact {
+      height: 220px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .dashboard-shell {
+      gap: 14px;
+    }
+
+    .welcome-card,
+    .focus-card,
+    .section-card,
+    .metric-card,
+    .chart-card {
+      padding: 15px;
+      border-radius: 16px;
+    }
+
+    .metric-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .admin-badge {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .page-chip,
+    .hero-mini-chip,
+    .chart-badge,
+    .status-badge {
+      font-size: 11px;
+    }
+
+    .metric-value {
+      font-size: 30px;
     }
   }
 </style>
@@ -532,6 +713,15 @@
 {% block content %}
 {% set admin_name = current_user.full_name if current_user is defined and current_user and current_user.full_name else (current_user.username if current_user is defined and current_user and current_user.username else 'Admin User') %}
 {% set admin_initial = admin_name[:1]|upper %}
+{% set students_count = stats.students if stats else 0 %}
+{% set questions_count = stats.questions if stats else 0 %}
+{% set tests_count = stats.tests if stats else 0 %}
+{% set batches_count = stats.batches if stats else 0 %}
+{% set subjects_count = stats.subjects if stats else 0 %}
+{% set chapters_count = stats.chapters if stats else 0 %}
+{% set published_tests = latest_tests|selectattr('status', 'equalto', 'published')|list|length if latest_tests else 0 %}
+{% set draft_tests = latest_tests|rejectattr('status', 'equalto', 'published')|list|length if latest_tests else 0 %}
+
 <section class="dashboard-shell">
 
   <section class="top-summary-bar">
@@ -543,6 +733,12 @@
           <p class="welcome-text">
             Use this dashboard to manage academic setup, maintain the question bank, create tests, and monitor recent platform activity without extra navigation.
           </p>
+
+          <div class="hero-mini-stats">
+            <span class="hero-mini-chip blue">{{ students_count }} students</span>
+            <span class="hero-mini-chip green">{{ questions_count }} questions</span>
+            <span class="hero-mini-chip orange">{{ tests_count }} tests</span>
+          </div>
         </div>
 
         <div class="admin-badge">
@@ -591,7 +787,7 @@
         <div class="metric-label">Students</div>
         <div class="metric-icon">S</div>
       </div>
-      <div class="metric-value">{{ stats.students if stats else 0 }}</div>
+      <div class="metric-value">{{ students_count }}</div>
       <div class="metric-meta">Registered student accounts in the platform.</div>
     </div>
 
@@ -600,7 +796,7 @@
         <div class="metric-label">Question Bank</div>
         <div class="metric-icon">Q</div>
       </div>
-      <div class="metric-value">{{ stats.questions if stats else 0 }}</div>
+      <div class="metric-value">{{ questions_count }}</div>
       <div class="metric-meta">Questions available for paper creation and review.</div>
     </div>
 
@@ -609,7 +805,7 @@
         <div class="metric-label">Tests</div>
         <div class="metric-icon">T</div>
       </div>
-      <div class="metric-value">{{ stats.tests if stats else 0 }}</div>
+      <div class="metric-value">{{ tests_count }}</div>
       <div class="metric-meta">Draft and published tests currently managed.</div>
     </div>
 
@@ -618,7 +814,7 @@
         <div class="metric-label">Batches</div>
         <div class="metric-icon">B</div>
       </div>
-      <div class="metric-value">{{ stats.batches if stats else 0 }}</div>
+      <div class="metric-value">{{ batches_count }}</div>
       <div class="metric-meta">Academic groups available for student assignment.</div>
     </div>
 
@@ -627,7 +823,7 @@
         <div class="metric-label">Subjects</div>
         <div class="metric-icon">Sub</div>
       </div>
-      <div class="metric-value">{{ stats.subjects if stats else 0 }}</div>
+      <div class="metric-value">{{ subjects_count }}</div>
       <div class="metric-meta">Subjects configured for question organization.</div>
     </div>
 
@@ -636,8 +832,81 @@
         <div class="metric-label">Chapters</div>
         <div class="metric-icon">Ch</div>
       </div>
-      <div class="metric-value">{{ stats.chapters if stats else 0 }}</div>
+      <div class="metric-value">{{ chapters_count }}</div>
       <div class="metric-meta">Chapter units mapped under available subjects.</div>
+    </div>
+  </section>
+
+  <section class="analytics-grid">
+    <div class="chart-stack">
+      <div class="chart-card blue">
+        <div class="chart-head">
+          <div>
+            <h3>Platform volume</h3>
+            <p class="chart-note">Compare the size of core modules across the academic and testing system.</p>
+          </div>
+          <span class="chart-badge blue">Comparison</span>
+        </div>
+        <div class="chart-wrap tall">
+          <canvas id="platformVolumeChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card green">
+        <div class="chart-head">
+          <div>
+            <h3>Operational mix</h3>
+            <p class="chart-note">See how platform content is distributed across students, content, and test operations.</p>
+          </div>
+          <span class="chart-badge green">Composition</span>
+        </div>
+        <div class="chart-wrap compact">
+          <canvas id="operationsMixChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-stack">
+      <div class="chart-card purple">
+        <div class="chart-head">
+          <div>
+            <h3>Test publication split</h3>
+            <p class="chart-note">Recent visible mix of published versus draft tests based on current latest tests.</p>
+          </div>
+          <span class="chart-badge purple">Status</span>
+        </div>
+        <div class="chart-wrap compact">
+          <canvas id="testStatusChart"></canvas>
+        </div>
+
+        <div class="kpi-strip">
+          <div class="mini-kpi">
+            <div class="mini-kpi-label">Published</div>
+            <div class="mini-kpi-value">{{ published_tests }}</div>
+          </div>
+          <div class="mini-kpi">
+            <div class="mini-kpi-label">Draft</div>
+            <div class="mini-kpi-value">{{ draft_tests }}</div>
+          </div>
+          <div class="mini-kpi">
+            <div class="mini-kpi-label">Total visible</div>
+            <div class="mini-kpi-value">{{ latest_tests|length if latest_tests else 0 }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card orange">
+        <div class="chart-head">
+          <div>
+            <h3>Academic structure depth</h3>
+            <p class="chart-note">A simple structural ratio view of batches, subjects, and chapters.</p>
+          </div>
+          <span class="chart-badge orange">Structure</span>
+        </div>
+        <div class="chart-wrap compact">
+          <canvas id="academicDepthChart"></canvas>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -808,4 +1077,192 @@
     </div>
   </section>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+<script>
+  (() => {
+    const students = {{ students_count|tojson }};
+    const questions = {{ questions_count|tojson }};
+    const tests = {{ tests_count|tojson }};
+    const batches = {{ batches_count|tojson }};
+    const subjects = {{ subjects_count|tojson }};
+    const chapters = {{ chapters_count|tojson }};
+    const publishedTests = {{ published_tests|tojson }};
+    const draftTests = {{ draft_tests|tojson }};
+
+    const palette = {
+      blue: '#3b82f6',
+      blueSoft: '#93c5fd',
+      teal: '#14b8a6',
+      tealSoft: '#5eead4',
+      purple: '#8b5cf6',
+      purpleSoft: '#c4b5fd',
+      orange: '#f59e0b',
+      orangeSoft: '#fcd34d',
+      green: '#22c55e',
+      greenSoft: '#86efac',
+      pink: '#ec4899',
+      pinkSoft: '#f9a8d4',
+      slate: '#64748b',
+      grid: 'rgba(148, 163, 184, 0.18)',
+      text: '#334155'
+    };
+
+    Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    Chart.defaults.color = palette.text;
+    Chart.defaults.borderColor = palette.grid;
+
+    const volumeCtx = document.getElementById('platformVolumeChart');
+    if (volumeCtx) {
+      new Chart(volumeCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Students', 'Questions', 'Tests', 'Batches', 'Subjects', 'Chapters'],
+          datasets: [{
+            label: 'Count',
+            data: [students, questions, tests, batches, subjects, chapters],
+            backgroundColor: [
+              '#93c5fd',
+              '#5eead4',
+              '#c4b5fd',
+              '#fcd34d',
+              '#86efac',
+              '#f9a8d4'
+            ],
+            borderColor: [
+              '#2563eb',
+              '#0f766e',
+              '#7c3aed',
+              '#d97706',
+              '#16a34a',
+              '#db2777'
+            ],
+            borderWidth: 1.2,
+            borderRadius: 12,
+            maxBarThickness: 48
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: palette.slate }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: palette.grid, drawBorder: false },
+              ticks: { color: palette.slate }
+            }
+          }
+        }
+      });
+    }
+
+    const mixCtx = document.getElementById('operationsMixChart');
+    if (mixCtx) {
+      new Chart(mixCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Students', 'Question Bank', 'Tests', 'Academic Structure'],
+          datasets: [{
+            data: [students, questions, tests, batches + subjects + chapters],
+            backgroundColor: ['#60a5fa', '#2dd4bf', '#a78bfa', '#fbbf24'],
+            borderColor: '#ffffff',
+            borderWidth: 3,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                padding: 16
+              }
+            }
+          }
+        }
+      });
+    }
+
+    const testStatusCtx = document.getElementById('testStatusChart');
+    if (testStatusCtx) {
+      new Chart(testStatusCtx, {
+        type: 'pie',
+        data: {
+          labels: ['Published', 'Draft'],
+          datasets: [{
+            data: [publishedTests, draftTests],
+            backgroundColor: ['#86efac', '#fde68a'],
+            borderColor: ['#16a34a', '#d97706'],
+            borderWidth: 1.5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                padding: 16
+              }
+            }
+          }
+        }
+      });
+    }
+
+    const depthCtx = document.getElementById('academicDepthChart');
+    if (depthCtx) {
+      new Chart(depthCtx, {
+        type: 'radar',
+        data: {
+          labels: ['Batches', 'Subjects', 'Chapters'],
+          datasets: [{
+            label: 'Academic setup',
+            data: [batches, subjects, chapters],
+            fill: true,
+            backgroundColor: 'rgba(245, 158, 11, 0.16)',
+            borderColor: '#f59e0b',
+            pointBackgroundColor: '#f59e0b',
+            pointBorderColor: '#ffffff',
+            pointHoverBackgroundColor: '#ffffff',
+            pointHoverBorderColor: '#f59e0b'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(148, 163, 184, 0.22)' },
+              grid: { color: 'rgba(148, 163, 184, 0.22)' },
+              pointLabels: { color: palette.slate, font: { size: 12 } },
+              ticks: {
+                backdropColor: 'transparent',
+                color: palette.slate
+              }
+            }
+          }
+        }
+      });
+    }
+  })();
+</script>
 {% endblock %}
