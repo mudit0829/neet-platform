@@ -7,20 +7,22 @@
     .analytics-test-detail-page {
       display: flex;
       flex-direction: column;
-      gap: 22px;
+      gap: 20px;
     }
 
     .test-analytics-hero {
-      background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.09), transparent 22%),
+        linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
       border: 1px solid #e5edf6;
       border-radius: 24px;
-      padding: 28px;
+      padding: 24px;
       box-shadow: 0 14px 40px rgba(15, 23, 42, 0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 22px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.75fr);
+      gap: 18px;
+      align-items: stretch;
     }
 
     .test-analytics-hero-main h1 {
@@ -29,13 +31,16 @@
       font-weight: 800;
       color: #0f172a;
       letter-spacing: -0.03em;
+      line-height: 1.12;
+      word-break: break-word;
     }
 
     .test-analytics-hero-sub {
       margin-top: 10px;
       color: #64748b;
-      font-size: 0.98rem;
-      line-height: 1.6;
+      font-size: 0.97rem;
+      line-height: 1.65;
+      max-width: 760px;
     }
 
     .hero-tags {
@@ -51,21 +56,46 @@
       justify-content: center;
       padding: 9px 13px;
       border-radius: 999px;
-      background: #eef4ff;
-      border: 1px solid #dbeafe;
-      color: #1d4ed8;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 800;
+      border: 1px solid transparent;
+    }
+
+    .hero-tag.blue {
+      background: #eff6ff;
+      border-color: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .hero-tag.green {
+      background: #ecfdf5;
+      border-color: #bbf7d0;
+      color: #047857;
+    }
+
+    .hero-tag.violet {
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+      color: #7c3aed;
+    }
+
+    .hero-tag.peach {
+      background: #fff7ed;
+      border-color: #fed7aa;
+      color: #c2410c;
     }
 
     .test-analytics-hero-side {
-      min-width: 260px;
-      max-width: 350px;
+      min-width: 0;
       width: 100%;
-      background: #ffffff;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
       border: 1px solid #e5edf6;
       border-radius: 20px;
       padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      justify-content: space-between;
     }
 
     .hero-side-label {
@@ -82,27 +112,65 @@
       font-weight: 800;
       color: #0f172a;
       margin-bottom: 6px;
+      line-height: 1.1;
     }
 
     .hero-side-sub {
       color: #64748b;
       font-size: 0.9rem;
-      line-height: 1.5;
+      line-height: 1.55;
+    }
+
+    .hero-side-bar {
+      height: 10px;
+      width: 100%;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+
+    .hero-side-bar-fill {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #14b8a6, #60a5fa);
+    }
+
+    .hero-side-note {
+      font-size: 0.82rem;
+      color: #64748b;
+      line-height: 1.45;
     }
 
     .test-kpi-grid {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 18px;
+      gap: 16px;
     }
 
     .test-kpi-card {
-      background: #ffffff;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
       border: 1px solid #e8eef7;
-      border-radius: 22px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 18px;
       box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+      position: relative;
+      overflow: hidden;
     }
+
+    .test-kpi-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 4px;
+    }
+
+    .test-kpi-card.blue::before { background: #60a5fa; }
+    .test-kpi-card.green::before { background: #34d399; }
+    .test-kpi-card.peach::before { background: #fb923c; }
+    .test-kpi-card.violet::before { background: #a78bfa; }
+    .test-kpi-card.amber::before { background: #fbbf24; }
 
     .test-kpi-label {
       color: #94a3b8;
@@ -115,10 +183,11 @@
 
     .test-kpi-value {
       color: #0f172a;
-      font-size: 1.9rem;
+      font-size: 1.8rem;
       font-weight: 800;
       line-height: 1.1;
       margin-bottom: 6px;
+      word-break: break-word;
     }
 
     .test-kpi-sub {
@@ -128,10 +197,10 @@
     }
 
     .test-panel {
-      background: #ffffff;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
       border: 1px solid #e8eef7;
-      border-radius: 24px;
-      padding: 22px;
+      border-radius: 22px;
+      padding: 20px;
       box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
     }
 
@@ -155,7 +224,8 @@
       margin: 6px 0 0;
       color: #64748b;
       font-size: 0.92rem;
-      line-height: 1.5;
+      line-height: 1.55;
+      max-width: 780px;
     }
 
     .soft-chip {
@@ -176,6 +246,7 @@
       overflow-x: auto;
       border: 1px solid #e8eef7;
       border-radius: 18px;
+      background: #ffffff;
     }
 
     .attempt-table {
@@ -223,6 +294,7 @@
       color: #64748b;
       font-size: 0.86rem;
       margin-top: 4px;
+      line-height: 1.45;
     }
 
     .leader-rank {
@@ -263,6 +335,58 @@
       font-size: 0.86rem;
     }
 
+    .attempt-mobile-list {
+      display: none;
+      gap: 14px;
+    }
+
+    .attempt-mobile-card {
+      border: 1px solid #e8eef7;
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    }
+
+    .attempt-mobile-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .attempt-mobile-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .attempt-mobile-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+    }
+
+    .attempt-mobile-label {
+      color: #64748b;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .attempt-mobile-value {
+      color: #0f172a;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-align: right;
+      word-break: break-word;
+    }
+
     .empty-state {
       text-align: center;
       padding: 28px;
@@ -271,11 +395,16 @@
       background: #fbfdff;
       color: #64748b;
       font-size: 0.96rem;
+      line-height: 1.6;
     }
 
     @media (max-width: 1200px) {
       .test-kpi-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .test-analytics-hero {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -291,7 +420,43 @@
       }
 
       .test-analytics-hero-main h1 {
-        font-size: 1.6rem;
+        font-size: 1.55rem;
+      }
+
+      .test-kpi-value,
+      .hero-side-value {
+        font-size: 1.45rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .test-analytics-hero,
+      .test-kpi-card,
+      .test-panel,
+      .attempt-mobile-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .test-analytics-hero-main h1 {
+        font-size: 1.3rem;
+      }
+
+      .attempt-table-wrap {
+        display: none;
+      }
+
+      .attempt-mobile-list {
+        display: grid;
+      }
+
+      .attempt-mobile-row {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .attempt-mobile-value {
+        text-align: left;
       }
     }
   </style>
@@ -313,48 +478,59 @@
       </div>
 
       <div class="hero-tags">
-        <span class="hero-tag">Leaderboard</span>
-        <span class="hero-tag">Score visibility</span>
-        <span class="hero-tag">Percentile view</span>
-        <span class="hero-tag">Attempt insights</span>
+        <span class="hero-tag blue">Leaderboard</span>
+        <span class="hero-tag green">Score visibility</span>
+        <span class="hero-tag violet">Percentile view</span>
+        <span class="hero-tag peach">Attempt insights</span>
       </div>
     </div>
 
     <div class="test-analytics-hero-side">
-      <div class="hero-side-label">Participation</div>
-      <div class="hero-side-value">{{ total_attempts }}</div>
-      <div class="hero-side-sub">
-        Submitted participant attempts recorded for this test.
+      <div>
+        <div class="hero-side-label">Participation</div>
+        <div class="hero-side-value">{{ total_attempts }}</div>
+        <div class="hero-side-sub">
+          Submitted participant attempts recorded for this test.
+        </div>
+      </div>
+
+      <div>
+        <div class="hero-side-bar">
+          <div class="hero-side-bar-fill"></div>
+        </div>
+        <div class="hero-side-note">
+          Summary block for participation and leaderboard activity.
+        </div>
       </div>
     </div>
   </div>
 
   <div class="test-kpi-grid">
-    <div class="test-kpi-card">
+    <div class="test-kpi-card blue">
       <div class="test-kpi-label">Average Score</div>
       <div class="test-kpi-value">{{ avg_score }}</div>
       <div class="test-kpi-sub">Mean score across submitted attempts.</div>
     </div>
 
-    <div class="test-kpi-card">
+    <div class="test-kpi-card green">
       <div class="test-kpi-label">Highest Score</div>
       <div class="test-kpi-value">{{ highest_score }}</div>
       <div class="test-kpi-sub">Best score achieved in this test.</div>
     </div>
 
-    <div class="test-kpi-card">
+    <div class="test-kpi-card peach">
       <div class="test-kpi-label">Lowest Score</div>
       <div class="test-kpi-value">{{ lowest_score }}</div>
       <div class="test-kpi-sub">Lowest recorded submitted score.</div>
     </div>
 
-    <div class="test-kpi-card">
+    <div class="test-kpi-card violet">
       <div class="test-kpi-label">Average Accuracy</div>
       <div class="test-kpi-value">{{ avg_accuracy }}%</div>
       <div class="test-kpi-sub">Correct answers as a share of evaluated responses.</div>
     </div>
 
-    <div class="test-kpi-card">
+    <div class="test-kpi-card amber">
       <div class="test-kpi-label">Best Rank</div>
       <div class="test-kpi-value">
         {% if best_rank is not none %}#{{ best_rank }}{% else %}-{% endif %}
@@ -491,6 +667,95 @@
             {% endfor %}
           </tbody>
         </table>
+      </div>
+
+      <div class="attempt-mobile-list">
+        {% for attempt in attempts %}
+          <article class="attempt-mobile-card">
+            <div class="attempt-mobile-top">
+              <div>
+                <div class="metric-main">
+                  {{ attempt.student.full_name if attempt.student else '-' }}
+                </div>
+                <div class="metric-muted">Attempt ID: {{ attempt.id }}</div>
+              </div>
+
+              <div>
+                {% if attempt.safe_rank_overall is not none %}
+                  <span class="leader-rank">#{{ attempt.safe_rank_overall }}</span>
+                {% else %}
+                  <span class="metric-main">-</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="attempt-mobile-grid">
+              <div class="attempt-mobile-row">
+                <span class="attempt-mobile-label">Batch</span>
+                <span class="attempt-mobile-value">
+                  {% if attempt.student and attempt.student.batch %}
+                    <span class="batch-pill">{{ attempt.student.batch.name }}</span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </span>
+              </div>
+
+              <div class="attempt-mobile-row">
+                <span class="attempt-mobile-label">Score</span>
+                <span class="attempt-mobile-value">
+                  <span class="score-pill">{{ attempt.total_score|default(0) }}</span>
+                </span>
+              </div>
+
+              <div class="attempt-mobile-row">
+                <span class="attempt-mobile-label">Correct / Wrong / Skipped</span>
+                <span class="attempt-mobile-value">
+                  {{ attempt.correct_count|default(0) }} / {{ attempt.wrong_count|default(0) }} / {{ attempt.skipped_count|default(0) }}
+                </span>
+              </div>
+
+              <div class="attempt-mobile-row">
+                <span class="attempt-mobile-label">Accuracy</span>
+                <span class="attempt-mobile-value">{{ attempt.safe_accuracy|default(0) }}%</span>
+              </div>
+
+              <div class="attempt-mobile-row">
+                <span class="attempt-mobile-label">Percentile</span>
+                <span class="attempt-mobile-value">
+                  {% if attempt.safe_percentile_overall is not none %}
+                    {{ attempt.safe_percentile_overall }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </span>
+              </div>
+
+              <div class="attempt-mobile-row">
+                <span class="attempt-mobile-label">Batch Rank</span>
+                <span class="attempt-mobile-value">
+                  {% if attempt.safe_rank_batch is not none %}
+                    #{{ attempt.safe_rank_batch }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </span>
+              </div>
+
+              <div class="attempt-mobile-row">
+                <span class="attempt-mobile-label">Time</span>
+                <span class="attempt-mobile-value">{{ attempt.safe_time_taken_seconds|default(0) }}s</span>
+              </div>
+
+              <div class="attempt-mobile-row">
+                <span class="attempt-mobile-label">Submitted</span>
+                <span class="attempt-mobile-value">
+                  {{ attempt.submitted_at.strftime('%d %b %Y, %I:%M %p') if attempt.submitted_at else '-' }}
+                </span>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
       </div>
     {% else %}
       <div class="empty-state">
