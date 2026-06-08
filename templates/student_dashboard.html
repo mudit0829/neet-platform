@@ -4,6 +4,57 @@
 
 {% block content %}
 <style>
+  :root {
+    --page-bg: #f8fafc;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --text-main: #0f172a;
+    --text-soft: #64748b;
+    --text-faint: #94a3b8;
+
+    --blue-50: #eff6ff;
+    --blue-100: #dbeafe;
+    --blue-600: #2563eb;
+    --blue-700: #1d4ed8;
+
+    --green-50: #ecfdf5;
+    --green-100: #bbf7d0;
+    --green-700: #047857;
+
+    --amber-50: #fffbeb;
+    --amber-100: #fde68a;
+    --amber-700: #b45309;
+
+    --peach-50: #fff7ed;
+    --peach-100: #fdba74;
+    --peach-700: #c2410c;
+
+    --orange-50: #fff1f2;
+    --orange-100: #fecdd3;
+    --orange-700: #c2410c;
+
+    --purple-50: #f5f3ff;
+    --purple-100: #ddd6fe;
+    --purple-700: #6d28d9;
+
+    --teal-50: #f0fdfa;
+    --teal-100: #99f6e4;
+    --teal-700: #0f766e;
+
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-600: #475569;
+
+    --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.05);
+    --shadow-subtle: 0 4px 14px rgba(15, 23, 42, 0.04);
+  }
+
+  body {
+    background: var(--page-bg);
+  }
+
   .dashboard-wrap {
     width: 100%;
     max-width: 1480px;
@@ -14,7 +65,7 @@
   .student-dashboard {
     display: grid;
     gap: 18px;
-    color: #0f172a;
+    color: var(--text-main);
   }
 
   .student-dashboard .subtle,
@@ -26,32 +77,31 @@
   .student-dashboard .summary-copy,
   .student-dashboard .summary-meta,
   .student-dashboard .list-meta {
-    color: #64748b;
+    color: var(--text-soft);
   }
 
   .hero-card,
   .stat-card,
   .panel-card-soft,
   .chart-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow-soft);
     min-width: 0;
-  }
-
-  body {
-    background: #f8fafc;
   }
 
   .hero-card {
     border-radius: 24px;
     padding: 22px;
-    background: #ffffff;
+    background:
+      radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent 24%),
+      radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.04), transparent 20%),
+      #ffffff;
   }
 
   .hero-row {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
     gap: 20px;
     align-items: start;
   }
@@ -77,14 +127,15 @@
     object-fit: cover;
     border-radius: 18px;
     border: 1px solid #dbe4ee;
-    background: #f1f5f9;
+    background: linear-gradient(135deg, #4f46e5, #14b8a6);
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    color: #334155;
+    color: #ffffff;
     font-size: 24px;
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.14);
   }
 
   .topbar-chip {
@@ -94,9 +145,9 @@
     min-height: 32px;
     padding: 7px 12px;
     border-radius: 999px;
-    background: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #dbeafe;
+    background: var(--blue-50);
+    color: var(--blue-700);
+    border: 1px solid var(--blue-100);
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.03em;
@@ -105,16 +156,16 @@
 
   .hero-title {
     margin: 8px 0 6px;
-    font-size: clamp(26px, 3.2vw, 34px);
+    font-size: clamp(26px, 3.3vw, 34px);
     line-height: 1.12;
-    color: #0f172a;
+    color: var(--text-main);
     font-weight: 800;
     word-break: break-word;
   }
 
   .hero-intro {
     margin: 0;
-    color: #475569;
+    color: var(--slate-600);
     font-size: 14px;
     line-height: 1.75;
     max-width: 760px;
@@ -122,7 +173,7 @@
 
   .hero-batch-line {
     margin: 0;
-    color: #64748b;
+    color: var(--text-soft);
     font-size: 14px;
     line-height: 1.7;
     font-weight: 600;
@@ -159,21 +210,21 @@
   }
 
   .badge.live {
-    background: #ecfdf5;
-    color: #047857;
-    border-color: #bbf7d0;
+    background: var(--green-50);
+    color: var(--green-700);
+    border-color: var(--green-100);
   }
 
   .badge.ongoing {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border-color: #bfdbfe;
+    background: var(--blue-50);
+    color: var(--blue-700);
+    border-color: var(--blue-100);
   }
 
   .badge.done {
-    background: #f8fafc;
-    color: #475569;
-    border-color: #e2e8f0;
+    background: var(--slate-100);
+    color: var(--slate-600);
+    border-color: var(--slate-200);
   }
 
   .hero-actions {
@@ -185,9 +236,7 @@
 
   .btn-main,
   .btn-light,
-  .hero-tab,
-  .list-btn,
-  .result-btn {
+  .hero-tab {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -203,17 +252,14 @@
     font-size: 14px;
   }
 
-  .btn-main,
-  .list-btn.primary,
-  .result-btn.primary {
-    background: #1d4ed8;
+  .btn-main {
+    background: var(--blue-700);
     color: #ffffff;
-    border-color: #1d4ed8;
+    border-color: var(--blue-700);
+    box-shadow: 0 10px 18px rgba(29, 78, 216, 0.14);
   }
 
-  .btn-light,
-  .list-btn.secondary,
-  .result-btn.secondary {
+  .btn-light {
     background: #ffffff;
     color: #334155;
     border-color: #cbd5e1;
@@ -221,9 +267,7 @@
 
   .btn-main:hover,
   .btn-light:hover,
-  .hero-tab:hover,
-  .list-btn:hover,
-  .result-btn:hover {
+  .hero-tab:hover {
     transform: translateY(-1px);
   }
 
@@ -243,25 +287,40 @@
 
   .hero-tabs {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     width: max-content;
   }
 
   .hero-tab {
     min-height: 38px;
-    padding: 8px 14px;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    font-size: 13px;
-    font-weight: 700;
+    padding: 8px 13px;
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 999px;
   }
 
-  .hero-tab.active,
-  .hero-tab:hover {
-    color: #1d4ed8;
-    background: #eff6ff;
-    border-color: #bfdbfe;
+  .hero-tab.green {
+    background: var(--green-50);
+    color: var(--green-700);
+    border-color: var(--green-100);
+  }
+
+  .hero-tab.yellow {
+    background: var(--amber-50);
+    color: var(--amber-700);
+    border-color: var(--amber-100);
+  }
+
+  .hero-tab.peach {
+    background: var(--peach-50);
+    color: var(--peach-700);
+    border-color: var(--peach-100);
+  }
+
+  .hero-tab.orange {
+    background: var(--orange-50);
+    color: var(--orange-700);
+    border-color: var(--orange-100);
   }
 
   .hero-side {
@@ -272,12 +331,19 @@
   .hero-side-card {
     border-radius: 18px;
     padding: 16px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--card-border);
+  }
+
+  .hero-side-card.accuracy {
+    background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
+  }
+
+  .hero-side-card.completed {
+    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
   }
 
   .hero-side-label {
-    color: #64748b;
+    color: var(--text-soft);
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -286,7 +352,7 @@
   }
 
   .hero-side-value {
-    color: #0f172a;
+    color: var(--text-main);
     font-size: 28px;
     line-height: 1;
     font-weight: 800;
@@ -294,7 +360,7 @@
   }
 
   .hero-side-copy {
-    color: #64748b;
+    color: var(--text-soft);
     font-size: 13px;
     line-height: 1.6;
     margin: 0;
@@ -311,7 +377,22 @@
     overflow: hidden;
     border-radius: 20px;
     padding: 18px;
-    background: #ffffff;
+  }
+
+  .stat-card.blue {
+    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+  }
+
+  .stat-card.green {
+    background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+  }
+
+  .stat-card.amber {
+    background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+  }
+
+  .stat-card.purple {
+    background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%);
   }
 
   .stat-top {
@@ -323,23 +404,41 @@
   }
 
   .stat-icon {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 15px;
-    flex: 0 0 40px;
-    background: #f1f5f9;
-    color: #334155;
-    border: 1px solid #e2e8f0;
+    flex: 0 0 42px;
+    border: 1px solid transparent;
+  }
+
+  .stat-card.blue .stat-icon {
+    background: var(--blue-100);
+    color: var(--blue-700);
+  }
+
+  .stat-card.green .stat-icon {
+    background: var(--green-100);
+    color: var(--green-700);
+  }
+
+  .stat-card.amber .stat-icon {
+    background: var(--amber-100);
+    color: var(--amber-700);
+  }
+
+  .stat-card.purple .stat-icon {
+    background: var(--purple-100);
+    color: var(--purple-700);
   }
 
   .stat-value {
-    font-size: clamp(24px, 3.2vw, 30px);
+    font-size: clamp(24px, 3vw, 30px);
     font-weight: 800;
-    color: #0f172a;
+    color: var(--text-main);
     margin-bottom: 6px;
     line-height: 1.05;
   }
@@ -389,7 +488,7 @@
 
   .card-title {
     margin: 0;
-    color: #0f172a;
+    color: var(--text-main);
     font-size: 20px;
     line-height: 1.2;
     font-weight: 800;
@@ -413,7 +512,7 @@
 
   .list-title {
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-main);
     font-size: 15px;
     line-height: 1.55;
   }
@@ -482,7 +581,7 @@
   }
 
   .profile-value {
-    color: #0f172a;
+    color: var(--text-main);
     font-size: 14px;
     font-weight: 700;
     word-break: break-word;
@@ -510,7 +609,7 @@
 
   .subject-title {
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-main);
     font-size: 15px;
   }
 
@@ -529,7 +628,7 @@
 
   .bar-fill {
     height: 100%;
-    background: #3b82f6;
+    background: linear-gradient(90deg, #60a5fa, #22c55e);
     border-radius: 999px;
   }
 
@@ -539,7 +638,7 @@
     gap: 12px;
     flex-wrap: wrap;
     margin-top: 8px;
-    color: #64748b;
+    color: #475569;
     font-size: 14px;
   }
 
@@ -580,10 +679,26 @@
   }
 
   .mini-summary {
-    border-radius: 14px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    border-radius: 16px;
     padding: 14px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+  }
+
+  .mini-summary.blue {
+    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+  }
+
+  .mini-summary.green {
+    background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+  }
+
+  .mini-summary.amber {
+    background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+  }
+
+  .mini-summary.purple {
+    background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%);
   }
 
   .mini-summary .k {
@@ -599,7 +714,6 @@
     font-size: 20px;
     font-weight: 800;
     margin-top: 6px;
-    word-break: break-word;
   }
 
   .action-row {
@@ -607,6 +721,36 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+  }
+
+  .result-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 14px;
+    border: 1px solid transparent;
+    transition: all .16s ease;
+  }
+
+  .result-btn.primary {
+    background: var(--blue-700);
+    color: #ffffff;
+    border-color: var(--blue-700);
+  }
+
+  .result-btn.secondary {
+    background: #ffffff;
+    color: #334155;
+    border-color: #cbd5e1;
+  }
+
+  .result-btn:hover {
+    transform: translateY(-1px);
   }
 
   img {
@@ -629,7 +773,11 @@
 
   @media (max-width: 768px) {
     .dashboard-wrap {
-      padding: 0 10px 20px;
+      padding: 0 10px 16px;
+    }
+
+    .student-dashboard {
+      gap: 14px;
     }
 
     .hero-user,
@@ -644,31 +792,30 @@
     .panel-card-soft,
     .chart-card,
     .stat-card {
-      padding: 18px;
+      padding: 16px;
       border-radius: 18px;
     }
 
     .hero-title {
-      font-size: 25px;
+      font-size: 24px;
     }
 
     .hero-avatar {
-      width: 70px;
-      height: 70px;
-      min-width: 70px;
-      font-size: 22px;
+      width: 64px;
+      height: 64px;
+      min-width: 64px;
+      font-size: 20px;
       border-radius: 16px;
     }
 
     .btn-main,
     .btn-light,
-    .list-btn,
     .result-btn {
       width: 100%;
     }
 
     .stat-value {
-      font-size: 26px;
+      font-size: 24px;
     }
 
     .profile-row {
@@ -679,34 +826,44 @@
     .chart-wrap,
     .chart-wrap.compact,
     .chart-wrap.small {
-      height: 240px;
+      height: 220px;
     }
 
     .mini-summary-grid,
     .stats-grid {
       grid-template-columns: 1fr;
     }
+
+    .hero-tabs {
+      gap: 8px;
+    }
+
+    .hero-tab {
+      min-height: 36px;
+      padding: 8px 10px;
+      font-size: 11px;
+    }
   }
 
   @media (max-width: 520px) {
     .dashboard-wrap {
-      padding: 0 8px 18px;
+      padding: 0 8px 14px;
     }
 
     .student-dashboard {
-      gap: 16px;
+      gap: 14px;
     }
 
     .hero-card,
     .panel-card-soft,
     .chart-card,
     .stat-card {
-      padding: 16px;
+      padding: 14px;
       border-radius: 16px;
     }
 
     .hero-title {
-      font-size: 23px;
+      font-size: 22px;
     }
 
     .hero-intro,
@@ -722,20 +879,30 @@
       font-size: 13px;
     }
 
-    .hero-tabs {
-      gap: 8px;
+    .hero-avatar {
+      width: 58px;
+      height: 58px;
+      min-width: 58px;
+      font-size: 18px;
+      border-radius: 14px;
+    }
+
+    .topbar-chip {
+      min-height: 28px;
+      font-size: 10px;
+      padding: 5px 9px;
     }
 
     .hero-tab {
-      min-height: 38px;
-      font-size: 12px;
-      padding: 8px 12px;
+      min-height: 34px;
+      font-size: 11px;
+      padding: 7px 10px;
     }
 
     .chart-wrap,
     .chart-wrap.compact,
     .chart-wrap.small {
-      height: 220px;
+      height: 210px;
     }
 
     .card-title {
@@ -769,64 +936,64 @@
             {% endif %}
 
             <div style="min-width:0;">
-              <div class="topbar-chip">Student Dashboard</div>
-              <h1 class="hero-title">Welcome, {{ current_user.full_name }}</h1>
+              <div class="topbar-chip">Student Portal</div>
+              <h1 class="hero-title">Student Dashboard</h1>
               <p class="hero-batch-line">
                 {% if current_user.batch %}
-                  Batch: {{ current_user.batch.name }}
+                  {{ current_user.full_name }} • Batch: {{ current_user.batch.name }}
                 {% else %}
-                  Your batch is not assigned yet.
+                  {{ current_user.full_name }} • Your batch is not assigned yet.
                 {% endif %}
               </p>
               <p class="hero-intro">
-                Review tests, monitor performance, and track subject-level progress in one clean workspace.
+                Access your tests, continue attempts, review recent results, and track your subject-level progress from one clean workspace.
               </p>
             </div>
           </div>
 
           <div class="hero-next-step">
             {% if ongoing_attempts %}
-              You have {{ ongoing_tests }} ongoing test{{ 's' if ongoing_tests != 1 else '' }}. Continue the current attempt before the window closes.
+              You have {{ ongoing_tests }} ongoing test{{ 's' if ongoing_tests != 1 else '' }}. Continue your active attempt before the available window closes.
             {% elif available_tests > 0 %}
-              You have {{ available_tests }} available test{{ 's' if available_tests != 1 else '' }} ready to start.
+              You have {{ available_tests }} available test{{ 's' if available_tests != 1 else '' }} ready to start now.
             {% else %}
-              No active tests right now. Use the charts and subject blocks below to review your current standing.
+              No active tests at the moment. Use the dashboard below to review progress, recent scores, and subject accuracy.
             {% endif %}
           </div>
 
           <div class="badge-row">
-            <span class="badge live">Available: {{ available_tests }}</span>
+            <span class="badge live">Available Tests: {{ available_tests }}</span>
             <span class="badge ongoing">Ongoing: {{ ongoing_tests }}</span>
             <span class="badge done">Completed: {{ completed_tests }}</span>
           </div>
 
           <div class="hero-tabs-wrap">
             <div class="hero-tabs">
-              <a href="#overview" class="hero-tab active">Overview</a>
-              <a href="#progress" class="hero-tab">Progress</a>
-              <a href="#subjects" class="hero-tab">Subjects</a>
-              <a href="#results" class="hero-tab">Results</a>
+              <a href="#overview" class="hero-tab green">Overview</a>
+              <a href="#progress" class="hero-tab yellow">Progress</a>
+              <a href="#subjects" class="hero-tab peach">Subjects</a>
+              <a href="#results" class="hero-tab orange">Recent Results</a>
             </div>
           </div>
         </div>
 
         <div class="hero-side">
-          <div class="hero-side-card">
+          <div class="hero-side-card accuracy">
             <div class="hero-side-label">Average Accuracy</div>
             <div class="hero-side-value">{{ overview.avg_accuracy if overview else 0 }}%</div>
-            <p class="hero-side-copy">Current performance across completed attempts.</p>
+            <p class="hero-side-copy">Current accuracy from your submitted attempts visible in dashboard analytics.</p>
           </div>
 
-          <div class="hero-side-card">
+          <div class="hero-side-card completed">
             <div class="hero-side-label">Completed Tests</div>
             <div class="hero-side-value">{{ completed_tests }}</div>
-            <p class="hero-side-copy">Submitted attempts contributing to analytics and review.</p>
+            <p class="hero-side-copy">Submitted attempts that now count in your score and subject performance trends.</p>
           </div>
 
           <div class="hero-actions">
             {% if ongoing_attempts %}
-              <a href="{{ url_for('student.attempt_page', attempt_id=ongoing_attempts[0].id) }}" class="btn-main">Continue Test</a>
-              <a href="{{ url_for('student.tests_page') }}" class="btn-light">All Tests</a>
+              <a href="{{ url_for('student.attempt_page', attempt_id=ongoing_attempts[0].id) }}" class="btn-main">Continue Ongoing Test</a>
+              <a href="{{ url_for('student.tests_page') }}" class="btn-light">View All Tests</a>
             {% else %}
               <a href="{{ url_for('student.tests_page') }}" class="btn-main">Open Tests</a>
               <a href="{{ url_for('student.performance_review_page') }}" class="btn-light">Performance Review</a>
@@ -837,37 +1004,45 @@
     </div>
 
     <div class="stats-grid">
-      <div class="stat-card">
+      <div class="stat-card blue">
         <div class="stat-top">
-          <div class="stat-label">Available Tests</div>
-          <div class="stat-icon"><i class="bi bi-journal-text"></i></div>
+          <div>
+            <div class="stat-label">Available Tests</div>
+          </div>
+          <div class="stat-icon"><i class="bi bi-lightning-charge-fill"></i></div>
         </div>
         <div class="stat-value">{{ available_tests }}</div>
         <div class="stat-note">Ready to start now</div>
       </div>
 
-      <div class="stat-card">
+      <div class="stat-card green">
         <div class="stat-top">
-          <div class="stat-label">Ongoing Attempts</div>
-          <div class="stat-icon"><i class="bi bi-play-circle"></i></div>
+          <div>
+            <div class="stat-label">Ongoing Attempts</div>
+          </div>
+          <div class="stat-icon"><i class="bi bi-play-circle-fill"></i></div>
         </div>
         <div class="stat-value">{{ ongoing_tests }}</div>
-        <div class="stat-note">Pending completion</div>
+        <div class="stat-note">Need completion</div>
       </div>
 
-      <div class="stat-card">
+      <div class="stat-card amber">
         <div class="stat-top">
-          <div class="stat-label">Completed Tests</div>
+          <div>
+            <div class="stat-label">Completed Tests</div>
+          </div>
           <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
         </div>
         <div class="stat-value">{{ completed_tests }}</div>
-        <div class="stat-note">Submitted attempts</div>
+        <div class="stat-note">Submitted so far</div>
       </div>
 
-      <div class="stat-card">
+      <div class="stat-card purple">
         <div class="stat-top">
-          <div class="stat-label">Average Accuracy</div>
-          <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
+          <div>
+            <div class="stat-label">Average Accuracy</div>
+          </div>
+          <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
         </div>
         <div class="stat-value">{{ overview.avg_accuracy if overview else 0 }}%</div>
         <div class="stat-note">Across completed attempts</div>
@@ -879,7 +1054,7 @@
         <div class="card-head">
           <div>
             <h3 class="card-title">Score Trend</h3>
-            <p class="card-subtitle">Track score movement across your most recent submitted attempts.</p>
+            <p class="card-subtitle">Track score movement across your recent submitted attempts.</p>
           </div>
         </div>
 
@@ -920,7 +1095,7 @@
         <div class="card-head">
           <div>
             <h3 class="card-title">Continue Your Tests</h3>
-            <p class="card-subtitle">Resume unfinished tests before the active window expires.</p>
+            <p class="card-subtitle">Resume unfinished tests before the attempt window expires.</p>
           </div>
         </div>
 
@@ -930,7 +1105,7 @@
               <div class="list-title">{{ attempt.test.title }}</div>
               <div class="list-meta">Status: {{ attempt.status|title }}</div>
               <div class="action-row">
-                <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="list-btn primary">Continue</a>
+                <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="btn-main">Continue</a>
               </div>
             </div>
           {% else %}
@@ -943,25 +1118,25 @@
         <div class="card-head">
           <div>
             <h3 class="card-title">Overall Performance</h3>
-            <p class="card-subtitle">A quick summary of your current learning progress.</p>
+            <p class="card-subtitle">Your current learning snapshot from submitted attempts.</p>
           </div>
         </div>
 
         {% if overview and overview.total_attempts > 0 %}
           <div class="mini-summary-grid">
-            <div class="mini-summary">
+            <div class="mini-summary blue">
               <div class="k">Total Attempts</div>
               <div class="v">{{ overview.total_attempts }}</div>
             </div>
-            <div class="mini-summary">
+            <div class="mini-summary green">
               <div class="k">Average Score</div>
               <div class="v">{{ overview.avg_score }}</div>
             </div>
-            <div class="mini-summary">
+            <div class="mini-summary amber">
               <div class="k">Average Accuracy</div>
               <div class="v">{{ overview.avg_accuracy }}%</div>
             </div>
-            <div class="mini-summary">
+            <div class="mini-summary purple">
               <div class="k">Time Spent</div>
               <div class="v">{{ overview.total_time_spent_human }}</div>
             </div>
@@ -993,7 +1168,7 @@
         <div class="card-head">
           <div>
             <h3 class="card-title">Subject Performance</h3>
-            <p class="card-subtitle">A quick comparison of accuracy across your subjects.</p>
+            <p class="card-subtitle">A clear comparison of accuracy across your subjects.</p>
           </div>
         </div>
 
@@ -1012,7 +1187,7 @@
         <div class="card-head">
           <div>
             <h3 class="card-title">Profile Snapshot</h3>
-            <p class="card-subtitle">Your core academic profile details.</p>
+            <p class="card-subtitle">Your key academic profile details in one place.</p>
           </div>
         </div>
 
@@ -1050,7 +1225,7 @@
         </div>
 
         <div class="metric-note">
-          Keep your profile updated and use the dashboard to jump quickly into your next important task.
+          Use this dashboard as your daily academic control panel for tests, review, and revision planning.
         </div>
       </div>
     </div>
@@ -1060,7 +1235,7 @@
         <div class="card-head">
           <div>
             <h3 class="card-title">Subject-wise Progress</h3>
-            <p class="card-subtitle">See how you are doing across subjects in more detail.</p>
+            <p class="card-subtitle">See your subject performance in more detail.</p>
           </div>
         </div>
 
@@ -1107,7 +1282,7 @@
               <div class="action-row">
                 {% if attempt.status == 'submitted' %}
                   <a href="{{ url_for('student.result_page', attempt_id=attempt.id) }}" class="result-btn secondary">View Result</a>
-                  <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="result-btn secondary">Review Test</a>
+                  <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="result-btn primary">Review Test</a>
                 {% else %}
                   <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="result-btn primary">Continue Attempt</a>
                 {% endif %}
@@ -1127,14 +1302,16 @@
   (() => {
     const palette = {
       blue: '#3b82f6',
-      blueDark: '#1d4ed8',
-      teal: '#0f766e',
-      green: '#16a34a',
+      blueDark: '#2563eb',
+      teal: '#14b8a6',
+      green: '#22c55e',
       amber: '#f59e0b',
       red: '#ef4444',
+      purple: '#8b5cf6',
       slate: '#64748b',
-      grid: 'rgba(148, 163, 184, 0.18)',
-      text: '#334155'
+      text: '#334155',
+      grid: 'rgba(148, 163, 184, 0.16)',
+      bgBlue: 'rgba(59, 130, 246, 0.12)'
     };
 
     Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -1168,8 +1345,7 @@
           {
             subject: {{ subject_name|tojson }},
             accuracy: {{ (stat.accuracy if stat.accuracy is not none else 0)|tojson }},
-            score: {{ (stat.score if stat.score is not none else 0)|tojson }},
-            timeHuman: {{ (stat.time_spent_human if stat.time_spent_human is defined else '0s')|tojson }}
+            score: {{ (stat.score if stat.score is not none else 0)|tojson }}
           }{% if not loop.last %},{% endif %}
         {% endfor %}
       {% endif %}
@@ -1189,13 +1365,14 @@
             label: 'Score',
             data: scoreData,
             borderColor: palette.blueDark,
-            backgroundColor: 'rgba(59, 130, 246, 0.10)',
+            backgroundColor: palette.bgBlue,
             fill: true,
-            tension: 0.35,
+            tension: 0.34,
             pointRadius: 4,
             pointHoverRadius: 5,
-            pointBackgroundColor: palette.blueDark,
-            pointBorderWidth: 0
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: palette.blueDark,
+            pointBorderWidth: 2
           }]
         },
         options: {
@@ -1205,7 +1382,11 @@
             legend: { display: false },
             tooltip: {
               mode: 'index',
-              intersect: false
+              intersect: false,
+              backgroundColor: '#0f172a',
+              titleColor: '#ffffff',
+              bodyColor: '#ffffff',
+              padding: 12
             }
           },
           interaction: {
@@ -1218,8 +1399,7 @@
               ticks: {
                 color: palette.slate,
                 maxRotation: 0,
-                minRotation: 0,
-                autoSkip: true
+                minRotation: 0
               }
             },
             y: {
@@ -1239,9 +1419,9 @@
           labels: ['Correct', 'Wrong', 'Skipped'],
           datasets: [{
             data: [totalCorrect, totalWrong, totalSkipped],
-            backgroundColor: [palette.green, palette.red, palette.amber],
+            backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'],
             borderColor: ['#ffffff', '#ffffff', '#ffffff'],
-            borderWidth: 4,
+            borderWidth: 5,
             hoverOffset: 4
           }]
         },
@@ -1256,7 +1436,7 @@
                 usePointStyle: true,
                 pointStyle: 'circle',
                 padding: 18,
-                color: palette.slate
+                color: palette.text
               }
             }
           }
@@ -1272,9 +1452,11 @@
           datasets: [{
             label: 'Accuracy %',
             data: subjectRollup.map(item => Number(item.accuracy || 0)),
-            backgroundColor: ['#60a5fa', '#3b82f6', '#93c5fd', '#38bdf8', '#2563eb'],
-            borderRadius: 8,
-            maxBarThickness: 42
+            backgroundColor: ['#93c5fd', '#86efac', '#fdba74', '#c4b5fd', '#67e8f9'],
+            borderColor: ['#60a5fa', '#4ade80', '#fb923c', '#a78bfa', '#22d3ee'],
+            borderWidth: 1,
+            borderRadius: 10,
+            maxBarThickness: 48
           }]
         },
         options: {
