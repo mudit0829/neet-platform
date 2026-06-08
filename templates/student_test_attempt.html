@@ -9,10 +9,14 @@
     display: none !important;
   }
 
+  body.attempt-page-open-nav {
+    overflow: hidden;
+  }
+
   .attempt-shell {
     display: grid;
     gap: 16px;
-    max-width: 1500px;
+    max-width: 1520px;
     margin: 0 auto;
   }
 
@@ -51,9 +55,16 @@
     align-items: center;
   }
 
+  .attempt-top-right {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
   .attempt-main {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 310px;
+    grid-template-columns: minmax(0, 1fr) 320px;
     gap: 18px;
     align-items: start;
   }
@@ -68,6 +79,7 @@
 
   .card {
     overflow: hidden;
+    min-width: 0;
   }
 
   .question-head {
@@ -134,15 +146,6 @@
     color: #6d28d9;
   }
 
-  .question-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
-  }
-
   .question-title {
     margin: 0;
     font-size: 15px;
@@ -178,10 +181,6 @@
     display: grid;
     gap: 12px;
     margin-top: 20px;
-  }
-
-  .option-item {
-    position: relative;
   }
 
   .option-item label {
@@ -304,7 +303,8 @@
   .btn-main,
   .btn-light,
   .btn-review,
-  .btn-submit {
+  .btn-submit,
+  .btn-nav {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -316,53 +316,108 @@
     font-weight: 700;
     cursor: pointer;
     transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    border: 1px solid transparent;
   }
 
   .btn-main {
-    border: 1px solid #2563eb;
     background: #2563eb;
+    border-color: #2563eb;
     color: #ffffff;
     box-shadow: 0 10px 18px rgba(37, 99, 235, 0.12);
-  }
-
-  .btn-main:hover {
-    transform: translateY(-1px);
   }
 
   .btn-light {
     background: #ffffff;
     color: #0f172a;
-    border: 1px solid #cbd5e1;
-  }
-
-  .btn-light:hover {
-    background: #f8fafc;
+    border-color: #cbd5e1;
   }
 
   .btn-review {
     background: #faf5ff;
     color: #7e22ce;
-    border: 1px solid #e9d5ff;
+    border-color: #e9d5ff;
   }
 
   .btn-submit {
     background: #059669;
     color: #ffffff;
-    border: 1px solid #059669;
+    border-color: #059669;
     box-shadow: 0 10px 18px rgba(5, 150, 105, 0.12);
+  }
+
+  .btn-nav {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #cbd5e1;
+  }
+
+  .btn-main:hover,
+  .btn-light:hover,
+  .btn-review:hover,
+  .btn-submit:hover,
+  .btn-nav:hover {
+    transform: translateY(-1px);
+  }
+
+  .timer-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 800;
+    border: 1px solid #bfdbfe;
+  }
+
+  .timer-box.warning {
+    background: #fff7ed;
+    color: #9a3412;
+    border-color: #fed7aa;
+  }
+
+  .timer-box.danger {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
   }
 
   .side-card {
     padding: 14px;
     position: sticky;
     top: 14px;
+    max-height: calc(100vh - 28px);
+    overflow-y: auto;
+  }
+
+  .side-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
   }
 
   .side-title {
-    margin: 0 0 12px;
+    margin: 0;
     font-size: 18px;
     font-weight: 800;
     color: #0f172a;
+  }
+
+  .close-nav-btn {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
   }
 
   .legend {
@@ -454,12 +509,12 @@
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    height: 40px;
-    border-radius: 10px;
+    height: 42px;
+    border-radius: 12px;
     font-weight: 800;
     font-size: 14px;
     color: #0f172a;
-    background: #e2e8f0;
+    background: #dbe2ea;
     border: 1px solid transparent;
     transition: transform 0.15s ease, opacity 0.15s ease;
   }
@@ -475,7 +530,7 @@
   }
 
   .palette-link.answered {
-    background: #10b981;
+    background: #1fbe84;
     color: #ffffff;
   }
 
@@ -491,33 +546,12 @@
   }
 
   .palette-link.not_visited {
-    background: #e2e8f0;
+    background: #dbe2ea;
     color: #334155;
   }
 
-  .timer-box {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    background: #eff6ff;
-    color: #1d4ed8;
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-weight: 800;
-    border: 1px solid #bfdbfe;
-  }
-
-  .timer-box.warning {
-    background: #fff7ed;
-    color: #9a3412;
-    border-color: #fed7aa;
-  }
-
-  .timer-box.danger {
-    background: #fef2f2;
-    color: #b91c1c;
-    border-color: #fecaca;
+  .navigator-backdrop {
+    display: none;
   }
 
   .submit-modal {
@@ -609,8 +643,65 @@
       grid-template-columns: 1fr;
     }
 
-    .side-card {
-      position: static;
+    .side-card.desktop-nav {
+      display: none;
+    }
+
+    .mobile-nav-trigger {
+      display: inline-flex;
+    }
+  }
+
+  @media (min-width: 1101px) {
+    .mobile-nav-trigger,
+    .mobile-side-card,
+    .navigator-backdrop {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .navigator-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.42);
+      z-index: 1200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      display: block;
+    }
+
+    body.attempt-page-open-nav .navigator-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mobile-side-card {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(88vw, 420px);
+      height: 100vh;
+      z-index: 1300;
+      border-radius: 24px 0 0 24px;
+      border-right: none;
+      box-shadow: -10px 0 30px rgba(15, 23, 42, 0.16);
+      transform: translateX(100%);
+      transition: transform 0.22s ease;
+      overflow-y: auto;
+      max-height: none;
+      padding: 18px;
+    }
+
+    body.attempt-page-open-nav .mobile-side-card {
+      transform: translateX(0);
+    }
+
+    .close-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -618,6 +709,11 @@
     .attempt-top {
       flex-direction: column;
       align-items: stretch;
+    }
+
+    .attempt-top-right {
+      width: 100%;
+      justify-content: space-between;
     }
 
     .question-head {
@@ -680,9 +776,14 @@
 
     .question-head,
     .question-body,
-    .side-card,
     .submit-dialog {
       padding: 14px;
+    }
+
+    .mobile-side-card {
+      width: calc(100vw - 52px);
+      border-radius: 22px 0 0 22px;
+      padding: 16px;
     }
 
     .legend {
@@ -692,12 +793,13 @@
 
     .palette-grid {
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 7px;
+      gap: 8px;
     }
 
     .palette-link {
-      height: 38px;
+      height: 40px;
       font-size: 13px;
+      border-radius: 11px;
     }
 
     .question-title {
@@ -719,6 +821,66 @@
   {% endfor %}
 {% endfor %}
 
+{% macro render_navigator(extra_class='') %}
+<div class="side-card {{ extra_class }}" id="{% if 'mobile' in extra_class %}mobileNavigator{% else %}desktopNavigator{% endif %}">
+  <div class="side-title-row">
+    <h3 class="side-title">Question Navigator</h3>
+    {% if 'mobile' in extra_class %}
+      <button type="button" class="close-nav-btn" id="closeNavigatorBtn" aria-label="Close navigator">✕</button>
+    {% endif %}
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#1fbe84;"></span> Answered</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> Not Answered</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#dbe2ea;"></span> Not Visited</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#9333ea;"></span> Review</div>
+  </div>
+
+  <div class="navigator-note">
+    Use the navigator when you want to jump directly to a question.
+  </div>
+
+  <div class="attempt-note attempt-warning">
+    Timer auto-submits when it reaches zero.
+  </div>
+
+  <div class="attempt-note attempt-tip">
+    Save &amp; Next records your answer and moves forward.
+  </div>
+
+  {% if test.schedule_type == 'fixed_start' %}
+    <div class="attempt-note attempt-info">
+      Fixed start rules are active for this test.
+    </div>
+  {% elif test.schedule_type == 'window' %}
+    <div class="attempt-note attempt-info">
+      Submit within the allowed window.
+    </div>
+  {% endif %}
+
+  {% for subject_name, questions in subject_groups.items() %}
+    <div class="palette-subject">
+      <div class="palette-subject-title">
+        <span>{{ subject_name }}</span>
+        <span class="subject-count">{{ questions|length }} questions</span>
+      </div>
+
+      <div class="palette-grid">
+        {% for item in questions %}
+          <a
+            href="{{ url_for('student.attempt_page', attempt_id=attempt.id, q=item.index) }}"
+            class="palette-link {{ item.state }} {% if item.is_current %}current{% endif %} nav-link-track"
+          >
+            {{ item.index }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endmacro %}
+
 <section class="dashboard-wrap">
   <div class="attempt-shell">
     <div class="attempt-top">
@@ -731,11 +893,16 @@
         </div>
       </div>
 
-      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+      <div class="attempt-top-right">
+        <button type="button" class="btn-nav mobile-nav-trigger" id="openNavigatorBtn">
+          Question Navigator
+        </button>
+
         <div class="timer-box" id="timer-box">
           <span>⏰</span>
           <span id="time-remaining" data-seconds="{{ remaining_seconds }}">00:00:00</span>
         </div>
+
         <button type="button" class="btn-submit" id="open-submit-modal">Submit Test</button>
       </div>
     </div>
@@ -834,61 +1001,13 @@
         </div>
       </div>
 
-      <div class="side-card">
-        <h3 class="side-title">Question Navigator</h3>
-
-        <div class="legend">
-          <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Answered</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> Not Answered</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#e2e8f0;"></span> Not Visited</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#9333ea;"></span> Review</div>
-        </div>
-
-        <div class="navigator-note">
-          Use the navigator when you want to jump directly to a question.
-        </div>
-
-        <div class="attempt-note attempt-warning">
-          Timer auto-submits when it reaches zero.
-        </div>
-
-        <div class="attempt-note attempt-tip">
-          Save &amp; Next records your answer and moves forward.
-        </div>
-
-        {% if test.schedule_type == 'fixed_start' %}
-          <div class="attempt-note attempt-info">
-            Fixed start rules are active for this test.
-          </div>
-        {% elif test.schedule_type == 'window' %}
-          <div class="attempt-note attempt-info">
-            Submit within the allowed window.
-          </div>
-        {% endif %}
-
-        {% for subject_name, questions in subject_groups.items() %}
-          <div class="palette-subject">
-            <div class="palette-subject-title">
-              <span>{{ subject_name }}</span>
-              <span class="subject-count">{{ questions|length }} questions</span>
-            </div>
-
-            <div class="palette-grid">
-              {% for item in questions %}
-                <a
-                  href="{{ url_for('student.attempt_page', attempt_id=attempt.id, q=item.index) }}"
-                  class="palette-link {{ item.state }} {% if item.is_current %}current{% endif %} nav-link-track"
-                >
-                  {{ item.index }}
-                </a>
-              {% endfor %}
-            </div>
-          </div>
-        {% endfor %}
-      </div>
+      {{ render_navigator('desktop-nav') }}
     </div>
   </div>
 </section>
+
+<div class="navigator-backdrop" id="navigatorBackdrop"></div>
+{{ render_navigator('mobile-side-card') }}
 
 <div class="submit-modal" id="submitModal">
   <div class="submit-dialog">
@@ -941,6 +1060,10 @@
     const timeInput = document.getElementById("time_spent_seconds");
     const trackedLinks = document.querySelectorAll(".nav-link-track");
 
+    const openNavigatorBtn = document.getElementById("openNavigatorBtn");
+    const closeNavigatorBtn = document.getElementById("closeNavigatorBtn");
+    const navigatorBackdrop = document.getElementById("navigatorBackdrop");
+
     let startedAt = Date.now();
     let submitted = false;
 
@@ -974,9 +1097,16 @@
       }
     }
 
+    function openNavigator() {
+      document.body.classList.add("attempt-page-open-nav");
+    }
+
+    function closeNavigator() {
+      document.body.classList.remove("attempt-page-open-nav");
+    }
+
     if (saveForm) {
       saveForm.addEventListener("submit", function () {
-        submitted = true;
         syncQuestionTime();
       });
     }
@@ -984,6 +1114,7 @@
     trackedLinks.forEach(function (link) {
       link.addEventListener("click", function () {
         syncQuestionTime();
+        closeNavigator();
       });
     });
 
@@ -1038,6 +1169,33 @@
         }
       });
     }
+
+    if (openNavigatorBtn) {
+      openNavigatorBtn.addEventListener("click", openNavigator);
+    }
+
+    if (closeNavigatorBtn) {
+      closeNavigatorBtn.addEventListener("click", closeNavigator);
+    }
+
+    if (navigatorBackdrop) {
+      navigatorBackdrop.addEventListener("click", closeNavigator);
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        closeNavigator();
+        if (submitModal) {
+          submitModal.classList.remove("show");
+        }
+      }
+    });
+
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 1100) {
+        closeNavigator();
+      }
+    });
   })();
 </script>
 {% endblock %}
