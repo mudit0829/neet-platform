@@ -4,41 +4,200 @@
 
 {% block content %}
 <style>
-  .tests-page { width: 100%; max-width: 100%; }
-  .tests-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr); gap: 20px; align-items: start; }
-  .tests-form-card, .tests-side-card { min-width: 0; overflow: hidden; }
-  .tests-form-grid { display: grid; gap: 14px; }
-  .tests-row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .tests-row-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .tests-field { display: grid; gap: 8px; min-width: 0; }
-  .tests-field label { font-weight: 700; }
-  .tests-input, .tests-select, .tests-textarea {
+  .tests-page {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .tests-hero {
+    border: 1px solid #dbeafe;
+    border-radius: 22px;
+    padding: 22px;
+    background:
+      radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 28%),
+      radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 24%),
+      linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+    margin-bottom: 20px;
+  }
+
+  .tests-hero h1 {
+    margin: 8px 0 8px;
+    line-height: 1.15;
+    color: #0f172a;
+  }
+
+  .tests-hero p {
+    margin: 0;
+    max-width: 860px;
+    color: #64748b;
+    line-height: 1.7;
+    font-size: 14px;
+  }
+
+  .tests-chip-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .tests-soft-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid transparent;
+  }
+
+  .tests-soft-chip.blue {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+  }
+
+  .tests-soft-chip.green {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+  }
+
+  .tests-soft-chip.violet {
+    background: #f5f3ff;
+    color: #7c3aed;
+    border-color: #ddd6fe;
+  }
+
+  .tests-soft-chip.peach {
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fdba74;
+  }
+
+  .tests-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .tests-form-card,
+  .tests-side-card {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .tests-form-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  }
+
+  .tests-side-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fffdfa 100%);
+  }
+
+  .tests-form-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .tests-row-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .tests-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .tests-field {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .tests-field label {
+    font-weight: 700;
+    color: #334155;
+    font-size: 13px;
+  }
+
+  .tests-input,
+  .tests-select,
+  .tests-textarea {
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    padding: 12px;
+    padding: 12px 13px;
+    min-height: 46px;
     border-radius: 12px;
     border: 1px solid #d1d5db;
     background: #ffffff;
     color: #111827;
     box-sizing: border-box;
   }
-  .tests-textarea { resize: vertical; }
+
+  .tests-input:focus,
+  .tests-select:focus,
+  .tests-textarea:focus {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.12);
+  }
+
+  .tests-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
   .tests-submit {
     padding: 12px 18px;
+    min-height: 46px;
     border: none;
     border-radius: 12px;
-    background: #0f766e;
+    background: linear-gradient(135deg, #14b8a6, #2563eb);
     color: #ffffff;
     font-weight: 700;
     cursor: pointer;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.14);
   }
-  .tests-chip-wrap { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-  .tests-alerts { display: grid; gap: 12px; margin-bottom: 20px; }
-  .tests-alert { padding: 14px 16px; border-radius: 14px; font-weight: 600; }
-  .tests-alert.success { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
-  .tests-alert.danger, .tests-alert.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-  .tests-alert.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+  .tests-alerts {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .tests-alert {
+    padding: 14px 16px;
+    border-radius: 14px;
+    font-weight: 600;
+    line-height: 1.55;
+  }
+
+  .tests-alert.success {
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+
+  .tests-alert.danger,
+  .tests-alert.error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  .tests-alert.info {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+  }
+
   .tests-note {
     padding: 12px 14px;
     border-radius: 12px;
@@ -46,8 +205,27 @@
     border: 1px solid #e2e8f0;
     color: #334155;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.55;
   }
+
+  .tests-note.blue {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1e40af;
+  }
+
+  .tests-note.green {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #166534;
+  }
+
+  .tests-note.peach {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #9a3412;
+  }
+
   .tests-checkbox {
     display: flex;
     align-items: center;
@@ -57,25 +235,52 @@
     border: 1px solid #d1d5db;
     background: #ffffff;
   }
+
   .tests-checkbox input {
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
   }
-  .tests-table-wrap { overflow-x: auto; width: 100%; }
-  .tests-table { width: 100%; border-collapse: collapse; min-width: 1420px; }
-  .tests-table th, .tests-table td {
+
+  .tests-table-wrap {
+    overflow-x: auto;
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    background: #ffffff;
+  }
+
+  .tests-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1420px;
+  }
+
+  .tests-table th,
+  .tests-table td {
     padding: 12px;
     border-bottom: 1px solid #e5e7eb;
     text-align: left;
     vertical-align: top;
   }
-  .tests-table thead tr { background: #f8fafc; color: #111827; }
-  .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .tests-table thead tr {
+    background: #f8fafc;
+    color: #111827;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
   .action-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 12px;
+    padding: 9px 12px;
+    min-height: 40px;
     border-radius: 10px;
     border: 1px solid #cbd5e1;
     background: #ffffff;
@@ -85,8 +290,19 @@
     font-size: 14px;
     cursor: pointer;
   }
-  .action-btn.primary { background: #0f766e; color: #ffffff; border-color: #0f766e; }
-  .action-btn.danger { background: #fff1f2; color: #9f1239; border-color: #fecdd3; }
+
+  .action-btn.primary {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+  }
+
+  .action-btn.danger {
+    background: #fff1f2;
+    color: #9f1239;
+    border-color: #fecdd3;
+  }
+
   .status-pill {
     display: inline-flex;
     align-items: center;
@@ -95,8 +311,17 @@
     font-size: 12px;
     font-weight: 700;
   }
-  .status-pill.draft { background: #e2e8f0; color: #334155; }
-  .status-pill.published { background: #dcfce7; color: #166534; }
+
+  .status-pill.draft {
+    background: #e2e8f0;
+    color: #334155;
+  }
+
+  .status-pill.published {
+    background: #dcfce7;
+    color: #166534;
+  }
+
   .badge {
     display: inline-flex;
     align-items: center;
@@ -107,38 +332,241 @@
     font-size: 12px;
     font-weight: 700;
   }
-  .badge.mode { background: #ecfeff; color: #155e75; }
-  .badge.schedule { background: #fef3c7; color: #92400e; }
+
+  .badge.mode {
+    background: #ecfeff;
+    color: #155e75;
+  }
+
+  .badge.schedule {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
   .muted-line {
     font-size: 13px;
     color: #64748b;
     margin-top: 4px;
     line-height: 1.5;
   }
+
   .schedule-fields {
     display: none;
     gap: 12px;
   }
+
   .schedule-fields.active {
     display: grid;
   }
-  @media (max-width: 1200px) {
-    .tests-grid { grid-template-columns: 1fr; }
-    .tests-row-3 { grid-template-columns: 1fr; }
+
+  .tests-mobile-list {
+    display: none;
+    gap: 14px;
   }
+
+  .test-mobile-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+  }
+
+  .test-mobile-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .test-mobile-id {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .test-mobile-title {
+    color: #0f172a;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  .test-mobile-instructions {
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .test-mobile-meta {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .test-mobile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+  }
+
+  .test-mobile-label {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .test-mobile-value {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .test-mobile-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  @media (max-width: 1200px) {
+    .tests-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tests-row-3 {
+      grid-template-columns: 1fr;
+    }
+  }
+
   @media (max-width: 768px) {
-    .tests-row-2 { grid-template-columns: 1fr; }
+    .tests-row-2 {
+      grid-template-columns: 1fr;
+    }
+
+    .tests-hero {
+      padding: 18px;
+      border-radius: 18px;
+    }
+
+    .tests-hero h1 {
+      font-size: 24px;
+    }
+
+    .panel-card.tests-form-card,
+    .panel-card.tests-side-card,
+    .panel-card.tests-list-card {
+      padding: 18px;
+      border-radius: 18px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .tests-hero {
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+    }
+
+    .tests-hero h1 {
+      font-size: 22px;
+    }
+
+    .tests-hero p {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .tests-chip-wrap {
+      gap: 8px;
+    }
+
+    .tests-soft-chip {
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .tests-submit,
+    .action-btn {
+      width: 100%;
+    }
+
+    .tests-checkbox {
+      align-items: flex-start;
+    }
+
+    .tests-table-wrap {
+      display: none;
+    }
+
+    .tests-mobile-list {
+      display: grid;
+    }
+
+    .panel-card.tests-form-card,
+    .panel-card.tests-side-card,
+    .panel-card.tests-list-card {
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    .test-mobile-top {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .test-mobile-row {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .test-mobile-value {
+      text-align: left;
+    }
+
+    .action-row form,
+    .action-row button {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .tests-hero h1 {
+      font-size: 20px;
+    }
+
+    .panel-card.tests-form-card,
+    .panel-card.tests-side-card,
+    .panel-card.tests-list-card,
+    .test-mobile-card {
+      padding: 14px;
+      border-radius: 14px;
+    }
   }
 </style>
 
 <section class="dashboard-wrap tests-page">
-  <div class="topbar">
-    <div>
-      <div class="topbar-chip">Admin Module</div>
-      <h1>Tests</h1>
-      <p>Create flexible NEET full tests, subject tests, and quick tests with schedule control and strict timer rules.</p>
+  <section class="tests-hero">
+    <div class="topbar-chip">Admin Module</div>
+    <h1>Tests</h1>
+    <p>Create flexible NEET full tests, subject tests, and quick tests with schedule control and strict timer rules.</p>
+
+    <div class="tests-chip-wrap">
+      <span class="tests-soft-chip blue">Draft First</span>
+      <span class="tests-soft-chip green">Publish Validation</span>
+      <span class="tests-soft-chip violet">Flexible Scheduling</span>
+      <span class="tests-soft-chip peach">NEET Full Rules</span>
     </div>
-  </div>
+  </section>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -257,7 +685,7 @@
               <input type="datetime-local" name="end_at" id="end_at" class="tests-input">
             </div>
           </div>
-          <div class="tests-note">
+          <div class="tests-note blue">
             Fixed start means students can begin only after the configured start time. If they start late, available remaining time may be shorter.
           </div>
         </div>
@@ -274,7 +702,7 @@
               <input type="datetime-local" name="end_at" id="end_at_window" class="tests-input">
             </div>
           </div>
-          <div class="tests-note">
+          <div class="tests-note peach">
             Time window means students may start any time within the allowed window, but once started they must finish within the valid remaining duration.
           </div>
         </div>
@@ -286,7 +714,7 @@
           </label>
         </div>
 
-        <div class="tests-note">
+        <div class="tests-note green">
           Once a student starts the test, the timer continues on the server and the attempt will auto-submit when time ends.
         </div>
 
@@ -307,7 +735,7 @@
         Create in draft, attach questions, then publish after validation.
       </p>
 
-      <div class="tests-chip-wrap">
+      <div class="tests-chip-wrap" style="margin-top:0;">
         <span class="module-chip">Quick Tests</span>
         <span class="module-chip">NEET Full Tests</span>
         <span class="module-chip">Flexible Timing</span>
@@ -319,17 +747,17 @@
         <span class="module-chip">Publish Control</span>
       </div>
 
-      <div class="tests-note" style="margin-top:16px;">
+      <div class="tests-note blue" style="margin-top:16px;">
         NEET Full Test requires Physics 45, Chemistry 45, Biology 90 before publish. Quick Test and Custom Test can publish with at least 1 linked question.
       </div>
 
-      <div class="tests-note" style="margin-top:12px;">
+      <div class="tests-note peach" style="margin-top:12px;">
         Recommended: use Fixed Start for live evening exams and Time Window for flexible student practice tests.
       </div>
     </div>
   </section>
 
-  <section class="panel-card" style="margin-top:20px;">
+  <section class="panel-card tests-list-card" style="margin-top:20px;">
     <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
       <div>
         <h3 style="margin-bottom:6px;">Created Tests</h3>
@@ -424,6 +852,102 @@
             {% endfor %}
           </tbody>
         </table>
+      </div>
+
+      <div class="tests-mobile-list">
+        {% for test in tests %}
+        <article class="test-mobile-card">
+          <div class="test-mobile-top">
+            <div>
+              <div class="test-mobile-id">Test ID: {{ test.id }}</div>
+              <h4 class="test-mobile-title">{{ test.title }}</h4>
+              {% if test.instructions %}
+                <div class="test-mobile-instructions">
+                  {{ test.instructions[:120] }}{% if test.instructions|length > 120 %}...{% endif %}
+                </div>
+              {% endif %}
+            </div>
+
+            <span class="status-pill {% if test.status == 'published' %}published{% else %}draft{% endif %}">
+              {{ test.status|title }}
+            </span>
+          </div>
+
+          <div class="tests-chip-wrap" style="margin-top:0;">
+            <span class="badge mode">
+              {{ (test.test_mode if test.test_mode is defined else 'custom')|replace('_', ' ')|title }}
+            </span>
+            <span class="badge schedule">
+              {{ (test.schedule_type if test.schedule_type is defined else 'instant')|replace('_', ' ')|title }}
+            </span>
+          </div>
+
+          <div class="test-mobile-meta">
+            <div class="test-mobile-row">
+              <span class="test-mobile-label">Type</span>
+              <span class="test-mobile-value">{{ test.test_type|replace('_', ' ')|title }}</span>
+            </div>
+
+            <div class="test-mobile-row">
+              <span class="test-mobile-label">Duration</span>
+              <span class="test-mobile-value">{{ test.duration_minutes }} min</span>
+            </div>
+
+            <div class="test-mobile-row">
+              <span class="test-mobile-label">Questions</span>
+              <span class="test-mobile-value">{{ test.test_questions|length }}</span>
+            </div>
+
+            <div class="test-mobile-row">
+              <span class="test-mobile-label">Total Marks</span>
+              <span class="test-mobile-value">{{ test.total_marks }}</span>
+            </div>
+
+            <div class="test-mobile-row">
+              <span class="test-mobile-label">Schedule</span>
+              <span class="test-mobile-value">
+                {% if test.schedule_type == 'fixed_start' %}
+                  Start: {{ test.start_at.strftime('%d %b %Y %I:%M %p') if test.start_at else 'Not set' }}<br>
+                  End: {{ test.end_at.strftime('%d %b %Y %I:%M %p') if test.end_at else 'Auto by duration' }}
+                {% elif test.schedule_type == 'window' %}
+                  Start: {{ test.start_at.strftime('%d %b %Y %I:%M %p') if test.start_at else 'Not set' }}<br>
+                  End: {{ test.end_at.strftime('%d %b %Y %I:%M %p') if test.end_at else 'Not set' }}
+                {% else %}
+                  Available immediately after publish
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="test-mobile-row">
+              <span class="test-mobile-label">Attempts / Resume</span>
+              <span class="test-mobile-value">
+                {{ test.max_attempts if test.max_attempts is defined else 1 }} / {% if test.is_resume_allowed %}Yes{% else %}No{% endif %}
+              </span>
+            </div>
+
+            <div class="test-mobile-row">
+              <span class="test-mobile-label">Created</span>
+              <span class="test-mobile-value">{{ test.created_at.strftime('%d %b %Y') if test.created_at else '-' }}</span>
+            </div>
+          </div>
+
+          <div class="test-mobile-actions">
+            <a class="action-btn primary" href="{{ url_for('admin.test_builder_page', test_id=test.id) }}">Manage Questions</a>
+
+            {% if test.status == 'draft' and test.test_questions|length > 0 %}
+              <form method="POST" action="{{ url_for('admin.publish_test', test_id=test.id) }}">
+                <button type="submit" class="action-btn">Publish</button>
+              </form>
+            {% elif test.status == 'published' %}
+              <form method="POST" action="{{ url_for('admin.unpublish_test', test_id=test.id) }}">
+                <button type="submit" class="action-btn danger">Unpublish</button>
+              </form>
+            {% else %}
+              <span class="badge">Add questions first</span>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
       </div>
     {% else %}
       <div class="panel-text" style="margin-top:8px;">
