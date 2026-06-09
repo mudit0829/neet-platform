@@ -8,16 +8,73 @@
     .admin-page {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 22px;
     }
 
     .page-intro {
-      background: linear-gradient(135deg, #111827 0%, #1e293b 55%, #1d4ed8 100%);
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.12), transparent 24%),
+        linear-gradient(135deg, #ffffff 0%, #f7fbff 52%, #eff6ff 100%);
+      border: 1px solid #dbe7f5;
       border-radius: 24px;
       padding: 26px;
-      color: #ffffff;
-      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+      color: #0f172a;
+      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.05);
       min-width: 0;
+    }
+
+    .page-intro::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -40px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.10), rgba(37, 99, 235, 0));
+      pointer-events: none;
+    }
+
+    .intro-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .intro-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .intro-chip.blue {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #dbeafe;
+    }
+
+    .intro-chip.green {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #bbf7d0;
+    }
+
+    .intro-chip.peach {
+      background: #fff7ed;
+      color: #c2410c;
+      border-color: #fed7aa;
     }
 
     .page-intro h2 {
@@ -25,25 +82,30 @@
       font-size: 28px;
       font-weight: 800;
       line-height: 1.15;
+      color: #0f172a;
+      position: relative;
+      z-index: 1;
     }
 
     .page-intro p {
       margin: 0;
       max-width: 760px;
-      color: rgba(255, 255, 255, 0.84);
+      color: #475569;
       line-height: 1.7;
       font-size: 15px;
+      position: relative;
+      z-index: 1;
     }
 
     .two-col-grid {
       display: grid;
-      grid-template-columns: 360px minmax(0, 1fr);
-      gap: 22px;
+      grid-template-columns: 340px minmax(0, 1fr);
+      gap: 20px;
       align-items: start;
     }
 
     .panel-card {
-      background: #ffffff;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
       border: 1px solid #e2e8f0;
       border-radius: 20px;
       padding: 22px;
@@ -66,6 +128,19 @@
       line-height: 1.7;
     }
 
+    .subject-form-card {
+      background:
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid #dbe7f5;
+    }
+
+    .subject-form-wrap {
+      padding: 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #f8fbff 0%, #f0f9ff 100%);
+      border: 1px solid #dbeafe;
+    }
+
     .form-grid {
       display: grid;
       gap: 14px;
@@ -85,7 +160,7 @@
     .form-control {
       width: 100%;
       border: 1px solid #cbd5e1;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 12px 14px;
       min-height: 48px;
       font-size: 14px;
@@ -93,30 +168,41 @@
       background: #ffffff;
       outline: none;
       transition: 0.2s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .form-control::placeholder {
+      color: #94a3b8;
     }
 
     .form-control:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+      border-color: #60a5fa;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
     }
 
     .btn-primary {
       width: 100%;
       border: 0;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 13px 16px;
       min-height: 48px;
-      background: linear-gradient(135deg, #2563eb, #0f766e);
+      background: linear-gradient(135deg, #3b82f6, #14b8a6);
       color: #ffffff;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       transition: 0.2s ease;
+      box-shadow: 0 10px 22px rgba(59, 130, 246, 0.16);
     }
 
     .btn-primary:hover {
       transform: translateY(-1px);
-      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+      box-shadow: 0 14px 26px rgba(59, 130, 246, 0.20);
+    }
+
+    .subject-list-card {
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
 
     .subject-grid {
@@ -129,7 +215,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 18px;
       padding: 18px;
-      background: #f8fafc;
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
       transition: 0.2s ease;
       min-width: 0;
     }
@@ -141,11 +227,17 @@
     }
 
     .subject-id {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #dbeafe;
       font-size: 12px;
-      font-weight: 700;
-      color: #64748b;
-      margin-bottom: 10px;
-      line-height: 1.4;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.3;
     }
 
     .subject-name {
@@ -168,7 +260,7 @@
       padding: 18px;
       border: 1px dashed #cbd5e1;
       border-radius: 16px;
-      background: #f8fafc;
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
       color: #64748b;
       font-size: 14px;
       line-height: 1.6;
@@ -204,6 +296,11 @@
         border-radius: 18px;
       }
 
+      .subject-form-wrap {
+        padding: 14px;
+        border-radius: 14px;
+      }
+
       .subject-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
@@ -218,6 +315,11 @@
       .page-intro {
         padding: 18px 16px;
         border-radius: 18px;
+      }
+
+      .intro-chip-row {
+        gap: 8px;
+        margin-bottom: 12px;
       }
 
       .page-intro h2 {
@@ -242,6 +344,10 @@
       .panel-text {
         font-size: 13px;
         margin-bottom: 16px;
+      }
+
+      .subject-form-wrap {
+        padding: 12px;
       }
 
       .subject-grid {
@@ -285,10 +391,20 @@
       .subject-card {
         padding: 14px;
       }
+
+      .subject-id {
+        font-size: 11.5px;
+      }
     }
   </style>
 
   <section class="page-intro">
+    <div class="intro-chip-row">
+      <span class="intro-chip blue">Academic setup</span>
+      <span class="intro-chip green">Chapter ready</span>
+      <span class="intro-chip peach">Question bank linked</span>
+    </div>
+
     <h2>Subjects</h2>
     <p>
       Create NEET subjects first so chapters and question bank records can be linked properly in later modules.
@@ -296,23 +412,32 @@
   </section>
 
   <section class="two-col-grid">
-    <div class="panel-card">
+    <div class="panel-card subject-form-card">
       <h3>Add subject</h3>
       <p class="panel-text">
         Add standard subjects like Physics, Chemistry, and Biology. These will be used across chapters, questions, and tests.
       </p>
 
-      <form method="POST" class="form-grid">
-        <div class="form-group">
-          <label for="name">Subject name</label>
-          <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Physics" required>
-        </div>
+      <div class="subject-form-wrap">
+        <form method="POST" class="form-grid">
+          <div class="form-group">
+            <label for="name">Subject name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              class="form-control"
+              placeholder="e.g. Physics"
+              required
+            >
+          </div>
 
-        <button type="submit" class="btn-primary">Create Subject</button>
-      </form>
+          <button type="submit" class="btn-primary">Create Subject</button>
+        </form>
+      </div>
     </div>
 
-    <div class="panel-card">
+    <div class="panel-card subject-list-card">
       <h3>Available subjects</h3>
       <p class="panel-text">
         Use this list to confirm which subject masters are already available in your platform.
