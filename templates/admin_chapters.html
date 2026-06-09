@@ -3,35 +3,35 @@
 {% block title %}Chapters | NEET Platform{% endblock %}
 
 {% block content %}
-<section class="admin-page">
+<section class="chapters-admin-page">
   <style>
-    .admin-page {
+    .chapters-admin-page {
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
 
-    .page-intro {
+    .chapters-hero {
       position: relative;
       overflow: hidden;
-      background:
-        radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 24%),
-        linear-gradient(135deg, #ffffff 0%, #f7fbff 55%, #eef6ff 100%);
-      border: 1px solid #dbe7f5;
       border-radius: 22px;
       padding: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.14), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(15, 118, 110, 0.10), transparent 24%),
+        linear-gradient(135deg, #ffffff 0%, #f7fbff 58%, #eef6ff 100%);
+      border: 1px solid #dbe7f5;
       box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
     }
 
-    .intro-chip-row {
+    .chapters-hero-badges {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 14px;
     }
 
-    .intro-chip {
+    .chapters-badge {
       display: inline-flex;
       align-items: center;
       padding: 8px 12px;
@@ -42,25 +42,25 @@
       white-space: nowrap;
     }
 
-    .intro-chip.blue {
+    .chapters-badge.blue {
       background: #eff6ff;
       color: #1d4ed8;
       border-color: #bfdbfe;
     }
 
-    .intro-chip.green {
+    .chapters-badge.green {
       background: #ecfdf5;
       color: #047857;
       border-color: #bbf7d0;
     }
 
-    .intro-chip.peach {
+    .chapters-badge.peach {
       background: #fff7ed;
       color: #c2410c;
       border-color: #fed7aa;
     }
 
-    .page-intro h2 {
+    .chapters-hero h2 {
       margin: 0 0 10px;
       color: #0f172a;
       font-size: 28px;
@@ -68,7 +68,7 @@
       font-weight: 800;
     }
 
-    .page-intro p {
+    .chapters-hero p {
       margin: 0;
       max-width: 760px;
       color: #64748b;
@@ -76,14 +76,14 @@
       line-height: 1.7;
     }
 
-    .stats-row {
+    .chapters-stats {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 16px;
     }
 
-    .stat-pill {
+    .chapters-stat {
       display: inline-flex;
       align-items: center;
       padding: 9px 12px;
@@ -93,64 +93,65 @@
       border: 1px solid transparent;
     }
 
-    .stat-pill.blue {
+    .chapters-stat.blue {
       background: #eff6ff;
       color: #1d4ed8;
       border-color: #bfdbfe;
     }
 
-    .stat-pill.green {
+    .chapters-stat.green {
       background: #ecfdf5;
       color: #047857;
       border-color: #bbf7d0;
     }
 
-    .stat-pill.violet {
+    .chapters-stat.violet {
       background: #f5f3ff;
       color: #7c3aed;
       border-color: #ddd6fe;
     }
 
-    .two-col-grid {
+    .chapters-layout {
       display: grid;
       grid-template-columns: 360px minmax(0, 1fr);
       gap: 20px;
       align-items: start;
     }
 
-    .panel-card {
+    .chapters-card {
+      min-width: 0;
       background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
       border: 1px solid #e2e8f0;
       border-radius: 20px;
       padding: 22px;
       box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
-      min-width: 0;
     }
 
-    .panel-head {
+    .chapters-card-head {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
       align-items: flex-start;
       flex-wrap: wrap;
+      gap: 12px;
       margin-bottom: 16px;
     }
 
-    .panel-head h3 {
+    .chapters-card-head h3 {
       margin: 0 0 4px;
       font-size: 19px;
       font-weight: 800;
       color: #0f172a;
     }
 
-    .panel-subtext {
+    .chapters-card-subtext {
       margin: 0;
       color: #64748b;
       font-size: 13px;
       line-height: 1.6;
     }
 
-    .helper-box {
+    .chapters-helper {
+      margin-bottom: 16px;
       padding: 13px 14px;
       border-radius: 14px;
       background: #eff6ff;
@@ -158,62 +159,55 @@
       color: #1e40af;
       font-size: 13px;
       line-height: 1.6;
-      margin-bottom: 16px;
     }
 
-    .form-grid {
+    .chapters-form {
       display: grid;
       gap: 14px;
     }
 
-    .form-group {
+    .chapters-field {
       display: grid;
       gap: 7px;
     }
 
-    .form-group label {
+    .chapters-field label {
       font-size: 13px;
       font-weight: 700;
       color: #334155;
     }
 
-    .form-control {
+    .chapters-field .chapters-input,
+    .chapters-search-input {
       width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
-      padding: 13px 14px;
       min-height: 48px;
-      font-size: 14px;
-      color: #0f172a !important;
-      -webkit-text-fill-color: #0f172a !important;
-      background: #ffffff !important;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
       outline: none;
-      transition: 0.2s ease;
+      font-size: 14px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
     }
 
-    .form-control:hover,
-    .form-control:focus,
-    .form-control:active {
-      color: #0f172a !important;
-      -webkit-text-fill-color: #0f172a !important;
-      background: #ffffff !important;
-    }
-
-    .form-control:focus {
+    .chapters-field .chapters-input:focus,
+    .chapters-search-input:focus {
       border-color: #2563eb;
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
     }
 
-    .form-control::placeholder {
+    .chapters-field .chapters-input::placeholder,
+    .chapters-search-input::placeholder {
       color: #94a3b8;
-      -webkit-text-fill-color: #94a3b8;
       opacity: 1;
     }
 
-    select.form-control {
+    .chapters-field select.chapters-input {
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
+      padding-right: 40px;
       background-image:
         linear-gradient(45deg, transparent 50%, #64748b 50%),
         linear-gradient(135deg, #64748b 50%, transparent 50%);
@@ -222,65 +216,49 @@
         calc(100% - 12px) calc(50% - 3px);
       background-size: 6px 6px, 6px 6px;
       background-repeat: no-repeat;
-      padding-right: 40px;
     }
 
-    .btn-primary {
+    .chapters-submit {
       width: 100%;
+      min-height: 48px;
       border: 0;
       border-radius: 14px;
       padding: 14px 16px;
-      min-height: 48px;
       background: linear-gradient(135deg, #2563eb, #0f766e);
       color: #ffffff;
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-      transition: 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       box-shadow: 0 12px 24px rgba(37, 99, 235, 0.16);
     }
 
-    .btn-primary:hover {
+    .chapters-submit:hover {
       transform: translateY(-1px);
     }
 
-    .toolbar {
+    .chapters-toolbar {
       display: grid;
       gap: 14px;
       margin-bottom: 18px;
     }
 
-    .search-row {
+    .chapters-search-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 12px;
       align-items: center;
     }
 
-    .search-box {
+    .chapters-search-wrap {
       position: relative;
     }
 
-    .search-box input {
-      width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
-      padding: 13px 14px 13px 42px;
-      min-height: 48px;
-      font-size: 14px;
-      color: #0f172a !important;
-      -webkit-text-fill-color: #0f172a !important;
-      background: #ffffff !important;
-      outline: none;
-      transition: 0.2s ease;
+    .chapters-search-input {
+      padding-left: 42px;
     }
 
-    .search-box input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
-    }
-
-    .search-icon {
+    .chapters-search-icon {
       position: absolute;
       left: 14px;
       top: 50%;
@@ -290,7 +268,7 @@
       pointer-events: none;
     }
 
-    .result-count {
+    .chapters-count {
       padding: 10px 12px;
       border-radius: 999px;
       background: #f8fafc;
@@ -301,13 +279,13 @@
       white-space: nowrap;
     }
 
-    .subject-tabs {
+    .chapters-tabs {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
     }
 
-    .subject-tab {
+    .chapters-tab {
       border: 1px solid transparent;
       border-radius: 999px;
       padding: 9px 14px;
@@ -319,78 +297,78 @@
       color: #475569;
     }
 
-    .subject-tab:hover {
+    .chapters-tab:hover {
       transform: translateY(-1px);
     }
 
-    .subject-tab.active {
+    .chapters-tab.active {
       box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
     }
 
-    .subject-tab.all.active {
+    .chapters-tab.all.active {
       background: #0f172a;
       color: #ffffff;
       border-color: #0f172a;
     }
 
-    .subject-tab.physics.active {
+    .chapters-tab.physics.active {
       background: #eff6ff;
       color: #1d4ed8;
       border-color: #bfdbfe;
     }
 
-    .subject-tab.chemistry.active {
+    .chapters-tab.chemistry.active {
       background: #ecfdf5;
       color: #047857;
       border-color: #a7f3d0;
     }
 
-    .subject-tab.biology.active {
+    .chapters-tab.biology.active {
       background: #f5f3ff;
       color: #7c3aed;
       border-color: #ddd6fe;
     }
 
-    .subject-tab.default.active {
+    .chapters-tab.default.active {
       background: #fff7ed;
       color: #c2410c;
       border-color: #fed7aa;
     }
 
-    .chapter-grid {
+    .chapters-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
     }
 
-    .chapter-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 18px;
+    .chapter-item {
+      min-width: 0;
       padding: 16px;
+      border-radius: 18px;
+      border: 1px solid #e2e8f0;
       background: #ffffff;
       transition: 0.18s ease;
-      min-width: 0;
     }
 
-    .chapter-card:hover {
+    .chapter-item:hover {
       transform: translateY(-1px);
       box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
     }
 
-    .chapter-card.hidden {
+    .chapter-item.hidden {
       display: none;
     }
 
-    .chapter-top {
+    .chapter-item-top {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
       align-items: flex-start;
-      margin-bottom: 10px;
       flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .chapter-id {
+    .chapter-item-id {
       display: inline-flex;
       align-items: center;
       padding: 6px 10px;
@@ -402,7 +380,7 @@
       font-weight: 800;
     }
 
-    .subject-badge {
+    .chapter-item-subject {
       display: inline-flex;
       align-items: center;
       padding: 6px 10px;
@@ -414,31 +392,31 @@
       word-break: break-word;
     }
 
-    .subject-badge.physics {
+    .chapter-item-subject.physics {
       background: #eff6ff;
       color: #1d4ed8;
       border-color: #bfdbfe;
     }
 
-    .subject-badge.chemistry {
+    .chapter-item-subject.chemistry {
       background: #ecfdf5;
       color: #047857;
       border-color: #a7f3d0;
     }
 
-    .subject-badge.biology {
+    .chapter-item-subject.biology {
       background: #f5f3ff;
       color: #7c3aed;
       border-color: #ddd6fe;
     }
 
-    .subject-badge.default {
+    .chapter-item-subject.default {
       background: #fff7ed;
       color: #c2410c;
       border-color: #fed7aa;
     }
 
-    .chapter-name {
+    .chapter-item h4 {
       margin: 0 0 6px;
       color: #0f172a;
       font-size: 16px;
@@ -447,7 +425,7 @@
       word-break: break-word;
     }
 
-    .chapter-meta {
+    .chapter-item p {
       margin: 0;
       color: #64748b;
       font-size: 13px;
@@ -455,7 +433,7 @@
       word-break: break-word;
     }
 
-    .empty-state {
+    .chapters-empty {
       padding: 24px;
       border: 1px dashed #cbd5e1;
       border-radius: 18px;
@@ -467,77 +445,77 @@
     }
 
     @media (max-width: 1080px) {
-      .two-col-grid {
+      .chapters-layout {
         grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 820px) {
-      .chapter-grid {
+      .chapters-grid {
         grid-template-columns: 1fr;
       }
 
-      .search-row {
+      .chapters-search-row {
         grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 640px) {
-      .admin-page {
+      .chapters-admin-page {
         gap: 16px;
       }
 
-      .page-intro {
+      .chapters-hero {
         padding: 18px 16px;
         border-radius: 18px;
       }
 
-      .page-intro h2 {
+      .chapters-hero h2 {
         font-size: 22px;
       }
 
-      .page-intro p {
+      .chapters-hero p {
         font-size: 13px;
         line-height: 1.6;
       }
 
-      .panel-card {
+      .chapters-card {
         padding: 16px;
         border-radius: 16px;
       }
 
-      .panel-head h3 {
+      .chapters-card-head h3 {
         font-size: 17px;
       }
 
-      .panel-subtext,
-      .helper-box,
-      .chapter-meta {
+      .chapters-card-subtext,
+      .chapters-helper,
+      .chapter-item p {
         font-size: 12.5px;
       }
 
-      .form-control,
-      .search-box input,
-      .btn-primary {
+      .chapters-field .chapters-input,
+      .chapters-search-input,
+      .chapters-submit {
         min-height: 46px;
         font-size: 14px;
       }
 
-      .subject-tab {
+      .chapters-tab {
         padding: 8px 12px;
         font-size: 12px;
       }
 
-      .chapter-card {
+      .chapter-item {
         padding: 14px;
         border-radius: 16px;
       }
 
-      .chapter-name {
+      .chapter-item h4 {
         font-size: 15px;
       }
 
-      .result-count {
+      .chapters-count {
         width: fit-content;
       }
     }
@@ -546,11 +524,11 @@
   {% set total_chapters = chapters|length if chapters else 0 %}
   {% set total_subjects = subjects|length if subjects else 0 %}
 
-  <section class="page-intro">
-    <div class="intro-chip-row">
-      <span class="intro-chip blue">Academic setup</span>
-      <span class="intro-chip green">Subject-linked</span>
-      <span class="intro-chip peach">Chapter ready</span>
+  <section class="chapters-hero">
+    <div class="chapters-hero-badges">
+      <span class="chapters-badge blue">Academic setup</span>
+      <span class="chapters-badge green">Subject-linked</span>
+      <span class="chapters-badge peach">Chapter ready</span>
     </div>
 
     <h2>Manage chapters</h2>
@@ -558,30 +536,30 @@
       Add chapters under the correct subject and review existing entries through subject-wise filtering and quick search.
     </p>
 
-    <div class="stats-row">
-      <span class="stat-pill blue">{{ total_chapters }} Total Chapters</span>
-      <span class="stat-pill green">{{ total_subjects }} Subjects</span>
-      <span class="stat-pill violet">Search & Filter Ready</span>
+    <div class="chapters-stats">
+      <span class="chapters-stat blue">{{ total_chapters }} Total Chapters</span>
+      <span class="chapters-stat green">{{ total_subjects }} Subjects</span>
+      <span class="chapters-stat violet">Search & Filter Ready</span>
     </div>
   </section>
 
-  <section class="two-col-grid">
-    <div class="panel-card">
-      <div class="panel-head">
+  <section class="chapters-layout">
+    <div class="chapters-card">
+      <div class="chapters-card-head">
         <div>
           <h3>Add chapter</h3>
-          <p class="panel-subtext">Create a new chapter under an existing subject.</p>
+          <p class="chapters-card-subtext">Create a new chapter under an existing subject.</p>
         </div>
       </div>
 
-      <div class="helper-box">
+      <div class="chapters-helper">
         Select the parent subject carefully and avoid duplicate chapter names under the same subject.
       </div>
 
-      <form method="POST" action="{{ url_for('admin.chapters_page') }}" class="form-grid">
-        <div class="form-group">
+      <form method="POST" action="{{ url_for('admin.chapters_page') }}" class="chapters-form">
+        <div class="chapters-field">
           <label for="subjectid">Subject</label>
-          <select id="subjectid" name="subjectid" class="form-control" required>
+          <select id="subjectid" name="subjectid" class="chapters-input" required>
             <option value="">Select subject</option>
             {% for subject in subjects %}
             <option value="{{ subject.id }}">{{ subject.name }}</option>
@@ -589,41 +567,41 @@
           </select>
         </div>
 
-        <div class="form-group">
+        <div class="chapters-field">
           <label for="name">Chapter name</label>
           <input
             type="text"
             id="name"
             name="name"
-            class="form-control"
+            class="chapters-input"
             placeholder="e.g. Laws of Motion"
             required
           >
         </div>
 
-        <button type="submit" class="btn-primary">Create Chapter</button>
+        <button type="submit" class="chapters-submit">Create Chapter</button>
       </form>
     </div>
 
-    <div class="panel-card">
-      <div class="panel-head">
+    <div class="chapters-card">
+      <div class="chapters-card-head">
         <div>
           <h3>Chapter library</h3>
-          <p class="panel-subtext">Browse chapters by subject and search instantly.</p>
+          <p class="chapters-card-subtext">Browse chapters by subject and search instantly.</p>
         </div>
       </div>
 
-      <div class="toolbar">
-        <div class="search-row">
-          <div class="search-box">
-            <span class="search-icon">⌕</span>
-            <input type="text" id="chapterSearch" placeholder="Search chapter name...">
+      <div class="chapters-toolbar">
+        <div class="chapters-search-row">
+          <div class="chapters-search-wrap">
+            <span class="chapters-search-icon">⌕</span>
+            <input type="text" id="chapterSearch" class="chapters-search-input" placeholder="Search chapter name...">
           </div>
-          <div class="result-count"><span id="visibleCount">{{ total_chapters }}</span> visible</div>
+          <div class="chapters-count"><span id="visibleCount">{{ total_chapters }}</span> visible</div>
         </div>
 
-        <div class="subject-tabs" id="subjectTabs">
-          <button type="button" class="subject-tab all active" data-subject="all">All</button>
+        <div class="chapters-tabs" id="subjectTabs">
+          <button type="button" class="chapters-tab all active" data-subject="all">All</button>
           {% for subject in subjects %}
             {% set subject_key = subject.name|lower|replace(' ', '-') %}
             {% set tab_class = 'default' %}
@@ -634,13 +612,13 @@
             {% elif subject.name|lower == 'biology' %}
               {% set tab_class = 'biology' %}
             {% endif %}
-            <button type="button" class="subject-tab {{ tab_class }}" data-subject="{{ subject_key }}">{{ subject.name }}</button>
+            <button type="button" class="chapters-tab {{ tab_class }}" data-subject="{{ subject_key }}">{{ subject.name }}</button>
           {% endfor %}
         </div>
       </div>
 
       {% if chapters %}
-      <div class="chapter-grid" id="chapterGrid">
+      <div class="chapters-grid" id="chapterGrid">
         {% for chapter in chapters %}
           {% set subject_name = chapter.subject.name if chapter.subject else 'No Subject' %}
           {% set subject_key = subject_name|lower|replace(' ', '-') %}
@@ -654,28 +632,26 @@
           {% endif %}
 
           <article
-            class="chapter-card"
+            class="chapter-item"
             data-subject="{{ subject_key }}"
             data-name="{{ chapter.name|lower }}"
           >
-            <div class="chapter-top">
-              <span class="chapter-id">#{{ chapter.id }}</span>
-              <span class="subject-badge {{ badge_class }}">{{ subject_name }}</span>
+            <div class="chapter-item-top">
+              <span class="chapter-item-id">#{{ chapter.id }}</span>
+              <span class="chapter-item-subject {{ badge_class }}">{{ subject_name }}</span>
             </div>
 
-            <h4 class="chapter-name">{{ chapter.name }}</h4>
-            <p class="chapter-meta">
-              Mapped under {{ subject_name }} for chapter-wise question and test organization.
-            </p>
+            <h4>{{ chapter.name }}</h4>
+            <p>Mapped under {{ subject_name }} for chapter-wise question and test organization.</p>
           </article>
         {% endfor %}
       </div>
 
-      <div class="empty-state" id="noChapterResults" style="display:none;">
+      <div class="chapters-empty" id="noChapterResults" style="display:none;">
         No chapters match the selected subject or search term.
       </div>
       {% else %}
-      <div class="empty-state">No chapters created yet.</div>
+      <div class="chapters-empty">No chapters created yet.</div>
       {% endif %}
     </div>
   </section>
@@ -683,48 +659,50 @@
   <script>
     (function () {
       const searchInput = document.getElementById('chapterSearch');
-      const tabs = document.querySelectorAll('.subject-tab');
-      const cards = document.querySelectorAll('.chapter-card');
+      const tabs = document.querySelectorAll('.chapters-tab');
+      const cards = document.querySelectorAll('.chapter-item');
       const visibleCount = document.getElementById('visibleCount');
       const noResults = document.getElementById('noChapterResults');
 
-      if (searchInput && tabs.length && cards.length) {
-        let activeSubject = 'all';
+      if (!searchInput || !tabs.length || !cards.length) return;
 
-        function applyFilters() {
-          const term = searchInput.value.trim().toLowerCase();
-          let count = 0;
+      let activeSubject = 'all';
 
-          cards.forEach((card) => {
-            const chapterName = card.dataset.name || '';
-            const chapterSubject = card.dataset.subject || '';
-            const subjectMatch = activeSubject === 'all' || chapterSubject === activeSubject;
-            const searchMatch = !term || chapterName.includes(term);
+      function applyFilters() {
+        const term = searchInput.value.trim().toLowerCase();
+        let count = 0;
 
-            if (subjectMatch && searchMatch) {
-              card.classList.remove('hidden');
-              count += 1;
-            } else {
-              card.classList.add('hidden');
-            }
-          });
+        cards.forEach(function (card) {
+          const chapterName = card.dataset.name || '';
+          const chapterSubject = card.dataset.subject || '';
+          const subjectMatch = activeSubject === 'all' || chapterSubject === activeSubject;
+          const searchMatch = !term || chapterName.includes(term);
 
-          if (visibleCount) visibleCount.textContent = count;
-          if (noResults) noResults.style.display = count === 0 ? 'block' : 'none';
-        }
-
-        tabs.forEach((tab) => {
-          tab.addEventListener('click', function () {
-            tabs.forEach((item) => item.classList.remove('active'));
-            this.classList.add('active');
-            activeSubject = this.dataset.subject || 'all';
-            applyFilters();
-          });
+          if (subjectMatch && searchMatch) {
+            card.classList.remove('hidden');
+            count += 1;
+          } else {
+            card.classList.add('hidden');
+          }
         });
 
-        searchInput.addEventListener('input', applyFilters);
-        applyFilters();
+        if (visibleCount) visibleCount.textContent = count;
+        if (noResults) noResults.style.display = count === 0 ? 'block' : 'none';
       }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          tabs.forEach(function (item) {
+            item.classList.remove('active');
+          });
+          tab.classList.add('active');
+          activeSubject = tab.dataset.subject || 'all';
+          applyFilters();
+        });
+      });
+
+      searchInput.addEventListener('input', applyFilters);
+      applyFilters();
     })();
   </script>
 </section>
