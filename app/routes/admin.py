@@ -1365,6 +1365,115 @@ def archivequestion(question_id):
 
     return redirect(request.referrer or url_for("admin.questions"))
 
+import json
+
+@admin_bp.route("/questions/bulk-upload", methods=["POST"])
+@login_required
+def bulk_upload_questions():
+    admin_required()
+
+    try:
+        raw_json = (request.form.get("questions_json") or "").strip()
+
+        if not raw_json:
+            flash("Questions JSON is required.", "danger")
+            return redirect(url_for("admin.questions_page"))
+
+        try:
+            payload = json.loads(raw_json)
+        except json.JSONDecodeError as e:
+            flash(f"Invalid JSON: {str(e)}", "danger")
+            return redirect(url_for("admin.questions_page"))
+
+        if not isinstance(payload, list) or not payload:
+            flash("JSON must be a non-empty array of question objects.", "danger")
+            return redirect(url_for("admin.questions_page"))
+
+        inserted_count = 0
+        failed_items = []
+
+        for index, item in enumerate(payload, start=1):
+            try:
+                subject_name = (item.get("subject") or "").strip()
+                chapter_name = (item.get("chapter") or "").strip()
+                stem = (item.get("stem") or "").strip()
+                option_a = (item.get("option_a") or "").strip()
+                option_b = (item.get("option_b") or "").strip()
+                option_c = (item.get("option_c") or "").strip()
+                option_d = (item.get("option_d") or "").strip()
+                correct_option = (item.get("correct_option") or "").strip().upper()
+                explanation = (item.get("explanation") or "").strip()
+                difficulty_level = (item.get("difficulty_level") or "medium").strip().lower()
+
+                if not subject_name:
+                    raise ValueError("Subject is required")
+                if not chapter_name:
+                    raise ValueError("Chapter is required")
+                if not stem:
+                    raise ValueError("Question text is required")
+                if not option_a or not option_b or not option_c or not option_d:
+                    raise ValueError("All four options are required")
+                if correct_option not in ["A", "B", "C", "D"]:
+                    raise ValueError("Correct option must be A, B, C, or D")
+                if difficulty_level not in ["easy", "medium", "hard"]:
+                    difficulty_level = "medium"
+
+                subject = Subject.query.filter(
+                    db.func.lower(Subject.name) == subject_name.lower()
+                ).first()
+                if not subject:
+                    raise ValueError(f"Subject not found: {subject_name}")
+
+                chapter = Chapter.query.filter(
+                    Chapter.subject_id == subject.id,
+                    db.func.lower(Chapter.name) == chapter_name.lower()
+                ).first()
+                if not chapter:
+                    raise ValueError(f"Chapter not found under {subject_name}: {chapter_name}")
+
+                question = Question(
+                    institute_id=current_user.institute_id,
+                    subject_id=subject.id,
+                    chapter_id=chapter.id,
+                    stem=stem,
+                    option_a=option_a,
+                    option_b=option_b,
+                    option_c=option_c,
+                    option_d=option_d,
+                    correct_option=correct_option,
+                    explanation=explanation or None,
+                    difficulty_level=difficulty_level,
+                )
+
+                db.session.add(question)
+                inserted_count += 1
+
+            except Exception as item_error:
+                failed_items.append(f"Item {index}: {str(item_error)}")
+
+        if inserted_count == 0:
+            db.session.rollback()
+            flash("No questions were inserted. " + " | ".join(failed_items[:5]), "danger")
+            return redirect(url_for("admin.questions_page"))
+
+        db.session.commit()
+
+        if failed_items:
+            flash(
+                f"{inserted_count} questions inserted successfully. "
+                f"{len(failed_items)} failed. "
+                + " | ".join(failed_items[:5]),
+                "success"
+            )
+        else:
+            flash(f"All {inserted_count} questions inserted successfully.", "success")
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error in bulk upload: {str(e)}", "danger")
+
+    return redirect(url_for("admin.questions_page"))
+
 
 @admin_bp.route("/tests", methods=["GET", "POST"])
 @login_required
