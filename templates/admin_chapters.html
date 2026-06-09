@@ -11,163 +11,120 @@
       gap: 20px;
     }
 
-    .page-top {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
-      gap: 20px;
-      align-items: stretch;
-    }
-
-    .page-hero,
-    .page-side-card,
-    .panel-card,
-    .modal-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 22px;
-      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
-    }
-
-    .page-hero {
-      padding: 24px;
+    .page-intro {
+      position: relative;
+      overflow: hidden;
       background:
-        radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.10), transparent 24%),
-        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.10), transparent 24%),
+        linear-gradient(135deg, #ffffff 0%, #f7fbff 55%, #eef6ff 100%);
+      border: 1px solid #dbe7f5;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
     }
 
-    .hero-chip {
+    .intro-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .intro-chip {
       display: inline-flex;
       align-items: center;
-      padding: 7px 12px;
+      padding: 8px 12px;
       border-radius: 999px;
-      background: #eef2ff;
-      border: 1px solid #c7d2fe;
-      color: #4338ca;
       font-size: 12px;
       font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 12px;
+      border: 1px solid transparent;
+      white-space: nowrap;
     }
 
-    .page-hero h2 {
-      margin: 0 0 8px;
+    .intro-chip.blue {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .intro-chip.green {
+      background: #ecfdf5;
+      color: #047857;
+      border-color: #bbf7d0;
+    }
+
+    .intro-chip.peach {
+      background: #fff7ed;
+      color: #c2410c;
+      border-color: #fed7aa;
+    }
+
+    .page-intro h2 {
+      margin: 0 0 10px;
       color: #0f172a;
-      font-size: 30px;
+      font-size: 28px;
       line-height: 1.15;
       font-weight: 800;
     }
 
-    .page-hero p {
+    .page-intro p {
       margin: 0;
       max-width: 760px;
       color: #64748b;
       font-size: 14px;
-      line-height: 1.75;
+      line-height: 1.7;
     }
 
-    .hero-chips {
+    .stats-row {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 16px;
     }
 
-    .mini-chip {
+    .stat-pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
       padding: 9px 12px;
       border-radius: 999px;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       border: 1px solid transparent;
     }
 
-    .mini-chip.blue {
+    .stat-pill.blue {
       background: #eff6ff;
       color: #1d4ed8;
       border-color: #bfdbfe;
     }
 
-    .mini-chip.green {
+    .stat-pill.green {
       background: #ecfdf5;
       color: #047857;
-      border-color: #a7f3d0;
+      border-color: #bbf7d0;
     }
 
-    .mini-chip.violet {
+    .stat-pill.violet {
       background: #f5f3ff;
       color: #7c3aed;
       border-color: #ddd6fe;
     }
 
-    .page-side-card {
-      padding: 20px;
-      background:
-        radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 30%),
-        linear-gradient(180deg, #ffffff 0%, #f8fffc 100%);
-    }
-
-    .page-side-card h3 {
-      margin: 0 0 12px;
-      color: #0f172a;
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .side-points {
-      display: grid;
-      gap: 10px;
-    }
-
-    .side-point {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      padding: 11px 12px;
-      border-radius: 14px;
-      background: #ffffff;
-      border: 1px solid #eef2f7;
-    }
-
-    .side-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 10px;
-      background: #dbeafe;
-      color: #1d4ed8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-
-    .side-copy strong {
-      display: block;
-      color: #0f172a;
-      font-size: 14px;
-      margin-bottom: 2px;
-    }
-
-    .side-copy span {
-      color: #64748b;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
     .two-col-grid {
       display: grid;
-      grid-template-columns: 390px minmax(0, 1fr);
+      grid-template-columns: 360px minmax(0, 1fr);
       gap: 20px;
       align-items: start;
     }
 
     .panel-card {
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
       padding: 22px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+      min-width: 0;
     }
 
     .panel-head {
@@ -181,16 +138,27 @@
 
     .panel-head h3 {
       margin: 0 0 4px;
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
       color: #0f172a;
     }
 
     .panel-subtext {
       margin: 0;
-      font-size: 13px;
       color: #64748b;
+      font-size: 13px;
       line-height: 1.6;
+    }
+
+    .helper-box {
+      padding: 13px 14px;
+      border-radius: 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 16px;
     }
 
     .form-grid {
@@ -214,11 +182,21 @@
       border: 1px solid #cbd5e1;
       border-radius: 14px;
       padding: 13px 14px;
+      min-height: 48px;
       font-size: 14px;
-      color: #0f172a;
-      background: #ffffff;
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
+      background: #ffffff !important;
       outline: none;
       transition: 0.2s ease;
+    }
+
+    .form-control:hover,
+    .form-control:focus,
+    .form-control:active {
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
+      background: #ffffff !important;
     }
 
     .form-control:focus {
@@ -226,15 +204,25 @@
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
     }
 
-    .helper-box {
-      padding: 13px 14px;
-      border-radius: 14px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e40af;
-      font-size: 13px;
-      line-height: 1.6;
-      margin-bottom: 16px;
+    .form-control::placeholder {
+      color: #94a3b8;
+      -webkit-text-fill-color: #94a3b8;
+      opacity: 1;
+    }
+
+    select.form-control {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #64748b 50%),
+        linear-gradient(135deg, #64748b 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 3px),
+        calc(100% - 12px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 40px;
     }
 
     .btn-primary {
@@ -242,6 +230,7 @@
       border: 0;
       border-radius: 14px;
       padding: 14px 16px;
+      min-height: 48px;
       background: linear-gradient(135deg, #2563eb, #0f766e);
       color: #ffffff;
       font-size: 14px;
@@ -277,9 +266,11 @@
       border: 1px solid #cbd5e1;
       border-radius: 14px;
       padding: 13px 14px 13px 42px;
+      min-height: 48px;
       font-size: 14px;
-      color: #0f172a;
-      background: #ffffff;
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
+      background: #ffffff !important;
       outline: none;
       transition: 0.2s ease;
     }
@@ -378,6 +369,7 @@
       padding: 16px;
       background: #ffffff;
       transition: 0.18s ease;
+      min-width: 0;
     }
 
     .chapter-card:hover {
@@ -395,6 +387,7 @@
       gap: 10px;
       align-items: flex-start;
       margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
     .chapter-id {
@@ -417,6 +410,8 @@
       font-size: 12px;
       font-weight: 800;
       border: 1px solid transparent;
+      max-width: 100%;
+      word-break: break-word;
     }
 
     .subject-badge.physics {
@@ -449,6 +444,7 @@
       font-size: 16px;
       font-weight: 800;
       line-height: 1.4;
+      word-break: break-word;
     }
 
     .chapter-meta {
@@ -456,40 +452,7 @@
       color: #64748b;
       font-size: 13px;
       line-height: 1.6;
-    }
-
-    .chapter-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-
-    .action-btn {
-      border: 1px solid transparent;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: 0.18s ease;
-      background: #ffffff;
-    }
-
-    .edit-btn {
-      background: #eff6ff;
-      color: #1d4ed8;
-      border-color: #bfdbfe;
-    }
-
-    .delete-btn {
-      background: #fee2e2;
-      color: #b91c1c;
-      border-color: #fecaca;
-    }
-
-    .action-btn:hover {
-      transform: translateY(-1px);
+      word-break: break-word;
     }
 
     .empty-state {
@@ -500,54 +463,10 @@
       color: #64748b;
       font-size: 14px;
       text-align: center;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.45);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 1000;
-    }
-
-    .modal-card {
-      width: 100%;
-      max-width: 520px;
-      padding: 22px;
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.20);
-    }
-
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      gap: 12px;
-    }
-
-    .modal-head h3 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 800;
-      color: #0f172a;
-    }
-
-    .modal-close {
-      border: 0;
-      background: #f1f5f9;
-      color: #334155;
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      font-size: 20px;
-      cursor: pointer;
+      line-height: 1.6;
     }
 
     @media (max-width: 1080px) {
-      .page-top,
       .two-col-grid {
         grid-template-columns: 1fr;
       }
@@ -563,17 +482,63 @@
       }
     }
 
-    @media (max-width: 700px) {
-      .page-hero,
-      .page-side-card,
-      .panel-card,
-      .modal-card {
-        padding: 18px;
+    @media (max-width: 640px) {
+      .admin-page {
+        gap: 16px;
+      }
+
+      .page-intro {
+        padding: 18px 16px;
         border-radius: 18px;
       }
 
-      .page-hero h2 {
-        font-size: 24px;
+      .page-intro h2 {
+        font-size: 22px;
+      }
+
+      .page-intro p {
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .panel-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+
+      .panel-head h3 {
+        font-size: 17px;
+      }
+
+      .panel-subtext,
+      .helper-box,
+      .chapter-meta {
+        font-size: 12.5px;
+      }
+
+      .form-control,
+      .search-box input,
+      .btn-primary {
+        min-height: 46px;
+        font-size: 14px;
+      }
+
+      .subject-tab {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .chapter-card {
+        padding: 14px;
+        border-radius: 16px;
+      }
+
+      .chapter-name {
+        font-size: 15px;
+      }
+
+      .result-count {
+        width: fit-content;
       }
     }
   </style>
@@ -581,48 +546,22 @@
   {% set total_chapters = chapters|length if chapters else 0 %}
   {% set total_subjects = subjects|length if subjects else 0 %}
 
-  <section class="page-top">
-    <div class="page-hero">
-      <div class="hero-chip">Academic Setup</div>
-      <h2>Manage chapters</h2>
-      <p>
-        Add chapters under the correct subjects and check existing entries quickly through subject-wise tabs and instant search.
-      </p>
-
-      <div class="hero-chips">
-        <span class="mini-chip blue">{{ total_chapters }} Total Chapters</span>
-        <span class="mini-chip green">{{ total_subjects }} Subjects</span>
-        <span class="mini-chip violet">Search & Filter Ready</span>
-      </div>
+  <section class="page-intro">
+    <div class="intro-chip-row">
+      <span class="intro-chip blue">Academic setup</span>
+      <span class="intro-chip green">Subject-linked</span>
+      <span class="intro-chip peach">Chapter ready</span>
     </div>
 
-    <div class="page-side-card">
-      <h3>Better operator flow</h3>
-      <div class="side-points">
-        <div class="side-point">
-          <div class="side-icon">1</div>
-          <div class="side-copy">
-            <strong>Select the subject first</strong>
-            <span>Each chapter belongs to one subject only, so the parent subject must be correct.</span>
-          </div>
-        </div>
+    <h2>Manage chapters</h2>
+    <p>
+      Add chapters under the correct subject and review existing entries through subject-wise filtering and quick search.
+    </p>
 
-        <div class="side-point">
-          <div class="side-icon">2</div>
-          <div class="side-copy">
-            <strong>Search before creating</strong>
-            <span>Use the chapter search to avoid duplicate names under the same subject.</span>
-          </div>
-        </div>
-
-        <div class="side-point">
-          <div class="side-icon">3</div>
-          <div class="side-copy">
-            <strong>Check subject-wise tabs</strong>
-            <span>Tabs help teachers review chapters without scrolling through everything.</span>
-          </div>
-        </div>
-      </div>
+    <div class="stats-row">
+      <span class="stat-pill blue">{{ total_chapters }} Total Chapters</span>
+      <span class="stat-pill green">{{ total_subjects }} Subjects</span>
+      <span class="stat-pill violet">Search & Filter Ready</span>
     </div>
   </section>
 
@@ -631,15 +570,15 @@
       <div class="panel-head">
         <div>
           <h3>Add chapter</h3>
-          <p class="panel-subtext">Create a chapter under the correct parent subject.</p>
+          <p class="panel-subtext">Create a new chapter under an existing subject.</p>
         </div>
       </div>
 
       <div class="helper-box">
-        Before creating a chapter, check the subject tab and search box on the right to confirm it does not already exist.
+        The attached backend accepts <strong>subjectid</strong> and <strong>name</strong> on the chapters page POST request, and validates duplicate chapter names under the same subject. [file:1859]
       </div>
 
-      <form method="POST" class="form-grid">
+      <form method="POST" action="{{ url_for('admin.chapterspage') }}" class="form-grid">
         <div class="form-group">
           <label for="subjectid">Subject</label>
           <select id="subjectid" name="subjectid" class="form-control" required>
@@ -652,7 +591,14 @@
 
         <div class="form-group">
           <label for="name">Chapter name</label>
-          <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Laws of Motion" required>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            class="form-control"
+            placeholder="e.g. Laws of Motion"
+            required
+          >
         </div>
 
         <button type="submit" class="btn-primary">Create Chapter</button>
@@ -663,7 +609,7 @@
       <div class="panel-head">
         <div>
           <h3>Chapter library</h3>
-          <p class="panel-subtext">Browse chapters by subject and search instantly before adding new ones.</p>
+          <p class="panel-subtext">Browse the current chapter list from the data returned by the chapters page route.</p>
         </div>
       </div>
 
@@ -716,24 +662,11 @@
               <span class="chapter-id">#{{ chapter.id }}</span>
               <span class="subject-badge {{ badge_class }}">{{ subject_name }}</span>
             </div>
+
             <h4 class="chapter-name">{{ chapter.name }}</h4>
-            <p class="chapter-meta">Mapped under {{ subject_name }} for chapter-wise question and test organization.</p>
-
-            <div class="chapter-actions">
-              <button
-                type="button"
-                class="action-btn edit-btn"
-                data-chapter-id="{{ chapter.id }}"
-                data-chapter-name="{{ chapter.name }}"
-                data-subject-id="{{ chapter.subject.id if chapter.subject else '' }}"
-                onclick="openEditChapterModal(this)">
-                Edit
-              </button>
-
-              <form method="POST" action="{{ url_for('admin.chapterdeletepage', chapter_id=chapter.id) }}" onsubmit="return confirm('Delete this chapter? This action cannot be undone.');">
-                <button type="submit" class="action-btn delete-btn">Delete</button>
-              </form>
-            </div>
+            <p class="chapter-meta">
+              Mapped under {{ subject_name }} for chapter-wise question and test organization.
+            </p>
           </article>
         {% endfor %}
       </div>
@@ -746,34 +679,6 @@
       {% endif %}
     </div>
   </section>
-
-  <div id="editChapterModal" class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3>Edit chapter</h3>
-        <button type="button" class="modal-close" onclick="closeEditChapterModal()">×</button>
-      </div>
-
-      <form method="POST" id="editChapterForm" class="form-grid">
-        <div class="form-group">
-          <label for="edit_subjectid">Subject</label>
-          <select id="edit_subjectid" name="subjectid" class="form-control" required>
-            <option value="">Select subject</option>
-            {% for subject in subjects %}
-            <option value="{{ subject.id }}">{{ subject.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="edit_name">Chapter name</label>
-          <input type="text" id="edit_name" name="name" class="form-control" required>
-        </div>
-
-        <button type="submit" class="btn-primary">Save Changes</button>
-      </form>
-    </div>
-  </div>
 
   <script>
     (function () {
@@ -821,34 +726,6 @@
         applyFilters();
       }
     })();
-
-    function openEditChapterModal(button) {
-      const chapterId = button.getAttribute('data-chapter-id');
-      const chapterName = button.getAttribute('data-chapter-name');
-      const subjectId = button.getAttribute('data-subject-id');
-
-      const modal = document.getElementById('editChapterModal');
-      const form = document.getElementById('editChapterForm');
-      const nameInput = document.getElementById('edit_name');
-      const subjectSelect = document.getElementById('edit_subjectid');
-
-      form.action = `/admin/chapters/${chapterId}/edit`;
-      nameInput.value = chapterName || '';
-      subjectSelect.value = subjectId || '';
-      modal.style.display = 'flex';
-    }
-
-    function closeEditChapterModal() {
-      document.getElementById('editChapterModal').style.display = 'none';
-    }
-
-    window.addEventListener('click', function (event) {
-      const modal = document.getElementById('editChapterModal');
-      if (event.target === modal) {
-        closeEditChapterModal();
-      }
-    });
   </script>
 </section>
 {% endblock %}
-</query>
