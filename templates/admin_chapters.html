@@ -558,8 +558,8 @@
 
       <form method="POST" action="{{ url_for('admin.chapters_page') }}" class="chapters-form">
         <div class="chapters-field">
-          <label for="subjectid">Subject</label>
-          <select id="subjectid" name="subjectid" class="chapters-input" required>
+          <label for="subject_id">Subject</label>
+          <select id="subject_id" name="subject_id" class="chapters-input" required>
             <option value="">Select subject</option>
             {% for subject in subjects %}
             <option value="{{ subject.id }}">{{ subject.name }}</option>
