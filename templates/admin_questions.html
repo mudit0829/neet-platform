@@ -16,14 +16,16 @@
   .questions-hero,
   .questions-grid-stats,
   .questions-filter-bar,
-  .questions-card {
+  .questions-card,
+  .questions-bulk-card {
     width: 100%;
   }
 
   .questions-hero,
   .questions-filter-bar,
   .questions-card,
-  .questions-stat-card {
+  .questions-stat-card,
+  .questions-bulk-card {
     background: rgba(255, 255, 255, 0.98);
     border: 1px solid rgba(226, 232, 240, 0.92);
     border-radius: 22px;
@@ -134,15 +136,43 @@
     color: #0f172a;
   }
 
-  .questions-filter-bar {
-    padding: 18px;
+  .questions-bulk-card {
+    padding: 0;
+    overflow: hidden;
   }
 
-  .questions-filter-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1.2fr 1fr 1.2fr auto;
+  .questions-bulk-head,
+  .questions-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: 12px;
-    align-items: end;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+  }
+
+  .questions-bulk-head h2,
+  .questions-card-head-left h2 {
+    margin: 0 0 4px;
+  }
+
+  .questions-subtitle {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .questions-bulk-body,
+  .questions-card-body {
+    padding: 20px;
+  }
+
+  .bulk-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+    gap: 18px;
+    align-items: start;
   }
 
   .questions-field {
@@ -157,7 +187,8 @@
   }
 
   .questions-field input,
-  .questions-field select {
+  .questions-field select,
+  .questions-field textarea {
     width: 100%;
     padding: 12px;
     border-radius: 12px;
@@ -168,40 +199,83 @@
     outline: none;
   }
 
+  .questions-field textarea {
+    min-height: 320px;
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
   .questions-field input:focus,
-  .questions-field select:focus {
+  .questions-field select:focus,
+  .questions-field textarea:focus {
     border-color: #93c5fd;
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+  }
+
+  .bulk-helper {
+    display: grid;
+    gap: 12px;
+  }
+
+  .helper-box {
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    background: #fafcff;
+  }
+
+  .helper-box h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .helper-box p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .helper-list {
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .json-sample {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #0f172a;
+    color: #e2e8f0;
+    overflow: auto;
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .questions-filter-bar {
+    padding: 18px;
+  }
+
+  .questions-filter-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.2fr 1fr auto;
+    gap: 12px;
+    align-items: end;
   }
 
   .questions-filter-actions {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-  }
-
-  .questions-card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 18px 20px;
-    border-bottom: 1px solid #e5e7eb;
-    flex-wrap: wrap;
-  }
-
-  .questions-card-body {
-    padding: 20px;
-  }
-
-  .questions-card-head-left h2 {
-    margin: 0 0 4px;
-  }
-
-  .questions-subtitle {
-    margin: 0;
-    color: #64748b;
-    line-height: 1.6;
   }
 
   .questions-table-wrap {
@@ -212,7 +286,7 @@
 
   .questions-table {
     width: 100%;
-    min-width: 1380px;
+    min-width: 1220px;
     border-collapse: collapse;
     background: #ffffff;
   }
@@ -386,6 +460,7 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .bulk-grid,
     .questions-filter-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -393,6 +468,7 @@
 
   @media (max-width: 768px) {
     .questions-grid-stats,
+    .bulk-grid,
     .questions-filter-grid {
       grid-template-columns: 1fr;
     }
@@ -403,6 +479,12 @@
 
     .questions-hero h1 {
       font-size: 1.6rem;
+    }
+
+    .questions-bulk-body,
+    .questions-card-body,
+    .questions-filter-bar {
+      padding: 16px;
     }
   }
 
@@ -417,21 +499,20 @@
   {% set selected_subject_id = filters.subject_id|string if filters.subject_id else '' %}
   {% set selected_chapter_id = filters.chapter_id|string if filters.chapter_id else '' %}
   {% set selected_difficulty = filters.difficulty|string if filters.difficulty else '' %}
-  {% set selected_creator_id = filters.created_by|string if filters.created_by is defined and filters.created_by else '' %}
 
   <div class="questions-hero">
     <div>
       <h1>Question Bank</h1>
       <p>
-        Manage all questions with faster chapter discovery, subject-based filtering, creator visibility,
-        and direct edit or delete actions for teacher and sub-admin workflows.
+        Add single questions, upload multiple questions in one go, and manage the full question bank with subject,
+        chapter, and difficulty filters from one place.
       </p>
 
       <div class="questions-hero-tags">
-        <span class="questions-hero-tag">Subject-first browsing</span>
-        <span class="questions-hero-tag">Chapter dependent dropdown</span>
-        <span class="questions-hero-tag">Creator tracking</span>
-        <span class="questions-hero-tag">Fast edit & delete</span>
+        <span class="questions-hero-tag">Single add + bulk upload</span>
+        <span class="questions-hero-tag">Subject and chapter filters</span>
+        <span class="questions-hero-tag">Math-friendly question preview</span>
+        <span class="questions-hero-tag">Quick edit and delete</span>
       </div>
     </div>
 
@@ -439,7 +520,7 @@
       <div class="questions-hero-side-label">Visible questions</div>
       <div class="questions-hero-side-value">{{ questions|length if questions else 0 }}</div>
       <div class="questions-hero-side-sub">
-        Use search, subject, chapter, difficulty, and creator filters together to find questions faster.
+        Use search, subject, chapter, and difficulty filters to narrow the visible list quickly.
       </div>
     </div>
   </div>
@@ -463,6 +544,85 @@
     </div>
   </div>
 
+  <div class="questions-bulk-card">
+    <div class="questions-bulk-head">
+      <div>
+        <h2>Bulk Upload Questions</h2>
+        <p class="questions-subtitle">
+          Paste a JSON array of question objects and upload many questions in a single submission.
+        </p>
+      </div>
+      <a class="btn btn-secondary" href="{{ url_for('admin.create_question') }}">
+        Add Single Question
+      </a>
+    </div>
+
+    <div class="questions-bulk-body">
+      <form method="post" action="{{ url_for('admin.bulk_upload_questions') }}">
+        <div class="bulk-grid">
+          <div class="questions-field">
+            <label for="questions_json">Questions JSON</label>
+            <textarea
+              id="questions_json"
+              name="questions_json"
+              placeholder='Paste JSON array here, for example: [{"subject":"Physics","chapter":"Electrostatics",...}]'
+              required
+            ></textarea>
+
+            <div class="questions-filter-actions">
+              <button type="submit" class="btn btn-primary">Upload Questions</button>
+              <button type="button" class="btn btn-outline-secondary" id="fillSampleJsonBtn">Load Sample</button>
+            </div>
+          </div>
+
+          <div class="bulk-helper">
+            <div class="helper-box">
+              <h3>Required keys</h3>
+              <p>Each question object should include these fields.</p>
+              <ul class="helper-list">
+                <li>subject</li>
+                <li>chapter</li>
+                <li>difficulty_level</li>
+                <li>stem</li>
+                <li>option_a, option_b, option_c, option_d</li>
+                <li>correct_option</li>
+                <li>explanation</li>
+              </ul>
+            </div>
+
+            <div class="helper-box">
+              <h3>Important checks</h3>
+              <ul class="helper-list">
+                <li>Subject name must already exist in the database.</li>
+                <li>Chapter name must already exist under that subject.</li>
+                <li>correct_option must be A, B, C, or D.</li>
+                <li>difficulty_level should be easy, medium, or hard.</li>
+              </ul>
+            </div>
+
+            <div class="helper-box">
+              <h3>Sample format</h3>
+              <div class="json-sample" id="sampleJsonBlock">[
+  {
+    "subject": "Physics",
+    "chapter": "Electrostatics",
+    "difficulty_level": "Medium",
+    "stem": "Two charges +2μC and +3μC are separated by 1 m. The electrostatic force between them is approximately:",
+    "option_a": "0.054 N",
+    "option_b": "0.018 N",
+    "option_c": "0.009 N",
+    "option_d": "0.108 N",
+    "correct_option": "A",
+    "explanation": "F = kq₁q₂/r² = 9×10⁹ × (2×10⁻⁶)(3×10⁻⁶) = 0.054 N."
+  }
+]</div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="questions-filter-bar">
     <form method="get" class="questions-filter-grid" id="questionsFilterForm">
       <div class="questions-field">
@@ -471,7 +631,7 @@
           type="text"
           id="q"
           name="q"
-          placeholder="Search by question text, question ID, chapter, or creator..."
+          placeholder="Search by question text..."
           value="{{ filters.q }}"
         >
       </div>
@@ -514,22 +674,8 @@
         </select>
       </div>
 
-      <div class="questions-field">
-        <label for="created_by">Created by</label>
-        <select name="created_by" id="created_by">
-          <option value="">All creators</option>
-          {% if creators %}
-            {% for creator in creators %}
-              <option value="{{ creator.id }}" {% if selected_creator_id == creator.id|string %}selected{% endif %}>
-                {{ creator.full_name or creator.username or ('User #' ~ creator.id) }}
-              </option>
-            {% endfor %}
-          {% endif %}
-        </select>
-      </div>
-
       <div class="questions-filter-actions">
-        <button class="btn btn-primary">Apply</button>
+        <button class="btn btn-primary" type="submit">Apply</button>
         <a class="btn btn-outline-secondary" href="{{ url_for('admin.questions') }}">Reset</a>
       </div>
     </form>
@@ -540,7 +686,7 @@
       <div class="questions-card-head-left">
         <h2>Questions</h2>
         <p class="questions-subtitle">
-          Search faster, review subject-specific content, track creator ownership, and manage question quality from one place.
+          Review question text, subject, chapter, correct option, and difficulty from one searchable table.
         </p>
       </div>
       <a class="btn btn-primary" href="{{ url_for('admin.create_question') }}">
@@ -565,7 +711,7 @@
         </div>
 
         <div class="questions-summary-right">
-          <span class="inline-note">Tip: search by ID like “123”, text phrase, creator name, or chapter name.</span>
+          <span class="inline-note">Tip: filter by subject first, then chapter, to narrow faster.</span>
         </div>
       </div>
 
@@ -574,12 +720,12 @@
         <table class="questions-table">
           <thead>
             <tr>
-              <th style="width: 34%">Question</th>
+              <th style="width: 36%">Question</th>
               <th>Subject</th>
               <th>Chapter</th>
-              <th>Created By</th>
               <th>Correct</th>
               <th>Difficulty</th>
+              <th>Creator</th>
               <th class="text-end">Actions</th>
             </tr>
           </thead>
@@ -612,6 +758,16 @@
               </td>
 
               <td>
+                <span class="badge-soft">Option {{ question.correct_option }}</span>
+              </td>
+
+              <td>
+                <span class="badge-soft badge-{{ (question.difficulty_level or 'medium')|lower }}">
+                  {{ (question.difficulty_level or 'medium')|title }}
+                </span>
+              </td>
+
+              <td>
                 <div class="question-small-stack">
                   <span class="badge-soft badge-creator">
                     {% if question.creator %}
@@ -636,29 +792,19 @@
                 </div>
               </td>
 
-              <td>
-                <span class="badge-soft">Option {{ question.correct_option }}</span>
-              </td>
-
-              <td>
-                <span class="badge-soft badge-{{ question.difficulty_level }}">
-                  {{ question.difficulty_level|title }}
-                </span>
-              </td>
-
               <td class="text-end">
                 <div class="row-actions">
                   <a href="{{ url_for('admin.edit_question', question_id=question.id) }}" class="btn btn-sm btn-outline-primary">
                     Edit
                   </a>
+
                   <form
-                     method="post"
-                     action="{{ url_for('admin.delete_question', question_id=question.id) }}"
-                     class="d-inline"
-                     onsubmit="return confirm('Delete this question? If it is linked to any published test, deletion will be blocked.');"
-                     style="display:inline-block;"
+                    method="post"
+                    action="{{ url_for('admin.delete_question', question_id=question.id) }}"
+                    style="display:inline-block;"
+                    onsubmit="return confirm('Delete this question? If it is linked to any published test, deletion will be blocked.');"
                   >
-                     <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                   </form>
                 </div>
               </td>
@@ -669,9 +815,11 @@
       </div>
       {% else %}
       <div class="empty-state">
-        <div class="mb-3 fs-1">📚</div>
-        <h3 class="h5">No questions found</h3>
-        <p class="mb-3">Try changing subject, chapter, difficulty, creator, or search text.</p>
+        <div style="font-size: 42px; margin-bottom: 10px;">📚</div>
+        <h3>No questions found</h3>
+        <p class="questions-subtitle" style="margin-bottom: 14px;">
+          Try changing subject, chapter, difficulty, or search text.
+        </p>
         <a class="btn btn-primary" href="{{ url_for('admin.create_question') }}">Create Question</a>
       </div>
       {% endif %}
@@ -713,9 +861,21 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     const subjectSelect = document.getElementById('subject_id');
+    const sampleBtn = document.getElementById('fillSampleJsonBtn');
+    const jsonBox = document.getElementById('questions_json');
+    const sampleBlock = document.getElementById('sampleJsonBlock');
+
     if (subjectSelect) {
       subjectSelect.addEventListener('change', filterChapterDropdown);
     }
+
+    if (sampleBtn && jsonBox && sampleBlock) {
+      sampleBtn.addEventListener('click', function () {
+        jsonBox.value = sampleBlock.textContent.trim();
+        jsonBox.focus();
+      });
+    }
+
     filterChapterDropdown();
   });
 </script>
