@@ -575,10 +575,10 @@
       </div>
 
       <div class="helper-box">
-        The attached backend accepts <strong>subjectid</strong> and <strong>name</strong> on the chapters page POST request, and validates duplicate chapter names under the same subject. [file:1859]
+        Select the parent subject carefully and avoid duplicate chapter names under the same subject.
       </div>
 
-      <form method="POST" action="{{ url_for('admin.chapterspage') }}" class="form-grid">
+      <form method="POST" action="{{ url_for('admin.chapters_page') }}" class="form-grid">
         <div class="form-group">
           <label for="subjectid">Subject</label>
           <select id="subjectid" name="subjectid" class="form-control" required>
@@ -609,7 +609,7 @@
       <div class="panel-head">
         <div>
           <h3>Chapter library</h3>
-          <p class="panel-subtext">Browse the current chapter list from the data returned by the chapters page route.</p>
+          <p class="panel-subtext">Browse chapters by subject and search instantly.</p>
         </div>
       </div>
 
