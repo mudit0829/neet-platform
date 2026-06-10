@@ -979,7 +979,6 @@ def questions_page():
     subjects = Subject.query.order_by(Subject.name.asc()).all()
     chapters = Chapter.query.order_by(Chapter.name.asc()).all()
 
-    # Filters expected by template
     filters = {
         "q": request.args.get("q", ""),
         "subject_id": request.args.get("subject_id", type=int),
@@ -988,45 +987,57 @@ def questions_page():
         "created_by": request.args.get("created_by", type=int),
     }
 
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 25, type=int)
+
+    allowed_per_page = [10, 25, 50, 100]
+    if per_page not in allowed_per_page:
+        per_page = 25
+
     questions_query = Question.query
 
-     # Subject filter
+    if getattr(current_user, "institute_id", None) and hasattr(Question, "institute_id"):
+        questions_query = questions_query.filter(
+            Question.institute_id == current_user.institute_id
+        )
+
     if filters["subject_id"]:
         questions_query = questions_query.filter(
             Question.subject_id == filters["subject_id"]
         )
 
-    # Chapter filter
     if filters["chapter_id"]:
         questions_query = questions_query.filter(
             Question.chapter_id == filters["chapter_id"]
         )
 
-    # Difficulty filter
     if filters["difficulty"]:
         questions_query = questions_query.filter(
             Question.difficulty_level == filters["difficulty"]
         )
 
-    # Search filter
     if filters["q"]:
         questions_query = questions_query.filter(
             Question.stem.ilike(f"%{filters['q']}%")
         )
 
-    questions = questions_query.order_by(
-        Question.id.desc()
-    ).all()
+    ordered_query = questions_query.order_by(Question.id.desc())
 
-    # Stats expected by template
+    pagination = ordered_query.paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    questions = pagination.items
+
     stats = {
-        "total": len(questions),
-        "easy": len([q for q in questions if (q.difficulty_level or "").lower() == "easy"]),
-        "medium": len([q for q in questions if (q.difficulty_level or "").lower() == "medium"]),
-        "hard": len([q for q in questions if (q.difficulty_level or "").lower() == "hard"]),
+        "total": questions_query.count(),
+        "easy": questions_query.filter(Question.difficulty_level == "easy").count(),
+        "medium": questions_query.filter(Question.difficulty_level == "medium").count(),
+        "hard": questions_query.filter(Question.difficulty_level == "hard").count(),
     }
 
-    # Creator dropdown expected by template
     try:
         creators = User.query.order_by(User.full_name.asc()).all()
     except Exception:
@@ -1040,6 +1051,8 @@ def questions_page():
         filters=filters,
         stats=stats,
         creators=creators,
+        pagination=pagination,
+        per_page=per_page,
     )
 
 @admin_bp.route("/questions/create", methods=["GET", "POST"], endpoint="create_question")
