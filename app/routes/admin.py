@@ -516,17 +516,25 @@ def students_page():
     q = (request.args.get("q") or "").strip()
     batch_id = request.args.get("batch_id", type=int)
     status_filter = (request.args.get("status") or "").strip().lower()
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+
+    allowed_per_page = [10, 25, 50, 100]
+    if per_page not in allowed_per_page:
+        per_page = 10
 
     students_query = User.query.filter_by(role="student")
+
     if institute_id and hasattr(User, "institute_id"):
         students_query = students_query.filter(User.institute_id == institute_id)
 
     if q:
+        search_term = f"%{q}%"
         students_query = students_query.filter(
             db.or_(
-                User.full_name.ilike(f"%{q}%"),
-                User.username.ilike(f"%{q}%"),
-                User.email.ilike(f"%{q}%")
+                User.full_name.ilike(search_term),
+                User.username.ilike(search_term),
+                User.email.ilike(search_term),
             )
         )
 
@@ -538,8 +546,12 @@ def students_page():
     elif status_filter == "inactive":
         students_query = students_query.filter(User.is_active_user.is_(False))
 
-    students = students_query.order_by(User.id.desc()).all()
+    ordered_query = students_query.order_by(User.id.desc())
+    pagination = ordered_query.paginate(page=page, per_page=per_page, error_out=False)
+    students = pagination.items
+
     batches = Batch.query.filter_by(institute_id=institute_id).order_by(Batch.id.desc()).all()
+    total_students = students_query.count()
 
     student_ids = [student.id for student in students]
     student_attempt_counts = {}
@@ -560,6 +572,10 @@ def students_page():
         students=students,
         batches=batches,
         student_attempt_counts=student_attempt_counts,
+        pagination=pagination,
+        per_page=per_page,
+        current_page=page,
+        total_students=total_students,
         filters={
             "q": q,
             "batch_id": batch_id,
