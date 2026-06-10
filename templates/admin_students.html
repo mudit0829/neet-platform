@@ -187,6 +187,7 @@
       outline: none;
       transition: 0.2s ease;
       appearance: none;
+      box-sizing: border-box;
     }
 
     .students-page input.form-control::placeholder,
@@ -257,42 +258,112 @@
       border-color: #bfdbfe;
     }
 
-    .toolbar {
+    .students-toolbar {
       display: grid;
       gap: 14px;
       margin-bottom: 18px;
     }
 
-    .toolbar-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(150px, 1fr)) auto auto;
+    .students-toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
       gap: 12px;
-      align-items: center;
     }
 
-    .search-wrap {
+    .students-search {
       position: relative;
+      flex: 1 1 320px;
+      min-width: 280px;
     }
 
-    .search-wrap input {
-      width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
-      padding: 13px 14px 13px 42px;
-      background: #ffffff;
-      font-size: 14px;
-      color: #0f172a;
-      outline: none;
-    }
-
-    .search-icon {
+    .students-search-icon {
       position: absolute;
       left: 14px;
       top: 50%;
       transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
       color: #64748b;
-      font-size: 14px;
       pointer-events: none;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .students-search-icon svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+
+    .students-search-input {
+      width: 100%;
+      height: 52px;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 0 14px 0 42px;
+      background: #ffffff;
+      font-size: 14px;
+      color: #0f172a;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .students-search-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+    }
+
+    .students-toolbar-row > select.form-control {
+      flex: 0 0 180px;
+      min-width: 180px;
+      height: 52px;
+      margin-top: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      padding-right: 38px;
+      border-radius: 16px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #64748b 50%),
+        linear-gradient(135deg, #64748b 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 13px) calc(50% - 2px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .students-toolbar-row > select.per-page-select {
+      flex-basis: 116px;
+      min-width: 116px;
+    }
+
+    .students-apply-btn {
+      height: 52px;
+      padding: 0 22px;
+      border-radius: 16px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      font-size: 14px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .students-apply-btn:hover,
+    .btn-link-soft:hover,
+    .btn-primary:hover,
+    .action-link:hover,
+    .action-button:hover,
+    .page-link:hover {
+      transform: translateY(-1px);
     }
 
     .mini-badge,
@@ -537,147 +608,75 @@
     }
 
     @media (max-width: 1250px) {
-      .workspace-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .toolbar-row { grid-template-columns: 1fr 1fr; }
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 980px) {
+      .students-toolbar-row > select.form-control {
+        flex: 1 1 calc(50% - 6px);
+        min-width: calc(50% - 6px);
+      }
+
+      .students-search {
+        flex: 1 1 100%;
+        min-width: 100%;
+      }
+
+      .students-toolbar-row > select.per-page-select,
+      .students-apply-btn {
+        flex: 1 1 calc(50% - 6px);
+        min-width: calc(50% - 6px);
+      }
     }
 
     @media (max-width: 840px) {
-      .students-page { padding: 16px; }
+      .students-page {
+        padding: 16px;
+      }
+
       .form-grid,
       .student-metrics,
-      .stats-grid,
-      .toolbar-row { grid-template-columns: 1fr; }
-      .span-2 { grid-column: span 1; }
-      .student-header { grid-template-columns: 1fr; }
-      .pagination-bar { align-items: flex-start; }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .span-2 {
+        grid-column: span 1;
+      }
+
+      .student-header {
+        grid-template-columns: 1fr;
+      }
+
+      .pagination-bar {
+        align-items: flex-start;
+      }
     }
 
-    .students-filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 14px;
-  margin-top: 18px;
-  margin-bottom: 18px;
-}
+    @media (max-width: 640px) {
+      .students-toolbar-row {
+        flex-direction: column;
+      }
 
-.students-filter-search {
-  position: relative;
-  flex: 1 1 260px;
-  min-width: 220px;
-}
+      .students-search,
+      .students-toolbar-row > select.form-control,
+      .students-toolbar-row > select.per-page-select,
+      .students-apply-btn {
+        width: 100%;
+        min-width: 100%;
+        flex: 1 1 100%;
+      }
 
-.students-filter-search svg,
-.students-filter-search .filter-search-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: #94a3b8;
-  pointer-events: none;
-}
-
-.students-filter-search .form-control,
-.students-filter-search input {
-  width: 100%;
-  height: 56px;
-  padding: 0 16px 0 42px;
-  border-radius: 18px;
-  border: 1px solid #dbe3ee;
-  background: #fff;
-  font-size: 15px;
-  color: #0f172a;
-  box-sizing: border-box;
-}
-
-.students-filter-select {
-  flex: 0 0 190px;
-  min-width: 180px;
-}
-
-.students-filter-select select,
-.students-filter-select .form-control {
-  width: 100%;
-  height: 56px;
-  padding: 0 16px;
-  border-radius: 18px;
-  border: 1px solid #dbe3ee;
-  background: #fff;
-  font-size: 15px;
-  color: #0f172a;
-  box-sizing: border-box;
-}
-
-.students-filter-submit {
-  flex: 0 0 auto;
-}
-
-.students-filter-submit .btn,
-.students-filter-submit button {
-  height: 56px;
-  padding: 0 24px;
-  border-radius: 18px;
-  font-size: 15px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-}
-
-.students-filter-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 22px;
-}
-
-.students-filter-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 40px;
-  padding: 0 14px;
-  border-radius: 999px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-@media (max-width: 900px) {
-  .students-filter-bar {
-    gap: 12px;
-  }
-
-  .students-filter-search,
-  .students-filter-select,
-  .students-filter-submit {
-    flex: 1 1 calc(50% - 6px);
-    min-width: 0;
-  }
-}
-
-@media (max-width: 640px) {
-  .students-filter-bar {
-    flex-direction: column;
-  }
-
-  .students-filter-search,
-  .students-filter-select,
-  .students-filter-submit {
-    flex: 1 1 100%;
-    width: 100%;
-  }
-
-  .students-filter-submit .btn,
-  .students-filter-submit button {
-    width: 100%;
-  }
-}
+      .students-apply-btn {
+        justify-content: center;
+      }
+    }
   </style>
 
   {% set total_students = pagination.total if pagination else (students|length if students else 0) %}
@@ -904,14 +903,20 @@
         <a href="{{ url_for('admin.analytics_students_page') }}" class="btn-link-soft">Open analytics list</a>
       </div>
 
-      <form method="GET" class="toolbar">
-        <div class="toolbar-row">
-          <div class="search-wrap">
-            <span class="search-icon">⌕</span>
+      <form method="GET" class="students-toolbar">
+        <div class="students-toolbar-row">
+          <div class="students-search">
+            <span class="students-search-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="M20 20L17 17"></path>
+              </svg>
+            </span>
             <input
               type="text"
               id="studentSearch"
               name="q"
+              class="students-search-input"
               value="{{ filters.q if filters else '' }}"
               placeholder="Search by full name, username, or admission number"
             >
@@ -937,13 +942,13 @@
             <option value="5plus" {% if filters and filters.attempts == '5plus' %}selected{% endif %}>5+ attempts</option>
           </select>
 
-          <select name="per_page" class="form-control">
+          <select name="per_page" class="form-control per-page-select">
             {% for size in [10, 25, 50, 100] %}
               <option value="{{ size }}" {% if current_per_page == size %}selected{% endif %}>{{ size }} / page</option>
             {% endfor %}
           </select>
 
-          <button type="submit" class="btn-link-soft">Apply</button>
+          <button type="submit" class="students-apply-btn">Apply</button>
         </div>
 
         <div class="pagination-meta">
