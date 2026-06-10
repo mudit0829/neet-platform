@@ -308,15 +308,18 @@ def chapters_page():
 def students_page():
     admin_required()
 
+    institute_id = getattr(current_user, "institute_id", None)
+
     if request.method == "POST":
         try:
-            if not getattr(current_user, "institute_id", None):
+            if not institute_id:
                 flash("Your admin account is not linked to any institute.", "danger")
                 return redirect(url_for("admin.students_page"))
 
             full_name = (request.form.get("full_name") or "").strip()
             username = (request.form.get("username") or "").strip()
             password = request.form.get("password") or ""
+
             admission_no = (request.form.get("admission_no") or "").strip()
             admission_session = (request.form.get("admission_session") or "").strip()
             course_applied = (request.form.get("course_applied") or "").strip()
@@ -327,6 +330,7 @@ def students_page():
 
             student_mobile = (request.form.get("student_mobile") or "").strip()
             student_email = (request.form.get("student_email") or "").strip().lower() or None
+
             father_name = (request.form.get("father_name") or "").strip()
             mother_name = (request.form.get("mother_name") or "").strip() or None
             father_mobile = (request.form.get("father_mobile") or "").strip()
@@ -382,13 +386,13 @@ def students_page():
                 flash("Batch is required.", "danger")
                 return redirect(url_for("admin.students_page"))
 
-            batch = Batch.query.get(batch_id)
-            if not batch:
-                flash("Selected batch does not exist.", "danger")
-                return redirect(url_for("admin.students_page"))
+            batch_query = Batch.query.filter(Batch.id == batch_id)
+            if institute_id and hasattr(Batch, "institute_id"):
+                batch_query = batch_query.filter(Batch.institute_id == institute_id)
 
-            if batch.institute_id != current_user.institute_id:
-                flash("You can only assign students to your own institute batch.", "danger")
+            batch = batch_query.first()
+            if not batch:
+                flash("Selected batch does not exist or does not belong to your institute.", "danger")
                 return redirect(url_for("admin.students_page"))
 
             if not student_mobile:
@@ -440,15 +444,25 @@ def students_page():
                 flash("Photograph must be png, jpg, jpeg, gif, or webp.", "danger")
                 return redirect(url_for("admin.students_page"))
 
-            if User.query.filter(db.func.lower(User.username) == username.lower()).first():
+            existing_username = User.query.filter(
+                db.func.lower(User.username) == username.lower()
+            ).first()
+            if existing_username:
                 flash("Username already exists.", "danger")
                 return redirect(url_for("admin.students_page"))
 
-            if student_email and User.query.filter(db.func.lower(User.email) == student_email.lower()).first():
-                flash("Student email is already used by another account.", "danger")
-                return redirect(url_for("admin.students_page"))
+            if student_email:
+                existing_email = User.query.filter(
+                    db.func.lower(User.email) == student_email.lower()
+                ).first()
+                if existing_email:
+                    flash("Student email is already used by another account.", "danger")
+                    return redirect(url_for("admin.students_page"))
 
-            if StudentProfile.query.filter_by(admission_no=admission_no).first():
+            existing_admission = StudentProfile.query.filter(
+                db.func.lower(StudentProfile.admission_no) == admission_no.lower()
+            ).first()
+            if existing_admission:
                 flash("Admission number already exists.", "danger")
                 return redirect(url_for("admin.students_page"))
 
@@ -458,8 +472,8 @@ def students_page():
                 return redirect(url_for("admin.students_page"))
 
             student_user = User(
-                institute_id=current_user.institute_id,
-                batch_id=batch.id,
+                institute_id=institute_id if hasattr(User, "institute_id") else None,
+                batch_id=batch.id if hasattr(User, "batch_id") else None,
                 full_name=full_name,
                 username=username,
                 email=student_email,
@@ -510,22 +524,66 @@ def students_page():
 
         return redirect(url_for("admin.students_page"))
 
-    students = User.query.filter_by(role="student").order_by(User.id.desc()).all()
-    batches = Batch.query.filter_by(institute_id=current_user.institute_id).order_by(Batch.id.desc()).all()
+    q = (request.args.get("q") or "").strip()
+    batch_id = request.args.get("batch_id", type=int)
+    status_filter = (request.args.get("status") or "").strip().lower()
 
-    student_attempt_counts = {
-        row[0]: row[1]
-        for row in db.session.query(
-            TestAttempt.student_id,
-            db.func.count(TestAttempt.id)
-        ).group_by(TestAttempt.student_id).all()
-    }
+    students_query = User.query.filter(User.role == "student")
+    batches_query = Batch.query
+
+    if institute_id:
+        if hasattr(User, "institute_id"):
+            students_query = students_query.filter(User.institute_id == institute_id)
+        if hasattr(Batch, "institute_id"):
+            batches_query = batches_query.filter(Batch.institute_id == institute_id)
+
+    if q:
+        search_term = f"%{q}%"
+        students_query = students_query.filter(
+            db.or_(
+                User.full_name.ilike(search_term),
+                User.username.ilike(search_term),
+                User.email.ilike(search_term),
+            )
+        )
+
+    if batch_id:
+        students_query = students_query.filter(User.batch_id == batch_id)
+
+    if status_filter == "active":
+        students_query = students_query.filter(User.is_active_user.is_(True))
+    elif status_filter == "inactive":
+        students_query = students_query.filter(User.is_active_user.is_(False))
+
+    students = students_query.order_by(User.id.desc()).all()
+    batches = batches_query.order_by(Batch.id.desc()).all()
+
+    student_ids = [student.id for student in students]
+
+    student_attempt_counts = {}
+    if student_ids:
+        student_attempt_counts = {
+            row[0]: row[1]
+            for row in db.session.query(
+                TestAttempt.student_id,
+                db.func.count(TestAttempt.id)
+            ).filter(
+                TestAttempt.student_id.in_(student_ids)
+            ).group_by(
+                TestAttempt.student_id
+            ).all()
+        }
 
     return render_template(
         "admin_students.html",
         students=students,
         batches=batches,
         student_attempt_counts=student_attempt_counts,
+        filters={
+            "q": q,
+            "batch_id": batch_id,
+            "status": status_filter,
+        },
     )
 
 @admin_bp.route("/students/<int:student_id>/edit", methods=["GET", "POST"])
