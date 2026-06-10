@@ -265,7 +265,7 @@
 
     .toolbar-row {
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(150px, 1fr)) auto;
+      grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(150px, 1fr)) auto auto;
       gap: 12px;
       align-items: center;
     }
@@ -334,10 +334,6 @@
     .student-card {
       padding: 16px;
       transition: 0.18s ease;
-    }
-
-    .student-card.hidden {
-      display: none;
     }
 
     .student-header {
@@ -488,6 +484,58 @@
       font-size: 14px;
     }
 
+    .pagination-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .pagination-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pagination-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .page-link,
+    .page-current {
+      min-width: 40px;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      border: 1px solid #dbe3ee;
+      background: #ffffff;
+      color: #334155;
+    }
+
+    .page-link:hover {
+      background: #f8fbff;
+    }
+
+    .page-current {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
     @media (max-width: 1250px) {
       .workspace-grid { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -502,13 +550,23 @@
       .toolbar-row { grid-template-columns: 1fr; }
       .span-2 { grid-column: span 1; }
       .student-header { grid-template-columns: 1fr; }
+      .pagination-bar { align-items: flex-start; }
     }
   </style>
 
-  {% set total_students = students|length if students else 0 %}
-  {% set active_students = students|selectattr('is_active_user')|list|length if students else 0 %}
-  {% set inactive_students = total_students - active_students %}
-  {% set total_attempts = student_attempt_counts.values()|sum if student_attempt_counts else 0 %}
+  {% set total_students = pagination.total if pagination else (students|length if students else 0) %}
+  {% set active_students = stats.active if stats is defined else 0 %}
+  {% set inactive_students = stats.inactive if stats is defined else 0 %}
+  {% set total_attempts = stats.attempts if stats is defined else 0 %}
+  {% set current_page = pagination.page if pagination else 1 %}
+  {% set current_per_page = pagination.per_page if pagination else per_page %}
+  {% if total_students > 0 %}
+    {% set start_item = ((current_page - 1) * current_per_page) + 1 %}
+    {% set end_item = start_item + (students|length) - 1 %}
+  {% else %}
+    {% set start_item = 0 %}
+    {% set end_item = 0 %}
+  {% endif %}
 
   <section class="admin-hero">
     <div class="hero-kicker">Admin Student Management</div>
@@ -520,7 +578,7 @@
     <article class="stat-card">
       <p class="stat-label">Total Students</p>
       <p class="stat-value">{{ total_students }}</p>
-      <p class="stat-meta">All visible student accounts in the current admin list.</p>
+      <p class="stat-meta">All students matching the current filters.</p>
     </article>
     <article class="stat-card">
       <p class="stat-label">Active Accounts</p>
@@ -535,7 +593,7 @@
     <article class="stat-card">
       <p class="stat-label">Total Attempts</p>
       <p class="stat-value">{{ total_attempts }}</p>
-      <p class="stat-meta">Submitted attempts counted across visible students.</p>
+      <p class="stat-meta">Attempts counted across filtered students.</p>
     </article>
   </section>
 
@@ -720,36 +778,53 @@
         <a href="{{ url_for('admin.analytics_students_page') }}" class="btn-link-soft">Open analytics list</a>
       </div>
 
-      <div class="toolbar">
+      <form method="GET" class="toolbar">
         <div class="toolbar-row">
           <div class="search-wrap">
             <span class="search-icon">⌕</span>
-            <input type="text" id="studentSearch" placeholder="Search by full name, username, or admission number">
+            <input
+              type="text"
+              id="studentSearch"
+              name="q"
+              value="{{ filters.q if filters else '' }}"
+              placeholder="Search by full name, username, or admission number"
+            >
           </div>
 
-          <select id="batchFilter" class="form-control">
-            <option value="all">All batches</option>
+          <select id="batchFilter" name="batch_id" class="form-control">
+            <option value="">All batches</option>
             {% for batch in batches %}
-              <option value="{{ batch.id }}">{{ batch.name }}</option>
+              <option value="{{ batch.id }}" {% if filters and filters.batch_id == batch.id %}selected{% endif %}>{{ batch.name }}</option>
             {% endfor %}
           </select>
 
-          <select id="statusFilter" class="form-control">
-            <option value="all">All status</option>
-            <option value="active">Active only</option>
-            <option value="inactive">Inactive only</option>
+          <select id="statusFilter" name="status" class="form-control">
+            <option value="">All status</option>
+            <option value="active" {% if filters and filters.status == 'active' %}selected{% endif %}>Active only</option>
+            <option value="inactive" {% if filters and filters.status == 'inactive' %}selected{% endif %}>Inactive only</option>
           </select>
 
-          <select id="attemptFilter" class="form-control">
-            <option value="all">All attempts</option>
-            <option value="0">No attempts</option>
-            <option value="1plus">1+ attempts</option>
-            <option value="5plus">5+ attempts</option>
+          <select id="attemptFilter" name="attempts" class="form-control">
+            <option value="">All attempts</option>
+            <option value="0" {% if filters and filters.attempts == '0' %}selected{% endif %}>No attempts</option>
+            <option value="1plus" {% if filters and filters.attempts == '1plus' %}selected{% endif %}>1+ attempts</option>
+            <option value="5plus" {% if filters and filters.attempts == '5plus' %}selected{% endif %}>5+ attempts</option>
           </select>
 
-          <span class="mini-badge"><span id="visibleStudents">{{ total_students }}</span> visible</span>
+          <select name="per_page" class="form-control">
+            {% for size in [10, 25, 50, 100] %}
+              <option value="{{ size }}" {% if current_per_page == size %}selected{% endif %}>{{ size }} / page</option>
+            {% endfor %}
+          </select>
+
+          <button type="submit" class="btn-link-soft">Apply</button>
         </div>
-      </div>
+
+        <div class="pagination-meta">
+          <span class="mini-badge">Showing {{ start_item }}-{{ end_item }} of {{ total_students }}</span>
+          <span class="mini-badge">Page {{ current_page }} of {{ pagination.pages if pagination else 1 }}</span>
+        </div>
+      </form>
 
       {% if students %}
         <div class="students-list" id="studentsList">
@@ -758,17 +833,9 @@
             {% set attempts = student_attempt_counts.get(student.id, 0) %}
             {% set admission_number = profile.admission_no if profile and profile.admission_no else 'No admission no.' %}
             {% set student_batch = student.batch.name if student.batch else 'Not assigned' %}
-            {% set batch_value = student.batch.id if student.batch else '' %}
             {% set status_value = 'active' if student.is_active_user else 'inactive' %}
-            {% set search_blob = ((student.full_name or '') ~ ' ' ~ (student.username or '') ~ ' ' ~ admission_number)|lower %}
 
-            <article
-              class="student-card"
-              data-search="{{ search_blob }}"
-              data-batch="{{ batch_value }}"
-              data-status="{{ status_value }}"
-              data-attempts="{{ attempts }}"
-            >
+            <article class="student-card">
               <div class="student-header">
                 {% if profile and profile.photograph %}
                   <img src="{{ url_for('static', filename=profile.photograph) }}" alt="{{ student.full_name }}" class="student-photo">
@@ -837,70 +904,40 @@
           {% endfor %}
         </div>
 
-        <div class="empty-state" id="studentsEmptyState" style="display:none;">
-          No students match the current search or selected filters.
-        </div>
+        {% if pagination and pagination.pages > 1 %}
+          <div class="pagination-bar">
+            <div class="pagination-meta">
+              <span class="mini-badge">{{ total_students }} total</span>
+              <span class="mini-badge">{{ current_per_page }} / page</span>
+            </div>
+
+            <div class="pagination-links">
+              {% if pagination.has_prev %}
+                <a class="page-link" href="{{ url_for('admin.students_page', page=pagination.prev_num, per_page=current_per_page, q=filters.q, batch_id=filters.batch_id, status=filters.status, attempts=filters.attempts) }}">Prev</a>
+              {% endif %}
+
+              {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                  {% if page_num == pagination.page %}
+                    <span class="page-current">{{ page_num }}</span>
+                  {% else %}
+                    <a class="page-link" href="{{ url_for('admin.students_page', page=page_num, per_page=current_per_page, q=filters.q, batch_id=filters.batch_id, status=filters.status, attempts=filters.attempts) }}">{{ page_num }}</a>
+                  {% endif %}
+                {% else %}
+                  <span class="page-link">…</span>
+                {% endif %}
+              {% endfor %}
+
+              {% if pagination.has_next %}
+                <a class="page-link" href="{{ url_for('admin.students_page', page=pagination.next_num, per_page=current_per_page, q=filters.q, batch_id=filters.batch_id, status=filters.status, attempts=filters.attempts) }}">Next</a>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
       {% else %}
-        <div class="empty-state">No students created yet.</div>
+        <div class="empty-state">No students found for the current filters.</div>
       {% endif %}
     </section>
   </section>
-
-  <script>
-    (function () {
-      const searchInput = document.getElementById('studentSearch');
-      const batchFilter = document.getElementById('batchFilter');
-      const statusFilter = document.getElementById('statusFilter');
-      const attemptFilter = document.getElementById('attemptFilter');
-      const cards = document.querySelectorAll('.student-card');
-      const visibleStudents = document.getElementById('visibleStudents');
-      const emptyState = document.getElementById('studentsEmptyState');
-
-      if (!cards.length) return;
-
-      function passesAttemptFilter(attemptCount, filterValue) {
-        const count = parseInt(attemptCount || '0', 10);
-        if (filterValue === 'all') return true;
-        if (filterValue === '0') return count === 0;
-        if (filterValue === '1plus') return count >= 1;
-        if (filterValue === '5plus') return count >= 5;
-        return true;
-      }
-
-      function applyFilters() {
-        const searchTerm = (searchInput?.value || '').trim().toLowerCase();
-        const batchValue = batchFilter?.value || 'all';
-        const statusValue = statusFilter?.value || 'all';
-        const attemptValue = attemptFilter?.value || 'all';
-
-        let count = 0;
-
-        cards.forEach((card) => {
-          const matchesSearch = !searchTerm || (card.dataset.search || '').includes(searchTerm);
-          const matchesBatch = batchValue === 'all' || (card.dataset.batch || '') === batchValue;
-          const matchesStatus = statusValue === 'all' || (card.dataset.status || '') === statusValue;
-          const matchesAttempts = passesAttemptFilter(card.dataset.attempts, attemptValue);
-
-          if (matchesSearch && matchesBatch && matchesStatus && matchesAttempts) {
-            card.classList.remove('hidden');
-            count += 1;
-          } else {
-            card.classList.add('hidden');
-          }
-        });
-
-        if (visibleStudents) visibleStudents.textContent = count;
-        if (emptyState) emptyState.style.display = count === 0 ? 'block' : 'none';
-      }
-
-      [searchInput, batchFilter, statusFilter, attemptFilter].forEach((node) => {
-        if (!node) return;
-        node.addEventListener('input', applyFilters);
-        node.addEventListener('change', applyFilters);
-      });
-
-      applyFilters();
-    })();
-  </script>
 </section>
 {% endblock %}
