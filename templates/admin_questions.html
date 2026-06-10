@@ -389,6 +389,10 @@
     line-height: 1.5;
   }
 
+  .text-end {
+    text-align: right !important;
+  }
+
   .btn-sm {
     padding: 8px 12px;
     border-radius: 10px;
@@ -455,6 +459,57 @@
     margin-bottom: 8px;
   }
 
+  .questions-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .pagination-list {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pagination-link,
+  .pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .pagination-link:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .pagination-link.active {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+  }
+
+  .pagination-ellipsis {
+    color: #94a3b8;
+    cursor: default;
+  }
+
   @media (max-width: 1200px) {
     .questions-grid-stats {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -486,6 +541,15 @@
     .questions-filter-bar {
       padding: 16px;
     }
+
+    .questions-pagination {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .pagination-list {
+      width: 100%;
+    }
   }
 
   @media (max-width: 640px) {
@@ -499,6 +563,8 @@
   {% set selected_subject_id = filters.subject_id|string if filters.subject_id else '' %}
   {% set selected_chapter_id = filters.chapter_id|string if filters.chapter_id else '' %}
   {% set selected_difficulty = filters.difficulty|string if filters.difficulty else '' %}
+  {% set page_start = ((pagination.page - 1) * pagination.per_page) + 1 if pagination and pagination.total > 0 else 0 %}
+  {% set page_end = page_start + (questions|length) - 1 if questions else 0 %}
 
   <div class="questions-hero">
     <div>
@@ -517,10 +583,10 @@
     </div>
 
     <div class="questions-hero-side">
-      <div class="questions-hero-side-label">Visible questions</div>
-      <div class="questions-hero-side-value">{{ questions|length if questions else 0 }}</div>
+      <div class="questions-hero-side-label">Filtered questions</div>
+      <div class="questions-hero-side-value">{{ pagination.total if pagination else 0 }}</div>
       <div class="questions-hero-side-sub">
-        Use search, subject, chapter, and difficulty filters to narrow the visible list quickly.
+        Showing up to {{ per_page if per_page else 100 }} questions per page with filters preserved across pages.
       </div>
     </div>
   </div>
@@ -676,7 +742,7 @@
 
       <div class="questions-filter-actions">
         <button class="btn btn-primary" type="submit">Apply</button>
-        <a class="btn btn-outline-secondary" href="{{ url_for('admin.questions') }}">Reset</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin.questions_page') }}">Reset</a>
       </div>
     </form>
   </div>
@@ -697,7 +763,11 @@
     <div class="questions-card-body">
       <div class="questions-summary-bar">
         <div class="questions-summary-left">
-          <span class="badge-soft">{{ questions|length if questions else 0 }} shown</span>
+          <span class="badge-soft">
+            Showing {{ page_start }}-{{ page_end }} of {{ pagination.total if pagination else 0 }}
+          </span>
+          <span class="badge-soft">{{ per_page if per_page else 100 }} / page</span>
+
           {% if selected_subject_id %}
             {% for subject in subjects %}
               {% if selected_subject_id == subject.id|string %}
@@ -705,6 +775,7 @@
               {% endif %}
             {% endfor %}
           {% endif %}
+
           {% if selected_difficulty %}
             <span class="badge-soft">Difficulty: {{ selected_difficulty|title }}</span>
           {% endif %}
@@ -813,6 +884,69 @@
           </tbody>
         </table>
       </div>
+
+      {% if pagination and pagination.pages > 1 %}
+      <div class="questions-pagination">
+        <div class="inline-note">
+          Page {{ pagination.page }} of {{ pagination.pages }}
+        </div>
+
+        <div class="pagination-list">
+          {% if pagination.has_prev %}
+            <a
+              class="pagination-link"
+              href="{{ url_for(
+                'admin.questions_page',
+                page=pagination.prev_num,
+                q=filters.q or '',
+                subject_id=filters.subject_id or '',
+                chapter_id=filters.chapter_id or '',
+                difficulty=filters.difficulty or ''
+              ) }}"
+            >
+              Previous
+            </a>
+          {% endif %}
+
+          {% for p in pagination.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+            {% if p %}
+              <a
+                class="pagination-link {% if p == pagination.page %}active{% endif %}"
+                href="{{ url_for(
+                  'admin.questions_page',
+                  page=p,
+                  q=filters.q or '',
+                  subject_id=filters.subject_id or '',
+                  chapter_id=filters.chapter_id or '',
+                  difficulty=filters.difficulty or ''
+                ) }}"
+              >
+                {{ p }}
+              </a>
+            {% else %}
+              <span class="pagination-ellipsis">…</span>
+            {% endif %}
+          {% endfor %}
+
+          {% if pagination.has_next %}
+            <a
+              class="pagination-link"
+              href="{{ url_for(
+                'admin.questions_page',
+                page=pagination.next_num,
+                q=filters.q or '',
+                subject_id=filters.subject_id or '',
+                chapter_id=filters.chapter_id or '',
+                difficulty=filters.difficulty or ''
+              ) }}"
+            >
+              Next
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
       {% else %}
       <div class="empty-state">
         <div style="font-size: 42px; margin-bottom: 10px;">📚</div>
