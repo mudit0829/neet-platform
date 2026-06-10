@@ -13,31 +13,35 @@
   <style>
     :root {
       --bg: #f8fafc;
-      --bg-soft: #f1f5f9;
-      --surface: rgba(255, 255, 255, 0.96);
-      --surface-strong: #ffffff;
-      --border: #e2e8f0;
+      --bg-soft: #eef4fb;
+      --surface: #ffffff;
+      --surface-soft: #f8fbff;
+      --border: #dbe5f0;
       --border-strong: #cbd5e1;
 
       --text: #0f172a;
       --text-soft: #334155;
       --text-muted: #64748b;
+      --text-faint: #94a3b8;
 
       --primary: #2563eb;
       --primary-hover: #1d4ed8;
       --primary-soft: #dbeafe;
 
       --success-bg: #ecfdf5;
-      --success-text: #047857;
-      --danger-bg: #fef2f2;
-      --danger-text: #b91c1c;
+      --success-border: #bbf7d0;
+      --success-text: #166534;
 
-      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
-      --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.10);
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      --danger-text: #991b1b;
+
+      --shadow-sm: 0 6px 18px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
 
       --radius-md: 16px;
       --radius-lg: 24px;
-      --radius-xl: 32px;
+      --radius-xl: 30px;
     }
 
     * {
@@ -50,8 +54,8 @@
       font-family: 'Inter', sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 24%),
-        radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.07), transparent 24%),
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.05), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.05), transparent 20%),
         linear-gradient(180deg, #fcfdff 0%, #f8fafc 100%);
     }
 
@@ -60,197 +64,86 @@
     }
 
     a {
-      color: inherit;
       text-decoration: none;
+      color: inherit;
     }
 
-    .auth-page {
+    .login-shell {
       min-height: 100vh;
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(420px, 520px);
-      align-items: stretch;
-      gap: 24px;
-      padding: 24px;
-    }
-
-    .auth-brand {
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(226, 232, 240, 0.9);
-      background:
-        radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 24%),
-        radial-gradient(circle at bottom left, rgba(15, 118, 110, 0.10), transparent 22%),
-        linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,251,255,0.96) 100%);
-      box-shadow: var(--shadow-lg);
-      padding: 42px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: calc(100vh - 48px);
-    }
-
-    .brand-top {
-      max-width: 640px;
-    }
-
-    .brand-logo-row {
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 22px;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .login-card,
+    .login-side {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(219, 229, 240, 0.95);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(10px);
+    }
+
+    .login-card {
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
     .brand-logo {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #0f766e 100%);
+      color: #ffffff;
       font-size: 14px;
       font-weight: 800;
-      color: #ffffff;
-      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #0f766e 100%);
-      box-shadow: 0 12px 28px rgba(37, 99, 235, 0.18);
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.16);
       flex-shrink: 0;
     }
 
     .brand-name {
       font-size: 16px;
       font-weight: 800;
-      color: var(--text);
       line-height: 1.2;
+      color: var(--text);
     }
 
     .brand-subtitle {
-      margin-top: 3px;
+      margin-top: 2px;
       font-size: 13px;
       color: var(--text-muted);
     }
 
-    .brand-badge {
+    .login-head {
+      margin-bottom: 22px;
+    }
+
+    .login-kicker {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: #eef2ff;
-      color: #4338ca;
-      border: 1px solid #c7d2fe;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: 18px;
-    }
-
-    .auth-brand h1 {
-      margin: 0 0 14px;
-      font-size: clamp(32px, 4vw, 52px);
-      line-height: 1.05;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: var(--text);
-      max-width: 12ch;
-    }
-
-    .brand-copy {
-      margin: 0;
-      max-width: 60ch;
-      color: var(--text-muted);
-      font-size: 16px;
-      line-height: 1.8;
-    }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 34px;
-    }
-
-    .feature-card {
-      padding: 18px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.84);
-      border: 1px solid rgba(226, 232, 240, 0.9);
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(8px);
-    }
-
-    .feature-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-      background: var(--primary-soft);
-      color: var(--primary);
-    }
-
-    .feature-title {
-      margin: 0 0 6px;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .feature-text {
-      margin: 0;
-      font-size: 13px;
-      line-height: 1.65;
-      color: var(--text-muted);
-    }
-
-    .brand-footer {
-      margin-top: 32px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .brand-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border: 1px solid #dbeafe;
-      background: rgba(239, 246, 255, 0.85);
-      color: #1d4ed8;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .auth-side {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: calc(100vh - 48px);
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 520px;
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(226, 232, 240, 0.95);
-      background: var(--surface);
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: blur(14px);
-      padding: 34px;
-    }
-
-    .auth-head {
-      margin-bottom: 24px;
-    }
-
-    .auth-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      padding: 6px 12px;
+      padding: 7px 12px;
       border-radius: 999px;
       background: #f8fafc;
       color: #475569;
@@ -260,19 +153,21 @@
       margin-bottom: 14px;
     }
 
-    .auth-head h2 {
+    .login-head h1 {
       margin: 0 0 8px;
-      font-size: 28px;
-      line-height: 1.15;
+      font-size: 34px;
+      line-height: 1.1;
       font-weight: 800;
       color: var(--text);
+      letter-spacing: -0.03em;
     }
 
-    .auth-head p {
+    .login-head p {
       margin: 0;
       color: var(--text-muted);
       font-size: 14px;
       line-height: 1.7;
+      max-width: 40ch;
     }
 
     .flash {
@@ -288,13 +183,13 @@
     .flash-danger {
       background: var(--danger-bg);
       color: var(--danger-text);
-      border-color: #fecaca;
+      border-color: var(--danger-border);
     }
 
     .flash-success {
       background: var(--success-bg);
       color: var(--success-text);
-      border-color: #a7f3d0;
+      border-color: var(--success-border);
     }
 
     .login-form {
@@ -309,8 +204,8 @@
 
     .form-label-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
     }
 
@@ -320,7 +215,7 @@
       color: var(--text-soft);
     }
 
-    .forgot-link {
+    .setup-link-top {
       font-size: 12px;
       font-weight: 700;
       color: var(--primary);
@@ -339,33 +234,57 @@
       height: 18px;
       color: #94a3b8;
       pointer-events: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .input-icon svg {
+      width: 18px;
+      height: 18px;
+      display: block;
     }
 
     .form-control {
       width: 100%;
-      height: 52px;
-      border: 1px solid var(--border-strong);
+      height: 54px;
+      padding: 0 16px 0 46px;
       border-radius: 16px;
-      padding: 0 14px 0 44px;
-      background: var(--surface-strong);
-      color: var(--text);
-      font-size: 14px;
+      border: 1px solid var(--border-strong);
+      background: #ffffff !important;
+      color: var(--text) !important;
+      -webkit-text-fill-color: var(--text) !important;
+      font-size: 15px;
       outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      box-shadow: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
       appearance: none;
     }
 
     .form-control::placeholder {
-      color: #94a3b8;
+      color: #94a3b8 !important;
+      -webkit-text-fill-color: #94a3b8 !important;
+      opacity: 1;
     }
 
     .form-control:focus {
-      border-color: var(--primary);
+      border-color: rgba(37, 99, 235, 0.48);
+      background: #ffffff !important;
+      color: var(--text) !important;
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
-      transform: translateY(-1px);
     }
 
-    .auth-options {
+    .form-control:-webkit-autofill,
+    .form-control:-webkit-autofill:hover,
+    .form-control:-webkit-autofill:focus,
+    .form-control:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+      -webkit-text-fill-color: var(--text) !important;
+      caret-color: var(--text) !important;
+      border: 1px solid var(--border-strong) !important;
+    }
+
+    .login-options {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -378,193 +297,201 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      font-size: 13px;
       color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
     }
 
     .checkbox-row input {
       width: 16px;
       height: 16px;
-      accent-color: var(--primary);
       margin: 0;
+      accent-color: var(--primary);
     }
 
-    .btn-submit {
+    .login-btn {
       width: 100%;
-      height: 52px;
+      height: 54px;
       border: 0;
       border-radius: 16px;
       background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       color: #ffffff;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 800;
       cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
-      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.20);
+      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.18);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
 
-    .btn-submit:hover {
+    .login-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 18px 34px rgba(37, 99, 235, 0.24);
+      box-shadow: 0 18px 34px rgba(37, 99, 235, 0.22);
     }
 
-    .btn-submit:active {
+    .login-btn:active {
       transform: translateY(0);
     }
 
-    .auth-divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 22px 0 18px;
-      color: #94a3b8;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .auth-divider::before,
-    .auth-divider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: #e2e8f0;
-    }
-
-    .auth-note {
-      margin: 0;
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      color: var(--text-muted);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
-    .auth-footer {
+    .setup-note {
       margin-top: 18px;
-      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
       color: var(--text-muted);
       font-size: 13px;
       line-height: 1.7;
     }
 
-    .auth-footer a {
+    .setup-note a {
       color: var(--primary);
       font-weight: 700;
     }
 
-    @media (max-width: 1100px) {
-      .auth-page {
-        grid-template-columns: 1fr;
-      }
-
-      .auth-side {
-        order: 1;
-        min-height: auto;
-        align-items: flex-start;
-      }
-
-      .auth-brand {
-        order: 2;
-        min-height: auto;
-        padding: 32px;
-      }
-
-      .feature-grid {
-        grid-template-columns: 1fr 1fr;
-      }
+    .login-side {
+      border-radius: var(--radius-xl);
+      padding: 38px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.09), transparent 25%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     }
 
-    @media (max-width: 680px) {
-      .auth-page {
-        padding: 14px;
-        gap: 14px;
+    .side-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      color: #4338ca;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .login-side h2 {
+      margin: 0 0 12px;
+      font-size: 42px;
+      line-height: 1.06;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      max-width: 11ch;
+    }
+
+    .login-side p {
+      margin: 0;
+      max-width: 44ch;
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    .side-points {
+      display: grid;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .side-point {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .side-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #2563eb, #0f766e);
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 980px) {
+      .login-wrap {
+        grid-template-columns: 1fr;
+        max-width: 540px;
       }
 
-      .auth-side {
+      .login-side {
+        order: 2;
+        padding: 24px;
+      }
+
+      .login-card {
         order: 1;
       }
 
-      .auth-brand {
-        order: 2;
-        padding: 22px 18px;
-        border-radius: 24px;
-      }
-
-      .auth-card {
-        padding: 22px 18px;
-        border-radius: 24px;
-      }
-
-      .auth-head {
-        margin-bottom: 18px;
-      }
-
-      .auth-brand h1 {
+      .login-side h2 {
         font-size: 28px;
         max-width: none;
       }
+    }
 
-      .brand-copy {
+    @media (max-width: 640px) {
+      .login-shell {
+        padding: 12px;
+      }
+
+      .login-wrap {
+        gap: 12px;
+      }
+
+      .login-card,
+      .login-side {
+        border-radius: 22px;
+      }
+
+      .login-card {
+        padding: 22px 18px;
+      }
+
+      .login-side {
+        padding: 18px;
+      }
+
+      .login-head h1 {
+        font-size: 28px;
+      }
+
+      .login-head p,
+      .login-side p {
         font-size: 14px;
-        line-height: 1.7;
       }
 
-      .feature-grid {
-        grid-template-columns: 1fr;
-        margin-top: 20px;
-      }
-
-      .feature-grid,
-      .brand-footer {
+      .login-side {
         display: none;
       }
 
-      .auth-options {
-        align-items: flex-start;
+      .login-options {
         flex-direction: column;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .auth-page {
-        padding: 10px;
-      }
-
-      .auth-brand {
-        padding: 18px 15px;
-      }
-
-      .auth-card {
-        padding: 20px 15px;
-      }
-
-      .brand-badge,
-      .auth-eyebrow {
-        font-size: 11px;
-      }
-
-      .auth-head h2 {
-        font-size: 24px;
-      }
-
-      .form-control,
-      .btn-submit {
-        height: 50px;
+        align-items: flex-start;
       }
     }
   </style>
 </head>
 <body>
-  <section class="auth-page">
-    <div class="auth-side">
-      <div class="auth-card">
-        <div class="auth-head">
-          <div class="auth-eyebrow">Account Login</div>
-          <h2>Welcome back</h2>
+  <section class="login-shell">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="brand-row">
+          <div class="brand-logo">NP</div>
+          <div>
+            <div class="brand-name">NEET Platform</div>
+            <div class="brand-subtitle">Exam management and student testing</div>
+          </div>
+        </div>
+
+        <div class="login-head">
+          <div class="login-kicker">Account Login</div>
+          <h1>Welcome back</h1>
           <p>Sign in to continue to your admin or student panel.</p>
         </div>
 
@@ -580,10 +507,10 @@
 
         <form method="POST" class="login-form">
           <div class="form-group">
-            <label for="login">Email or username</label>
+            <label for="login">Username or email</label>
             <div class="input-wrap">
               <span class="input-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"></path>
                   <path d="M4 8l8 6 8-6"></path>
                 </svg>
@@ -603,11 +530,11 @@
           <div class="form-group">
             <div class="form-label-row">
               <label for="password">Password</label>
-              <a href="{{ url_for('auth.setup') }}" class="forgot-link">Need setup?</a>
+              <a href="{{ url_for('auth.setup') }}" class="setup-link-top">Need setup?</a>
             </div>
             <div class="input-wrap">
               <span class="input-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="3" y="11" width="18" height="10" rx="2"></rect>
                   <path d="M7 11V8a5 5 0 0 1 10 0v3"></path>
                 </svg>
@@ -624,93 +551,36 @@
             </div>
           </div>
 
-          <div class="auth-options">
+          <div class="login-options">
             <label class="checkbox-row" for="remember">
               <input type="checkbox" id="remember" name="remember">
               <span>Keep me signed in</span>
             </label>
           </div>
 
-          <button type="submit" class="btn-submit">Login to platform</button>
+          <button type="submit" class="login-btn">Login</button>
         </form>
 
-        <div class="auth-divider">Admin access</div>
-
-        <p class="auth-note">
-          First-time installation or fresh deployment? Use the admin setup flow to create the first administrator account.
-        </p>
-
-        <div class="auth-footer">
-          First time setup pending?
+        <div class="setup-note">
+          First-time installation or fresh deployment?
           <a href="{{ url_for('auth.setup') }}">Create Admin</a>
         </div>
       </div>
-    </div>
 
-    <aside class="auth-brand">
-      <div class="brand-top">
-        <div class="brand-logo-row">
-          <div class="brand-logo">NP</div>
-          <div>
-            <div class="brand-name">NEET Platform</div>
-            <div class="brand-subtitle">Exam management and student testing</div>
-          </div>
-        </div>
-
-        <div class="brand-badge">NEET CBT Training Platform</div>
-
-        <h1>Train students in a real exam-like environment.</h1>
-
-        <p class="brand-copy">
-          Run batches, schedule tests, track performance, and give students a focused dashboard
-          for practice, review, and results.
+      <aside class="login-side">
+        <div class="side-badge">NEET CBT Training Platform</div>
+        <h2>Simple login. Clean experience.</h2>
+        <p>
+          Access the platform quickly, manage exams smoothly, and keep the sign-in screen focused on the one task users actually need.
         </p>
 
-        <div class="feature-grid">
-          <article class="feature-card">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="16" rx="3"></rect>
-                <path d="M7 8h10"></path>
-                <path d="M7 12h6"></path>
-              </svg>
-            </div>
-            <h3 class="feature-title">Exam-like interface</h3>
-            <p class="feature-text">CBT-style practice flow built for timed test sessions and answer review.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-            </div>
-            <h3 class="feature-title">Role-based access</h3>
-            <p class="feature-text">Support admin workflows, academic management, and student login in one system.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 3v18h18"></path>
-                <path d="M7 15l4-4 3 3 5-6"></path>
-              </svg>
-            </div>
-            <h3 class="feature-title">Clear analytics</h3>
-            <p class="feature-text">Review attempts, monitor results, and track student performance over time.</p>
-          </article>
+        <div class="side-points">
+          <div class="side-point"><span class="side-dot"></span><span>Fast access for admins and students</span></div>
+          <div class="side-point"><span class="side-dot"></span><span>Clean mobile-friendly sign-in layout</span></div>
+          <div class="side-point"><span class="side-dot"></span><span>Light input fields with clear readability</span></div>
         </div>
-      </div>
-
-      <div class="brand-footer">
-        <span class="brand-chip">Secure access</span>
-        <span class="brand-chip">Responsive design</span>
-        <span class="brand-chip">Professional dashboard workflow</span>
-      </div>
-    </aside>
+      </aside>
+    </div>
   </section>
 </body>
 </html>
