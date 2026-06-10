@@ -330,7 +330,6 @@ def students_page():
 
             student_mobile = (request.form.get("student_mobile") or "").strip()
             student_email = (request.form.get("student_email") or "").strip().lower() or None
-
             father_name = (request.form.get("father_name") or "").strip()
             mother_name = (request.form.get("mother_name") or "").strip() or None
             father_mobile = (request.form.get("father_mobile") or "").strip()
@@ -386,13 +385,13 @@ def students_page():
                 flash("Batch is required.", "danger")
                 return redirect(url_for("admin.students_page"))
 
-            batch_query = Batch.query.filter(Batch.id == batch_id)
-            if institute_id and hasattr(Batch, "institute_id"):
-                batch_query = batch_query.filter(Batch.institute_id == institute_id)
-
-            batch = batch_query.first()
+            batch = Batch.query.get(batch_id)
             if not batch:
-                flash("Selected batch does not exist or does not belong to your institute.", "danger")
+                flash("Selected batch does not exist.", "danger")
+                return redirect(url_for("admin.students_page"))
+
+            if batch.institute_id != institute_id:
+                flash("You can only assign students to your own institute batch.", "danger")
                 return redirect(url_for("admin.students_page"))
 
             if not student_mobile:
@@ -444,25 +443,15 @@ def students_page():
                 flash("Photograph must be png, jpg, jpeg, gif, or webp.", "danger")
                 return redirect(url_for("admin.students_page"))
 
-            existing_username = User.query.filter(
-                db.func.lower(User.username) == username.lower()
-            ).first()
-            if existing_username:
+            if User.query.filter(db.func.lower(User.username) == username.lower()).first():
                 flash("Username already exists.", "danger")
                 return redirect(url_for("admin.students_page"))
 
-            if student_email:
-                existing_email = User.query.filter(
-                    db.func.lower(User.email) == student_email.lower()
-                ).first()
-                if existing_email:
-                    flash("Student email is already used by another account.", "danger")
-                    return redirect(url_for("admin.students_page"))
+            if student_email and User.query.filter(db.func.lower(User.email) == student_email.lower()).first():
+                flash("Student email is already used by another account.", "danger")
+                return redirect(url_for("admin.students_page"))
 
-            existing_admission = StudentProfile.query.filter(
-                db.func.lower(StudentProfile.admission_no) == admission_no.lower()
-            ).first()
-            if existing_admission:
+            if StudentProfile.query.filter_by(admission_no=admission_no).first():
                 flash("Admission number already exists.", "danger")
                 return redirect(url_for("admin.students_page"))
 
@@ -472,8 +461,8 @@ def students_page():
                 return redirect(url_for("admin.students_page"))
 
             student_user = User(
-                institute_id=institute_id if hasattr(User, "institute_id") else None,
-                batch_id=batch.id if hasattr(User, "batch_id") else None,
+                institute_id=institute_id,
+                batch_id=batch.id,
                 full_name=full_name,
                 username=username,
                 email=student_email,
@@ -528,22 +517,16 @@ def students_page():
     batch_id = request.args.get("batch_id", type=int)
     status_filter = (request.args.get("status") or "").strip().lower()
 
-    students_query = User.query.filter(User.role == "student")
-    batches_query = Batch.query
-
-    if institute_id:
-        if hasattr(User, "institute_id"):
-            students_query = students_query.filter(User.institute_id == institute_id)
-        if hasattr(Batch, "institute_id"):
-            batches_query = batches_query.filter(Batch.institute_id == institute_id)
+    students_query = User.query.filter_by(role="student")
+    if institute_id and hasattr(User, "institute_id"):
+        students_query = students_query.filter(User.institute_id == institute_id)
 
     if q:
-        search_term = f"%{q}%"
         students_query = students_query.filter(
             db.or_(
-                User.full_name.ilike(search_term),
-                User.username.ilike(search_term),
-                User.email.ilike(search_term),
+                User.full_name.ilike(f"%{q}%"),
+                User.username.ilike(f"%{q}%"),
+                User.email.ilike(f"%{q}%")
             )
         )
 
@@ -556,11 +539,11 @@ def students_page():
         students_query = students_query.filter(User.is_active_user.is_(False))
 
     students = students_query.order_by(User.id.desc()).all()
-    batches = batches_query.order_by(Batch.id.desc()).all()
+    batches = Batch.query.filter_by(institute_id=institute_id).order_by(Batch.id.desc()).all()
 
     student_ids = [student.id for student in students]
-
     student_attempt_counts = {}
+
     if student_ids:
         student_attempt_counts = {
             row[0]: row[1]
@@ -569,9 +552,7 @@ def students_page():
                 db.func.count(TestAttempt.id)
             ).filter(
                 TestAttempt.student_id.in_(student_ids)
-            ).group_by(
-                TestAttempt.student_id
-            ).all()
+            ).group_by(TestAttempt.student_id).all()
         }
 
     return render_template(
