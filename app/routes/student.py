@@ -678,55 +678,73 @@ def build_student_overview(student_id):
     return overview
 
 
-@student_bp.route("/dashboard")
+@student_bp.route('/dashboard')
 @login_required
 def dashboard():
     student_required()
+    now = utcnow()
 
-    now = utc_now()
+    available_tests = Test.query.filter_by(status='published').count()
 
-    available_tests = Test.query.filter_by(status="published").count()
-
-    ongoing_attempts = TestAttempt.query.filter_by(
-        student_id=current_user.id,
-        status="ongoing"
-    ).order_by(TestAttempt.id.desc()).limit(5).all()
+    ongoing_attempts = (
+        TestAttempt.query
+        .filter_by(student_id=current_user.id, status='ongoing')
+        .order_by(TestAttempt.id.desc())
+        .limit(5)
+        .all()
+    )
 
     for attempt in ongoing_attempts:
-        if _get_attr(attempt, "expires_at", "expiresat", default=None) and now >= _get_attr(attempt, "expires_at", "expiresat"):
-            finalize_attempt(attempt, auto_submitted=True)
+        if getattr(attempt, 'expires_at', None) and now >= getattr(attempt, 'expires_at'):
+            finalize_attempt(attempt, autosubmitted=True)
 
     db.session.commit()
 
-    ongoing_attempts = TestAttempt.query.filter_by(
-        student_id=current_user.id,
-        status="ongoing"
-    ).order_by(TestAttempt.id.desc()).limit(5).all()
+    ongoing_attempts = (
+        TestAttempt.query
+        .filter_by(student_id=current_user.id, status='ongoing')
+        .order_by(TestAttempt.id.desc())
+        .limit(5)
+        .all()
+    )
 
     ongoing_tests = TestAttempt.query.filter_by(
         student_id=current_user.id,
-        status="ongoing"
+        status='ongoing'
     ).count()
 
     completed_tests = TestAttempt.query.filter_by(
         student_id=current_user.id,
-        status="submitted"
+        status='submitted'
     ).count()
 
-    latest_attempts = TestAttempt.query.filter_by(
-        student_id=current_user.id
-    ).order_by(TestAttempt.id.desc()).limit(5).all()
+    latest_attempts = (
+        TestAttempt.query
+        .filter_by(student_id=current_user.id)
+        .order_by(TestAttempt.id.desc())
+        .limit(10)
+        .all()
+    )
+
+    recent_published_tests = (
+        Test.query
+        .filter_by(status='published')
+        .order_by(Test.published_at.desc(), Test.id.desc())
+        .limit(10)
+        .all()
+    )
 
     overview = build_student_overview(current_user.id)
 
     return render_template(
-        "student_dashboard.html",
+        'student_dashboard.html',
         available_tests=available_tests,
         ongoing_tests=ongoing_tests,
         completed_tests=completed_tests,
         latest_attempts=latest_attempts,
         ongoing_attempts=ongoing_attempts,
         overview=overview,
+        recent_published_tests=recent_published_tests
     )
 
 
