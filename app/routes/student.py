@@ -682,7 +682,7 @@ def build_student_overview(student_id):
 @login_required
 def dashboard():
     student_required()
-    now = utcnow()
+    now = utc_now()
 
     available_tests = Test.query.filter_by(status='published').count()
 
