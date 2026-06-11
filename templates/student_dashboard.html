@@ -1150,30 +1150,26 @@
       </div>
     </div>
 
-    <div class="chart-grid" id="progress">
-      <div class="chart-card">
-        <div class="card-head">
-          <div>
-            <h3 class="card-title">Score Trend</h3>
-            <p class="card-subtitle">Track score movement across your latest 10 submitted attempts with test dates.</p>
-          </div>
-          <div class="card-tag">Latest 10</div>
-        </div>
+    <div class="chart-card">
+  <div class="card-head">
+    <div>
+      <h3 class="card-title">Score Trend</h3>
+      <p class="card-subtitle">Track score movement across your latest 10 submitted attempts with test dates.</p>
+    </div>
+    <div class="card-tag">Latest 10</div>
+  </div>
 
-        {% set submitted_attempts = recent_result_attempts | selectattr('status', 'equalto', 'submitted') | list %}
-        {% if submitted_attempts %}
-          <div class="chart-wrap">
-            <canvas id="scoreTrendChart"></canvas>
-          </div>
-          <div class="timeline-note">
-            The chart shows each test with its test date on the axis and the attempted date in the tooltip.
-          </div>
-        {% else %}
-          <div class="empty-chart-state">
-            Complete a test to unlock your score trend chart.
-          </div>
-        {% endif %}
-      </div>
+  {% set submitted_attempts = recent_result_attempts | selectattr('status', 'equalto', 'submitted') | list %}
+  {% if submitted_attempts %}
+    <div class="chart-wrap">
+      <canvas id="scoreTrendChart"></canvas>
+    </div>
+  {% else %}
+    <div class="empty-chart-state">
+      Complete a test to unlock your score trend chart.
+    </div>
+  {% endif %}
+</div>
 
       <div class="chart-card">
         <div class="card-head">
