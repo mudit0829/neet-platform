@@ -269,7 +269,8 @@
 
   .btn-main:hover,
   .btn-light:hover,
-  .hero-tab:hover {
+  .hero-tab:hover,
+  .result-btn:hover {
     transform: translateY(-1px);
   }
 
@@ -777,10 +778,6 @@
     border-color: #cbd5e1;
   }
 
-  .result-btn:hover {
-    transform: translateY(-1px);
-  }
-
   .announcement-list {
     display: grid;
     gap: 14px;
@@ -992,22 +989,6 @@
       font-size: 18px;
     }
   }
-  scales: {
-  x: {
-    grid: { display: false },
-    ticks: {
-      display: false
-    },
-    border: {
-      display: false
-    }
-  },
-  y: {
-    beginAtZero: true,
-    grid: baseGrid,
-    ticks: { color: palette.slate }
-  }
-}
 </style>
 
 {% set recent_result_attempts = latest_attempts[:10] if latest_attempts else [] %}
@@ -1166,26 +1147,27 @@
       </div>
     </div>
 
-    <div class="chart-card">
-  <div class="card-head">
-    <div>
-      <h3 class="card-title">Score Trend</h3>
-      <p class="card-subtitle">Track score movement across your latest 10 submitted attempts with test dates.</p>
-    </div>
-    <div class="card-tag">Latest 10</div>
-  </div>
+    <div class="chart-grid" id="progress">
+      <div class="chart-card">
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Score Trend</h3>
+            <p class="card-subtitle">Track score movement across your latest 10 submitted attempts with test dates.</p>
+          </div>
+          <div class="card-tag">Latest 10</div>
+        </div>
 
-  {% set submitted_attempts = recent_result_attempts | selectattr('status', 'equalto', 'submitted') | list %}
-  {% if submitted_attempts %}
-    <div class="chart-wrap">
-      <canvas id="scoreTrendChart"></canvas>
-    </div>
-  {% else %}
-    <div class="empty-chart-state">
-      Complete a test to unlock your score trend chart.
-    </div>
-  {% endif %}
-</div>
+        {% set submitted_attempts = recent_result_attempts | selectattr('status', 'equalto', 'submitted') | list %}
+        {% if submitted_attempts %}
+          <div class="chart-wrap">
+            <canvas id="scoreTrendChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            Complete a test to unlock your score trend chart.
+          </div>
+        {% endif %}
+      </div>
 
       <div class="chart-card">
         <div class="card-head">
@@ -1674,13 +1656,12 @@
             x: {
               grid: { display: false },
               ticks: {
-              color: palette.slate,
-              maxRotation: 0,
-              minRotation: 0,
-              autoSkip: false
-            }
-           },
-  
+                display: false
+              },
+              border: {
+                display: false
+              }
+            },
             y: {
               beginAtZero: true,
               grid: baseGrid,
