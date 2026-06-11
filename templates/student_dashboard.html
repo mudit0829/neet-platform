@@ -992,6 +992,22 @@
       font-size: 18px;
     }
   }
+  scales: {
+  x: {
+    grid: { display: false },
+    ticks: {
+      display: false
+    },
+    border: {
+      display: false
+    }
+  },
+  y: {
+    beginAtZero: true,
+    grid: baseGrid,
+    ticks: { color: palette.slate }
+  }
+}
 </style>
 
 {% set recent_result_attempts = latest_attempts[:10] if latest_attempts else [] %}
