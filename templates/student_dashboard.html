@@ -76,7 +76,9 @@
   .student-dashboard .profile-key,
   .student-dashboard .summary-copy,
   .student-dashboard .summary-meta,
-  .student-dashboard .list-meta {
+  .student-dashboard .list-meta,
+  .student-dashboard .timeline-note,
+  .student-dashboard .section-cap {
     color: var(--text-soft);
   }
 
@@ -500,6 +502,27 @@
     line-height: 1.65;
   }
 
+  .card-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .section-cap {
+    margin: 2px 0 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
   .list-item {
     padding: 15px 0;
     border-top: 1px solid #eef2f7;
@@ -521,6 +544,38 @@
     margin-top: 6px;
     font-size: 14px;
     line-height: 1.7;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    min-height: 38px;
+  }
+
+  .meta-pill span {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+
+  .meta-pill strong {
+    font-size: 13px;
+    color: #0f172a;
+    font-weight: 700;
   }
 
   .metric-note {
@@ -671,6 +726,16 @@
     padding: 20px;
   }
 
+  .timeline-note {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
   .mini-summary-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -717,7 +782,7 @@
   }
 
   .action-row {
-    margin-top: 10px;
+    margin-top: 12px;
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
@@ -753,6 +818,58 @@
     transform: translateY(-1px);
   }
 
+  .announcement-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .announcement-item {
+    padding: 14px;
+    border-radius: 18px;
+    border: 1px solid #e2e8f0;
+    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+  }
+
+  .announcement-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .announcement-title {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .announcement-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #eef6ff;
+    border: 1px solid #dbeafe;
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .announcement-copy {
+    margin: 8px 0 0;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #64748b;
+  }
+
   img {
     max-width: 100%;
     height: auto;
@@ -783,7 +900,8 @@
     .hero-user,
     .hero-actions,
     .subject-head,
-    .subject-foot {
+    .subject-foot,
+    .announcement-top {
       flex-direction: column;
       align-items: stretch;
     }
@@ -875,7 +993,9 @@
     .insight-good,
     .insight-warn,
     .subtle,
-    .list-meta {
+    .list-meta,
+    .section-cap,
+    .timeline-note {
       font-size: 13px;
     }
 
@@ -910,6 +1030,24 @@
     }
   }
 </style>
+
+{% set recent_result_attempts = latest_attempts[:10] if latest_attempts else [] %}
+
+{% if recent_published_tests is defined %}
+  {% set announcement_tests = recent_published_tests[:10] %}
+{% elif recent_announcements is defined %}
+  {% set announcement_tests = recent_announcements[:10] %}
+{% elif published_tests is defined %}
+  {% set announcement_tests = published_tests[:10] %}
+{% elif announced_tests is defined %}
+  {% set announcement_tests = announced_tests[:10] %}
+{% elif available_test_items is defined %}
+  {% set announcement_tests = available_test_items[:10] %}
+{% elif recent_tests is defined %}
+  {% set announcement_tests = recent_tests[:10] %}
+{% else %}
+  {% set announcement_tests = [] %}
+{% endif %}
 
 <section class="dashboard-wrap">
   <div class="student-dashboard">
@@ -971,7 +1109,7 @@
             <div class="hero-tabs">
               <a href="#overview" class="hero-tab green">Overview</a>
               <a href="#progress" class="hero-tab yellow">Progress</a>
-              <a href="#subjects" class="hero-tab peach">Subjects</a>
+              <a href="#announcements" class="hero-tab peach">Announcements</a>
               <a href="#results" class="hero-tab orange">Recent Results</a>
             </div>
           </div>
@@ -1054,14 +1192,18 @@
         <div class="card-head">
           <div>
             <h3 class="card-title">Score Trend</h3>
-            <p class="card-subtitle">Track score movement across your recent submitted attempts.</p>
+            <p class="card-subtitle">Track score movement across your latest 10 submitted attempts with test dates.</p>
           </div>
+          <div class="card-tag">Latest 10</div>
         </div>
 
-        {% set submitted_attempts = latest_attempts | selectattr('status', 'equalto', 'submitted') | list %}
+        {% set submitted_attempts = recent_result_attempts | selectattr('status', 'equalto', 'submitted') | list %}
         {% if submitted_attempts %}
           <div class="chart-wrap">
             <canvas id="scoreTrendChart"></canvas>
+          </div>
+          <div class="timeline-note">
+            The chart shows each test with its test date on the axis and the attempted date in the tooltip.
           </div>
         {% else %}
           <div class="empty-chart-state">
@@ -1074,13 +1216,17 @@
         <div class="card-head">
           <div>
             <h3 class="card-title">Attempt Outcome Split</h3>
-            <p class="card-subtitle">Correct, wrong, and skipped response mix across your latest attempts.</p>
+            <p class="card-subtitle">Correct, wrong, and skipped response mix across your latest 10 attempts.</p>
           </div>
+          <div class="card-tag">Latest 10</div>
         </div>
 
-        {% if latest_attempts %}
+        {% if recent_result_attempts %}
           <div class="chart-wrap compact">
             <canvas id="attemptSplitChart"></canvas>
+          </div>
+          <div class="timeline-note">
+            This summary is calculated only from the latest 10 attempts shown on this dashboard.
           </div>
         {% else %}
           <div class="empty-chart-state">
@@ -1090,7 +1236,58 @@
       </div>
     </div>
 
-    <div class="dashboard-grid">
+    <div class="dashboard-grid" id="announcements">
+      <div class="panel-card-soft">
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">New Test Announcements</h3>
+            <p class="card-subtitle">See when a test was published and when it is scheduled for students.</p>
+          </div>
+          <div class="card-tag">Latest 10</div>
+        </div>
+
+        {% if announcement_tests %}
+          <div class="announcement-list">
+            {% for test in announcement_tests %}
+              {% set published_dt = test.publishedat if test.publishedat else none %}
+              {% set scheduled_dt = test.startat if test.startat else (test.endat if test.endat else published_dt) %}
+              <div class="announcement-item">
+                <div class="announcement-top">
+                  <div>
+                    <h4 class="announcement-title">{{ test.title if test.title else 'Untitled Test' }}</h4>
+                    <p class="announcement-copy">
+                      Newly published test announcement for your dashboard view.
+                    </p>
+                  </div>
+                  <div class="announcement-badge">
+                    {{ test.status|title if test.status else 'Published' }}
+                  </div>
+                </div>
+
+                <div class="meta-row">
+                  <div class="meta-pill">
+                    <span>Published</span>
+                    <strong class="js-dt" data-dt="{{ published_dt if published_dt else '' }}" data-empty="Not published yet">Not published yet</strong>
+                  </div>
+                  <div class="meta-pill">
+                    <span>Test Date</span>
+                    <strong class="js-dt" data-dt="{{ scheduled_dt if scheduled_dt else '' }}" data-empty="Not scheduled">Not scheduled</strong>
+                  </div>
+                </div>
+
+                <div class="action-row">
+                  <a href="{{ url_for('student.tests_page') }}" class="result-btn secondary">Open Tests</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="metric-note">
+            No recent published test announcements are available right now.
+          </div>
+        {% endif %}
+      </div>
+
       <div class="panel-card-soft">
         <div class="card-head">
           <div>
@@ -1101,9 +1298,23 @@
 
         <div style="margin-top:16px;">
           {% for attempt in ongoing_attempts %}
+            {% set ongoing_test_date = attempt.test.startat if attempt.test and attempt.test.startat else (attempt.test.endat if attempt.test and attempt.test.endat else (attempt.test.publishedat if attempt.test and attempt.test.publishedat else none)) %}
+            {% set ongoing_attempted_date = attempt.startedat if attempt.startedat else (attempt.updatedat if attempt.updatedat else (attempt.createdat if attempt.createdat else none)) %}
             <div class="list-item">
               <div class="list-title">{{ attempt.test.title }}</div>
               <div class="list-meta">Status: {{ attempt.status|title }}</div>
+
+              <div class="meta-row">
+                <div class="meta-pill">
+                  <span>Test Date</span>
+                  <strong class="js-dt" data-dt="{{ ongoing_test_date if ongoing_test_date else '' }}" data-empty="Not available">Not available</strong>
+                </div>
+                <div class="meta-pill">
+                  <span>Attempted</span>
+                  <strong class="js-dt" data-dt="{{ ongoing_attempted_date if ongoing_attempted_date else '' }}" data-empty="Not available">Not available</strong>
+                </div>
+              </div>
+
               <div class="action-row">
                 <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="btn-main">Continue</a>
               </div>
@@ -1113,7 +1324,9 @@
           {% endfor %}
         </div>
       </div>
+    </div>
 
+    <div class="dashboard-grid">
       <div class="panel-card-soft">
         <div class="card-head">
           <div>
@@ -1158,27 +1371,6 @@
         {% else %}
           <div class="metric-note">
             Complete your first test to unlock score trends, subject insights, and performance tracking.
-          </div>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="chart-grid">
-      <div class="chart-card" id="subjects">
-        <div class="card-head">
-          <div>
-            <h3 class="card-title">Subject Performance</h3>
-            <p class="card-subtitle">A clear comparison of accuracy across your subjects.</p>
-          </div>
-        </div>
-
-        {% if overview and overview.subject_rollup %}
-          <div class="chart-wrap">
-            <canvas id="subjectBarChart"></canvas>
-          </div>
-        {% else %}
-          <div class="empty-chart-state">
-            No subject-wise performance data available yet.
           </div>
         {% endif %}
       </div>
@@ -1230,7 +1422,26 @@
       </div>
     </div>
 
-    <div class="dashboard-grid">
+    <div class="chart-grid">
+      <div class="chart-card" id="subjects">
+        <div class="card-head">
+          <div>
+            <h3 class="card-title">Subject Performance</h3>
+            <p class="card-subtitle">A clear comparison of accuracy across your subjects.</p>
+          </div>
+        </div>
+
+        {% if overview and overview.subject_rollup %}
+          <div class="chart-wrap">
+            <canvas id="subjectBarChart"></canvas>
+          </div>
+        {% else %}
+          <div class="empty-chart-state">
+            No subject-wise performance data available yet.
+          </div>
+        {% endif %}
+      </div>
+
       <div class="panel-card-soft">
         <div class="card-head">
           <div>
@@ -1261,37 +1472,52 @@
           <p class="subtle" style="margin-top:16px;">No subject performance data available yet.</p>
         {% endif %}
       </div>
+    </div>
 
-      <div class="panel-card-soft" id="results">
-        <div class="card-head">
-          <div>
-            <h3 class="card-title">Recent Results</h3>
-            <p class="card-subtitle">Open result or review pages from your latest attempts.</p>
-          </div>
+    <div class="panel-card-soft" id="results">
+      <div class="card-head">
+        <div>
+          <h3 class="card-title">Recent Results</h3>
+          <p class="card-subtitle">Open result or review pages from your latest attempts with clear test and attempt dates.</p>
+          <p class="section-cap">Only the latest 10 attempts are shown here to keep this section clean even after many tests.</p>
         </div>
+        <div class="card-tag">Latest 10</div>
+      </div>
 
-        <div style="margin-top:16px;">
-          {% for attempt in latest_attempts %}
-            <div class="list-item">
-              <div class="list-title">{{ attempt.test.title }}</div>
-              <div class="list-meta">
-                Status: {{ attempt.status|title }} |
-                Score: {{ attempt.total_score }}
+      <div style="margin-top:16px;">
+        {% for attempt in recent_result_attempts %}
+          {% set result_test_date = attempt.test.startat if attempt.test and attempt.test.startat else (attempt.test.endat if attempt.test and attempt.test.endat else (attempt.test.publishedat if attempt.test and attempt.test.publishedat else none)) %}
+          {% set result_attempted_date = attempt.submittedat if attempt.submittedat else (attempt.startedat if attempt.startedat else (attempt.updatedat if attempt.updatedat else (attempt.createdat if attempt.createdat else none))) %}
+          <div class="list-item">
+            <div class="list-title">{{ attempt.test.title }}</div>
+            <div class="list-meta">
+              Status: {{ attempt.status|title }} |
+              Score: {{ attempt.total_score }}
+            </div>
+
+            <div class="meta-row">
+              <div class="meta-pill">
+                <span>Test Date</span>
+                <strong class="js-dt" data-dt="{{ result_test_date if result_test_date else '' }}" data-empty="Not available">Not available</strong>
               </div>
-
-              <div class="action-row">
-                {% if attempt.status == 'submitted' %}
-                  <a href="{{ url_for('student.result_page', attempt_id=attempt.id) }}" class="result-btn secondary">View Result</a>
-                  <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="result-btn primary">Review Test</a>
-                {% else %}
-                  <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="result-btn primary">Continue Attempt</a>
-                {% endif %}
+              <div class="meta-pill">
+                <span>Attempted</span>
+                <strong class="js-dt" data-dt="{{ result_attempted_date if result_attempted_date else '' }}" data-empty="Not available">Not available</strong>
               </div>
             </div>
-          {% else %}
-            <p class="subtle" style="margin-top:10px;">No attempts yet.</p>
-          {% endfor %}
-        </div>
+
+            <div class="action-row">
+              {% if attempt.status == 'submitted' %}
+                <a href="{{ url_for('student.result_page', attempt_id=attempt.id) }}" class="result-btn secondary">View Result</a>
+                <a href="{{ url_for('student.review_page', attempt_id=attempt.id) }}" class="result-btn primary">Review Test</a>
+              {% else %}
+                <a href="{{ url_for('student.attempt_page', attempt_id=attempt.id) }}" class="result-btn primary">Continue Attempt</a>
+              {% endif %}
+            </div>
+          </div>
+        {% else %}
+          <p class="subtle" style="margin-top:10px;">No attempts yet.</p>
+        {% endfor %}
       </div>
     </div>
   </div>
@@ -1314,25 +1540,76 @@
       bgBlue: 'rgba(59, 130, 246, 0.12)'
     };
 
+    const normalizeDate = (value) => {
+      if (!value || value === 'None' || value === 'null') return null;
+      let raw = String(value).trim();
+      if (!raw) return null;
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(raw) && !raw.includes('T')) {
+        raw = raw.replace(' ', 'T');
+      }
+      const parsed = new Date(raw);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    };
+
+    const formatDateOnly = (value) => {
+      const dt = normalizeDate(value);
+      if (!dt) return 'Date N/A';
+      return new Intl.DateTimeFormat('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }).format(dt);
+    };
+
+    const formatDateTime = (value, emptyText = 'Not available') => {
+      const dt = normalizeDate(value);
+      if (!dt) return emptyText;
+      return new Intl.DateTimeFormat('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(dt);
+    };
+
+    document.querySelectorAll('.js-dt').forEach((el) => {
+      const value = el.dataset.dt || '';
+      const emptyText = el.dataset.empty || 'Not available';
+      el.textContent = formatDateTime(value, emptyText);
+    });
+
     Chart.defaults.font.family = 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
     Chart.defaults.color = palette.text;
     Chart.defaults.borderColor = palette.grid;
 
     const latestAttempts = [
-      {% for attempt in latest_attempts %}
+      {% for attempt in recent_result_attempts %}
+        {% set chart_test_dt = attempt.test.startat if attempt.test and attempt.test.startat else (attempt.test.endat if attempt.test and attempt.test.endat else (attempt.test.publishedat if attempt.test and attempt.test.publishedat else none)) %}
+        {% set chart_attempted_dt = attempt.submittedat if attempt.submittedat else (attempt.startedat if attempt.startedat else (attempt.updatedat if attempt.updatedat else (attempt.createdat if attempt.createdat else none))) %}
         {
           label: {{ (attempt.test.title if attempt.test and attempt.test.title else ('Attempt ' ~ attempt.id))|tojson }},
+          shortLabel: {{ (attempt.test.title[:22] ~ ('…' if attempt.test and attempt.test.title and attempt.test.title|length > 22 else '')) if attempt.test and attempt.test.title else ('Attempt ' ~ attempt.id)|tojson }},
           status: {{ attempt.status|tojson }},
           score: {{ (attempt.total_score if attempt.total_score is not none else 0)|tojson }},
           correct: {{ (attempt.correct_count if attempt.correct_count is not none else 0)|tojson }},
           wrong: {{ (attempt.wrong_count if attempt.wrong_count is not none else 0)|tojson }},
-          skipped: {{ (attempt.skipped_count if attempt.skipped_count is not none else 0)|tojson }}
+          skipped: {{ (attempt.skipped_count if attempt.skipped_count is not none else 0)|tojson }},
+          testDate: {{ ((chart_test_dt ~ '') if chart_test_dt else '')|tojson }},
+          attemptedDate: {{ ((chart_attempted_dt ~ '') if chart_attempted_dt else '')|tojson }}
         }{% if not loop.last %},{% endif %}
       {% endfor %}
     ];
 
-    const submittedAttempts = latestAttempts.filter(item => item.status === 'submitted');
-    const scoreLabels = submittedAttempts.map((item, index) => item.label || `Attempt ${index + 1}`);
+    const submittedAttempts = latestAttempts
+      .filter(item => item.status === 'submitted')
+      .map(item => ({
+        ...item,
+        testDateLabel: formatDateOnly(item.testDate),
+        attemptedDateLabel: formatDateTime(item.attemptedDate)
+      }));
+
+    const scoreLabels = submittedAttempts.map(item => [item.shortLabel, item.testDateLabel]);
     const scoreData = submittedAttempts.map(item => Number(item.score || 0));
 
     const totalCorrect = latestAttempts.reduce((sum, item) => sum + Number(item.correct || 0), 0);
@@ -1386,7 +1663,21 @@
               backgroundColor: '#0f172a',
               titleColor: '#ffffff',
               bodyColor: '#ffffff',
-              padding: 12
+              padding: 12,
+              callbacks: {
+                title: (items) => {
+                  const item = submittedAttempts[items[0].dataIndex];
+                  return item ? item.label : '';
+                },
+                afterBody: (items) => {
+                  const item = submittedAttempts[items[0].dataIndex];
+                  if (!item) return [];
+                  return [
+                    `Test Date: ${item.testDateLabel}`,
+                    `Attempted: ${item.attemptedDateLabel}`
+                  ];
+                }
+              }
             }
           },
           interaction: {
@@ -1399,7 +1690,8 @@
               ticks: {
                 color: palette.slate,
                 maxRotation: 0,
-                minRotation: 0
+                minRotation: 0,
+                autoSkip: false
               }
             },
             y: {
