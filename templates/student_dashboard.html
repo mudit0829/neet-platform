@@ -381,21 +381,10 @@
     padding: 18px;
   }
 
-  .stat-card.blue {
-    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
-  }
-
-  .stat-card.green {
-    background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
-  }
-
-  .stat-card.amber {
-    background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
-  }
-
-  .stat-card.purple {
-    background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%);
-  }
+  .stat-card.blue { background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%); }
+  .stat-card.green { background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%); }
+  .stat-card.amber { background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); }
+  .stat-card.purple { background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%); }
 
   .stat-top {
     display: flex;
@@ -417,25 +406,10 @@
     border: 1px solid transparent;
   }
 
-  .stat-card.blue .stat-icon {
-    background: var(--blue-100);
-    color: var(--blue-700);
-  }
-
-  .stat-card.green .stat-icon {
-    background: var(--green-100);
-    color: var(--green-700);
-  }
-
-  .stat-card.amber .stat-icon {
-    background: var(--amber-100);
-    color: var(--amber-700);
-  }
-
-  .stat-card.purple .stat-icon {
-    background: var(--purple-100);
-    color: var(--purple-700);
-  }
+  .stat-card.blue .stat-icon { background: var(--blue-100); color: var(--blue-700); }
+  .stat-card.green .stat-icon { background: var(--green-100); color: var(--green-700); }
+  .stat-card.amber .stat-icon { background: var(--amber-100); color: var(--amber-700); }
+  .stat-card.purple .stat-icon { background: var(--purple-100); color: var(--purple-700); }
 
   .stat-value {
     font-size: clamp(24px, 3vw, 30px);
@@ -750,21 +724,10 @@
     background: #ffffff;
   }
 
-  .mini-summary.blue {
-    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
-  }
-
-  .mini-summary.green {
-    background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
-  }
-
-  .mini-summary.amber {
-    background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
-  }
-
-  .mini-summary.purple {
-    background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%);
-  }
+  .mini-summary.blue { background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%); }
+  .mini-summary.green { background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%); }
+  .mini-summary.amber { background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); }
+  .mini-summary.purple { background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%); }
 
   .mini-summary .k {
     color: #64748b;
@@ -1249,8 +1212,10 @@
         {% if announcement_tests %}
           <div class="announcement-list">
             {% for test in announcement_tests %}
-              {% set published_dt = test.publishedat if test.publishedat else none %}
-              {% set scheduled_dt = test.startat if test.startat else (test.endat if test.endat else published_dt) %}
+              {% set published_dt = test.published_at if test.published_at else (test.publishedat if test.publishedat else none) %}
+              {% set start_dt = test.start_at if test.start_at else (test.startat if test.startat else none) %}
+              {% set end_dt = test.end_at if test.end_at else (test.endat if test.endat else none) %}
+              {% set scheduled_dt = start_dt if start_dt else (end_dt if end_dt else published_dt) %}
               <div class="announcement-item">
                 <div class="announcement-top">
                   <div>
@@ -1298,10 +1263,14 @@
 
         <div style="margin-top:16px;">
           {% for attempt in ongoing_attempts %}
-            {% set ongoing_test_date = attempt.test.startat if attempt.test and attempt.test.startat else (attempt.test.endat if attempt.test and attempt.test.endat else (attempt.test.publishedat if attempt.test and attempt.test.publishedat else none)) %}
-            {% set ongoing_attempted_date = attempt.startedat if attempt.startedat else (attempt.updatedat if attempt.updatedat else (attempt.createdat if attempt.createdat else none)) %}
+            {% set attempt_test = attempt.test if attempt.test else none %}
+            {% set ongoing_test_start = attempt_test.start_at if attempt_test and attempt_test.start_at else (attempt_test.startat if attempt_test and attempt_test.startat else none) %}
+            {% set ongoing_test_end = attempt_test.end_at if attempt_test and attempt_test.end_at else (attempt_test.endat if attempt_test and attempt_test.endat else none) %}
+            {% set ongoing_test_published = attempt_test.published_at if attempt_test and attempt_test.published_at else (attempt_test.publishedat if attempt_test and attempt_test.publishedat else none) %}
+            {% set ongoing_test_date = ongoing_test_start if ongoing_test_start else (ongoing_test_end if ongoing_test_end else ongoing_test_published) %}
+            {% set ongoing_attempted_date = attempt.started_at if attempt.started_at else (attempt.startedat if attempt.startedat else (attempt.updated_at if attempt.updated_at else (attempt.updatedat if attempt.updatedat else (attempt.created_at if attempt.created_at else (attempt.createdat if attempt.createdat else none))))) %}
             <div class="list-item">
-              <div class="list-title">{{ attempt.test.title }}</div>
+              <div class="list-title">{{ attempt.test.title if attempt.test and attempt.test.title else 'Untitled Test' }}</div>
               <div class="list-meta">Status: {{ attempt.status|title }}</div>
 
               <div class="meta-row">
@@ -1486,13 +1455,17 @@
 
       <div style="margin-top:16px;">
         {% for attempt in recent_result_attempts %}
-          {% set result_test_date = attempt.test.startat if attempt.test and attempt.test.startat else (attempt.test.endat if attempt.test and attempt.test.endat else (attempt.test.publishedat if attempt.test and attempt.test.publishedat else none)) %}
-          {% set result_attempted_date = attempt.submittedat if attempt.submittedat else (attempt.startedat if attempt.startedat else (attempt.updatedat if attempt.updatedat else (attempt.createdat if attempt.createdat else none))) %}
+          {% set result_test = attempt.test if attempt.test else none %}
+          {% set result_test_start = result_test.start_at if result_test and result_test.start_at else (result_test.startat if result_test and result_test.startat else none) %}
+          {% set result_test_end = result_test.end_at if result_test and result_test.end_at else (result_test.endat if result_test and result_test.endat else none) %}
+          {% set result_test_published = result_test.published_at if result_test and result_test.published_at else (result_test.publishedat if result_test and result_test.publishedat else none) %}
+          {% set result_test_date = result_test_start if result_test_start else (result_test_end if result_test_end else result_test_published) %}
+          {% set result_attempted_date = attempt.submitted_at if attempt.submitted_at else (attempt.submittedat if attempt.submittedat else (attempt.started_at if attempt.started_at else (attempt.startedat if attempt.startedat else (attempt.updated_at if attempt.updated_at else (attempt.updatedat if attempt.updatedat else (attempt.created_at if attempt.created_at else (attempt.createdat if attempt.createdat else none))))))) %}
           <div class="list-item">
-            <div class="list-title">{{ attempt.test.title }}</div>
+            <div class="list-title">{{ attempt.test.title if attempt.test and attempt.test.title else ('Attempt ' ~ attempt.id) }}</div>
             <div class="list-meta">
               Status: {{ attempt.status|title }} |
-              Score: {{ attempt.total_score }}
+              Score: {{ attempt.total_score if attempt.total_score is not none else 0 }}
             </div>
 
             <div class="meta-row">
@@ -1585,11 +1558,12 @@
 
     const latestAttempts = [
       {% for attempt in recent_result_attempts %}
-        {% set chart_test_dt = attempt.test.startat if attempt.test and attempt.test.startat else (attempt.test.endat if attempt.test and attempt.test.endat else (attempt.test.publishedat if attempt.test and attempt.test.publishedat else none)) %}
-        {% set chart_attempted_dt = attempt.submittedat if attempt.submittedat else (attempt.startedat if attempt.startedat else (attempt.updatedat if attempt.updatedat else (attempt.createdat if attempt.createdat else none))) %}
+        {% set chart_test = attempt.test if attempt.test else none %}
+        {% set chart_test_dt = chart_test.start_at if chart_test and chart_test.start_at else (chart_test.startat if chart_test and chart_test.startat else (chart_test.end_at if chart_test and chart_test.end_at else (chart_test.endat if chart_test and chart_test.endat else (chart_test.published_at if chart_test and chart_test.published_at else (chart_test.publishedat if chart_test and chart_test.publishedat else none))))) %}
+        {% set chart_attempted_dt = attempt.submitted_at if attempt.submitted_at else (attempt.submittedat if attempt.submittedat else (attempt.started_at if attempt.started_at else (attempt.startedat if attempt.startedat else (attempt.updated_at if attempt.updated_at else (attempt.updatedat if attempt.updatedat else (attempt.created_at if attempt.created_at else (attempt.createdat if attempt.createdat else none))))))) %}
         {
           label: {{ (attempt.test.title if attempt.test and attempt.test.title else ('Attempt ' ~ attempt.id))|tojson }},
-          shortLabel: {{ (attempt.test.title[:22] ~ ('…' if attempt.test and attempt.test.title and attempt.test.title|length > 22 else '')) if attempt.test and attempt.test.title else ('Attempt ' ~ attempt.id)|tojson }},
+          shortLabel: {{ ((attempt.test.title[:22] ~ ('…' if attempt.test.title|length > 22 else '')) if attempt.test and attempt.test.title else ('Attempt ' ~ attempt.id))|tojson }},
           status: {{ attempt.status|tojson }},
           score: {{ (attempt.total_score if attempt.total_score is not none else 0)|tojson }},
           correct: {{ (attempt.correct_count if attempt.correct_count is not none else 0)|tojson }},
